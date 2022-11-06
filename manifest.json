@@ -1,0 +1,9 @@
+{
+  "id": "obsidian-html-tilemap-editor",
+  "name": "Tilemap Editor",
+  "version": "1.0.0",
+  "minAppVersion": "0.15.0",
+  "description": "This plugin can be used to create simple tilemaps in HTML. Please note that an HTML reader plugin must be installed separately.",
+  "author": "David Zweili",
+  "isDesktopOnly": false
+}

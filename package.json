@@ -2,7 +2,6 @@
   "name": "obsidian-html-tilemap-editor",
   "version": "1.0.0",
   "description": "This Obsidian plugin can be used to create simple tilemaps in HTML.",
-  "main": "main.js",
   "scripts": {
     "dev": "node esbuild.config.mjs",
     "build": "node esbuild.config.mjs production"

@@ -1,5 +1,6 @@
 import { Menu, MenuItem, Notice, Plugin } from 'obsidian'
 import { ExampleView, VIEW_TYPE_EXAMPLE } from './ExampleView'
+import { TestView, VIEW_TYPE_HTML, HTML_FILE_EXTENSIONS } from './TestView'
 
 export default class MyPlugin extends Plugin {
   async onload() {
@@ -16,7 +17,13 @@ export default class MyPlugin extends Plugin {
 
     this.registerView(VIEW_TYPE_EXAMPLE, (leaf) => new ExampleView(leaf))
 
+    this.registerView(VIEW_TYPE_HTML, (leaf) => new TestView(leaf))
+
     this.registerEvent(this.app.workspace.on('file-menu', fileMenuHandlerCreateNewTilemap))
+
+    try {
+      this.registerExtensions(HTML_FILE_EXTENSIONS, VIEW_TYPE_HTML)
+    } catch (error) {}
   }
 
   async onunload() {
@@ -29,6 +36,6 @@ const fileMenuHandlerCreateNewTilemap = (menu: Menu) => {
     item
       .setTitle('Create new Tilemap')
       .setIcon('dice')
-      .onClick(() => new Notice('Not yet implemented'))
+      .onClick(() => new Notice('Not implemented'))
   })
 }

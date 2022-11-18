@@ -10,7 +10,7 @@ export class TilemapEditorView extends FileView {
 
   private editAction_Element: HTMLElement
   private readAction_Element: HTMLElement
-  private isEditMode: boolean = false
+  private isEditMode: boolean = true
   private fileContent: string
 
   private root: Root

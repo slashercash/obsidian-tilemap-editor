@@ -1,4 +1,4 @@
-import { WorkspaceLeaf, FileView, TFile, Notice, setIcon } from 'obsidian'
+import { WorkspaceLeaf, FileView, TFile, Notice } from 'obsidian'
 import { createRoot, Root } from 'react-dom/client'
 import Editor from './editor/Editor'
 
@@ -11,9 +11,8 @@ export class TilemapEditorView extends FileView {
   private editAction_Element: HTMLElement
   private readAction_Element: HTMLElement
   private saveAction_Element: HTMLElement
-  private isEditMode: boolean = true
+  private isEditMode: boolean = false
   private fileContent: string
-
   private root: Root
 
   constructor(leaf: WorkspaceLeaf) {
@@ -43,7 +42,8 @@ export class TilemapEditorView extends FileView {
   }
 
   onViewChanged = (newView: string): void => {
-    this.root.render(Editor({ view: newView, isEditMode: this.isEditMode, onViewChanged: this.onViewChanged }))
+    this.fileContent = newView
+    this.root.render(Editor({ view: this.fileContent, isEditMode: this.isEditMode, onViewChanged: this.onViewChanged }))
   }
 
   async onload(): Promise<void> {
@@ -57,13 +57,16 @@ export class TilemapEditorView extends FileView {
       this.setIsEditMode(false)
     )
 
-    this.saveAction_Element = this.addAction('checkmark', 'Save', () => new Notice('Saved'))
+    this.saveAction_Element = this.addAction('checkmark', 'Save', () => {
+      this.app.vault.modify(this.file, this.fileContent)
+    })
 
     this.readAction_Element.hide()
+    this.saveAction_Element.hide()
   }
 
-  async onLoadFile(file: TFile): Promise<void> {
-    this.fileContent = await this.app.vault.read(file)
+  async onLoadFile(): Promise<void> {
+    this.fileContent = await this.app.vault.read(this.file)
     this.root.render(Editor({ view: this.fileContent, isEditMode: this.isEditMode, onViewChanged: this.onViewChanged }))
   }
 

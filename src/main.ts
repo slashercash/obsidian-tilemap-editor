@@ -9,7 +9,7 @@ export default class MyPlugin extends Plugin {
       this.app.workspace.on('file-menu', (menu: Menu) => {
         menu.addItem((item: MenuItem) => {
           item
-            .setTitle('Create new Tilemap')
+            .setTitle('New Tilemap')
             .setIcon('dice')
             .onClick(() => new Notice('Not implemented'))
         })

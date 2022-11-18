@@ -1,6 +1,5 @@
 import { WorkspaceLeaf, FileView, TFile, Notice } from 'obsidian'
 import React from 'react'
-import ReactDOM from 'react-dom'
 import { createRoot, Root } from 'react-dom/client'
 
 export const TILE_FILE_EXTENSIONS = ['html']
@@ -39,7 +38,7 @@ export class TileView extends FileView {
     this.root.render(<Display fileContent={fileContent} />)
   }
 
-  async onunload() {
+  async onunload(): Promise<void> {
     this.editToggleAction_Element.remove()
     this.root.unmount()
   }
@@ -49,4 +48,4 @@ interface IDisplay {
   fileContent: string
 }
 
-const Display = ({ fileContent }: IDisplay) => <p>{fileContent}</p>
+const Display = ({ fileContent }: IDisplay) => <main dangerouslySetInnerHTML={{ __html: fileContent }} />

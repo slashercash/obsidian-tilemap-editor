@@ -1,9 +1,9 @@
 import { Menu, MenuItem, Notice, Plugin } from 'obsidian'
-import { TileView, VIEW_TYPE_TILE, TILE_FILE_EXTENSIONS } from './TileView'
+import { TilemapEditorView, VIEW_TYPE_TILE, TILE_FILE_EXTENSIONS } from './TilemapEditorView'
 
-export default class MyPlugin extends Plugin {
+export default class TilemapEditorPlugin extends Plugin {
   async onload() {
-    this.registerView(VIEW_TYPE_TILE, (leaf) => new TileView(leaf))
+    this.registerView(VIEW_TYPE_TILE, (leaf) => new TilemapEditorView(leaf))
 
     this.registerEvent(
       this.app.workspace.on('file-menu', (menu: Menu) => {

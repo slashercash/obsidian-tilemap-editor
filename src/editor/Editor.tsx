@@ -2,22 +2,29 @@ import React from 'react'
 import styled from 'styled-components'
 
 interface IEditor {
-  fileContent: string
+  view: string
   isEditMode: boolean
+  onViewChanged: (newView: string) => void
 }
 
-const Editor = ({ fileContent, isEditMode }: IEditor) => {
+const Editor = ({ view, isEditMode, onViewChanged }: IEditor) => {
   if (isEditMode) {
-    return <Edit fileContent={fileContent} />
+    return <Edit view={view} onViewChanged={onViewChanged} />
   } else {
-    return <main dangerouslySetInnerHTML={{ __html: fileContent }} />
+    return <main dangerouslySetInnerHTML={{ __html: view }} />
   }
 }
 export default Editor
 
-const Edit = ({ fileContent }: { fileContent: string }) => {
+interface IEdit {
+  view: string
+  onViewChanged: (view: string) => void
+}
+
+const Edit = ({ view, onViewChanged }: IEdit) => {
   const changeColorTo = (color: string) => {
-    console.log(color)
+    const newView = view.replace(/(red|green|yellow)/, color)
+    onViewChanged(newView)
   }
 
   return (
@@ -27,7 +34,7 @@ const Edit = ({ fileContent }: { fileContent: string }) => {
         <div className='green' onClick={() => changeColorTo('green')} />
         <div className='yellow' onClick={() => changeColorTo('yellow')} />
       </section>
-      <div dangerouslySetInnerHTML={{ __html: fileContent }} />
+      <div dangerouslySetInnerHTML={{ __html: view }} />
     </EditStyle>
   )
 }

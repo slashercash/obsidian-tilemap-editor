@@ -10,6 +10,7 @@ export class TilemapEditorView extends FileView {
 
   private editAction_Element: HTMLElement
   private readAction_Element: HTMLElement
+  private saveAction_Element: HTMLElement
   private isEditMode: boolean = true
   private fileContent: string
 
@@ -27,16 +28,22 @@ export class TilemapEditorView extends FileView {
     return 'dice'
   }
 
-  setIsEditMode(targetIsEditMode: boolean): void {
+  setIsEditMode = (targetIsEditMode: boolean): void => {
     this.isEditMode = targetIsEditMode
     if (this.isEditMode) {
       this.editAction_Element.hide()
+      this.saveAction_Element.show()
       this.readAction_Element.show()
     } else {
+      this.saveAction_Element.hide()
       this.readAction_Element.hide()
       this.editAction_Element.show()
     }
-    this.root.render(Editor({ fileContent: this.fileContent, isEditMode: this.isEditMode }))
+    this.root.render(Editor({ view: this.fileContent, isEditMode: this.isEditMode, onViewChanged: this.onViewChanged }))
+  }
+
+  onViewChanged = (newView: string): void => {
+    this.root.render(Editor({ view: newView, isEditMode: this.isEditMode, onViewChanged: this.onViewChanged }))
   }
 
   async onload(): Promise<void> {
@@ -46,21 +53,24 @@ export class TilemapEditorView extends FileView {
       this.setIsEditMode(true)
     )
 
-    this.readAction_Element = this.addAction('checkmark', 'Current view: editing\nClick to read', () =>
+    this.readAction_Element = this.addAction('cross', 'Current view: editing\nClick to read', () =>
       this.setIsEditMode(false)
     )
+
+    this.saveAction_Element = this.addAction('checkmark', 'Save', () => new Notice('Saved'))
 
     this.readAction_Element.hide()
   }
 
   async onLoadFile(file: TFile): Promise<void> {
     this.fileContent = await this.app.vault.read(file)
-    this.root.render(Editor({ fileContent: this.fileContent, isEditMode: this.isEditMode }))
+    this.root.render(Editor({ view: this.fileContent, isEditMode: this.isEditMode, onViewChanged: this.onViewChanged }))
   }
 
   async onunload(): Promise<void> {
     this.editAction_Element.remove()
     this.readAction_Element.remove()
+    this.saveAction_Element.remove()
     this.root.unmount()
   }
 }

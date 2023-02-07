@@ -72,21 +72,36 @@ const InnerHtml: FC<InnerHtmlProps> = ({ view }) => {
   const [touchA, setTouchA] = useState((): { x: number; y: number } => ({ x: 0, y: 0 }))
   const [touchB, setTouchB] = useState((): { x: number; y: number } => ({ x: 0, y: 0 }))
 
+  const getDistance = (x1: number, y1: number, x2: number, y2: number) => {
+    let y = x2 - x1;
+    let x = y2 - y1;
+    return Math.sqrt(x * x + y * y);
+  }
+
+  const setTouches = (touches: React.TouchList) => {
+    if (touches.length === 2) {
+      const tA = touches[0]
+      const tB = touches[1]
+      setTouchA({ x: tA.pageX, y: tA.pageY })
+      setTouchB({ x: tB.pageX, y: tB.pageY })
+    } else {
+      setTouchA({ x: 0, y: 0 })
+      setTouchB({ x: 0, y: 0 })
+    }
+  }
+
   return (
     <>
       <div
         dangerouslySetInnerHTML={{ __html: view }}
-        onTouchStart={(e) => {
-          if (e.touches.length === 2) {
-            const tA = e.touches[0]
-            const tB = e.touches[1]
-            setTouchA({ x: tA.pageX, y: tA.pageY })
-            setTouchB({ x: tB.pageX, y: tB.pageY })
-          }
-        }}
+        onTouchStart={(e) => setTouches(e.touches)}
+        onTouchMove={(e) => setTouches(e.touches)}
+        onTouchEnd={(e) => setTouches(e.touches)}
+        onTouchCancel={(e) => setTouches(e.touches)}
       />
       <p>{`TouchA --> X: ${Math.trunc(touchA.x)} | Y: ${Math.trunc(touchA.y)}`}</p>
       <p>{`TouchB --> X: ${Math.trunc(touchB.x)} | Y: ${Math.trunc(touchB.y)}`}</p>
+      <p>{`Distance --> ${getDistance(touchA.x,touchA.y, touchB.x, touchB.y)}`}</p>
     </>
   )
 }

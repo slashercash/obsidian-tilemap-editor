@@ -69,39 +69,42 @@ interface InnerHtmlProps {
 }
 
 const InnerHtml: FC<InnerHtmlProps> = ({ view }) => {
-  const [touchA, setTouchA] = useState((): { x: number; y: number } => ({ x: 0, y: 0 }))
-  const [touchB, setTouchB] = useState((): { x: number; y: number } => ({ x: 0, y: 0 }))
+  const [prevTouchDistance, setPrevTouchDistance] = useState(0)
+  const [size, setSize] = useState(1)
 
   const getDistance = (x1: number, y1: number, x2: number, y2: number) => {
-    let y = x2 - x1;
-    let x = y2 - y1;
-    return Math.sqrt(x * x + y * y);
+    let y = x2 - x1
+    let x = y2 - y1
+    return Math.sqrt(x * x + y * y)
   }
 
   const setTouches = (touches: React.TouchList) => {
     if (touches.length === 2) {
       const tA = touches[0]
       const tB = touches[1]
-      setTouchA({ x: tA.pageX, y: tA.pageY })
-      setTouchB({ x: tB.pageX, y: tB.pageY })
+      const distance = getDistance(tA.pageX, tA.pageY, tB.pageX, tB.pageY)
+
+      const sizeFactor = prevTouchDistance === 0 ? 1 : 1 / prevTouchDistance * distance
+
+      setSize(size * sizeFactor)
+
+      setPrevTouchDistance(distance)
     } else {
-      setTouchA({ x: 0, y: 0 })
-      setTouchB({ x: 0, y: 0 })
+      setPrevTouchDistance(0)
     }
   }
 
   return (
     <>
-      <div
+      <div style={{transform: `scale(${size})`}}
         dangerouslySetInnerHTML={{ __html: view }}
         onTouchStart={(e) => setTouches(e.touches)}
         onTouchMove={(e) => setTouches(e.touches)}
         onTouchEnd={(e) => setTouches(e.touches)}
         onTouchCancel={(e) => setTouches(e.touches)}
       />
-      <p>{`TouchA --> X: ${Math.trunc(touchA.x)} | Y: ${Math.trunc(touchA.y)}`}</p>
-      <p>{`TouchB --> X: ${Math.trunc(touchB.x)} | Y: ${Math.trunc(touchB.y)}`}</p>
-      <p>{`Distance --> ${getDistance(touchA.x,touchA.y, touchB.x, touchB.y)}`}</p>
+      <p>{`Distance --> ${prevTouchDistance}`}</p>
+      <p>{`Size --> ${size}`}</p>
     </>
   )
 }

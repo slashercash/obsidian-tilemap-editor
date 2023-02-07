@@ -8,6 +8,8 @@ interface IEditor {
 }
 
 const Editor = ({ view, isEditMode, onViewChanged }: IEditor) => {
+  return <Parser view={view}/>
+
   if (isEditMode) {
     return <Edit view={view} onViewChanged={onViewChanged} />
   } else {
@@ -108,3 +110,44 @@ const InnerHtml: FC<InnerHtmlProps> = ({ view }) => {
     </>
   )
 }
+
+interface ParserProps {
+  view: string
+}
+
+const Parser: FC<ParserProps> = ({view}) => {
+  const tilemapStr = getTilemapStr(view)
+  const splitRows = getSplitRows(tilemapStr)
+  const splitCells = getSplitCells(splitRows)
+
+
+  console.log(splitCells)
+  return <div>{tilemapStr}</div>
+}
+
+function getTilemapStr(view: string) {
+  const regexp = /<body>[\s+]*<main>[\s+]*<div>(.*)<\/div>[\s+]*<\/main>[\s+]*<\/body>/gs;
+
+  const arr = Array.from(view.matchAll(regexp), m => m[1])
+
+  if (arr.length > 0) {
+    return arr[0]
+  }
+
+  throw new Error('could not read tilemap') 
+}
+
+function getSplitRows(tilemap: string) {
+  const regexp = /<\/div>[\s+]*<div class='tilemap-row'>|<div class='tilemap-row'>|<\/div>(?!.*<\/div>)/gs
+  
+
+  return tilemap.split(regexp).slice(1, -1)
+}
+
+function getSplitCells(splitRows: ReadonlyArray<string>) {
+  const regexp = /<\/div>[\s+]*<div class='tilemap-cell'>|<div class='tilemap-cell'>|<\/div>(?!.*<\/div>)/gs
+
+  return splitRows.map(splitRow => splitRow.split(regexp).slice(1, -1))
+}
+
+

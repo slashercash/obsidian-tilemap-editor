@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { FC, useState } from 'react'
 import styled from 'styled-components'
 
 interface IEditor {
@@ -11,7 +11,7 @@ const Editor = ({ view, isEditMode, onViewChanged }: IEditor) => {
   if (isEditMode) {
     return <Edit view={view} onViewChanged={onViewChanged} />
   } else {
-    return <main dangerouslySetInnerHTML={{ __html: view }} />
+    return <InnerHtml view={view} />
   }
 }
 export default Editor
@@ -34,7 +34,7 @@ const Edit = ({ view, onViewChanged }: IEdit) => {
         <div className='green' onClick={() => changeColorTo('green')} />
         <div className='yellow' onClick={() => changeColorTo('yellow')} />
       </section>
-      <div dangerouslySetInnerHTML={{ __html: view }} />
+      <InnerHtml view={view} />
     </EditStyle>
   )
 }
@@ -63,3 +63,30 @@ const EditStyle = styled.main`
     }
   }
 `
+
+interface InnerHtmlProps {
+  view: string
+}
+
+const InnerHtml: FC<InnerHtmlProps> = ({ view }) => {
+  const [touchA, setTouchA] = useState((): { x: number; y: number } => ({ x: 0, y: 0 }))
+  const [touchB, setTouchB] = useState((): { x: number; y: number } => ({ x: 0, y: 0 }))
+
+  return (
+    <>
+      <div
+        dangerouslySetInnerHTML={{ __html: view }}
+        onTouchStart={(e) => {
+          if (e.touches.length === 2) {
+            const tA = e.touches[0]
+            const tB = e.touches[1]
+            setTouchA({ x: tA.pageX, y: tA.pageY })
+            setTouchB({ x: tB.pageX, y: tB.pageY })
+          }
+        }}
+      />
+      <p>{`TouchA --> X: ${Math.trunc(touchA.x)} | Y: ${Math.trunc(touchA.y)}`}</p>
+      <p>{`TouchB --> X: ${Math.trunc(touchB.x)} | Y: ${Math.trunc(touchB.y)}`}</p>
+    </>
+  )
+}

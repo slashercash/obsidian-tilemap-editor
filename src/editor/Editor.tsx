@@ -1,4 +1,5 @@
 import React, { FC, useState } from 'react'
+import { Tilemap, TilemapCell, TilemapElement, TilemapRow } from 'src/types/tilemap'
 import styled from 'styled-components'
 
 interface IEditor {
@@ -8,7 +9,7 @@ interface IEditor {
 }
 
 const Editor = ({ view, isEditMode, onViewChanged }: IEditor) => {
-  return <Parser view={view}/>
+  return <Parser view={view} />
 
   if (isEditMode) {
     return <Edit view={view} onViewChanged={onViewChanged} />
@@ -86,7 +87,7 @@ const InnerHtml: FC<InnerHtmlProps> = ({ view }) => {
       const tB = touches[1]
       const distance = getDistance(tA.pageX, tA.pageY, tB.pageX, tB.pageY)
 
-      const sizeFactor = prevTouchDistance === 0 ? 1 : 1 / prevTouchDistance * distance
+      const sizeFactor = prevTouchDistance === 0 ? 1 : (1 / prevTouchDistance) * distance
 
       setSize(size * sizeFactor)
 
@@ -98,7 +99,8 @@ const InnerHtml: FC<InnerHtmlProps> = ({ view }) => {
 
   return (
     <>
-      <div style={{transform: `scale(${size})`}}
+      <div
+        style={{ transform: `scale(${size})` }}
         dangerouslySetInnerHTML={{ __html: view }}
         onTouchStart={(e) => setTouches(e.touches)}
         onTouchMove={(e) => setTouches(e.touches)}
@@ -115,39 +117,43 @@ interface ParserProps {
   view: string
 }
 
-const Parser: FC<ParserProps> = ({view}) => {
-  const tilemapStr = getTilemapStr(view)
-  const splitRows = getSplitRows(tilemapStr)
-  const splitCells = getSplitCells(splitRows)
+const Parser: FC<ParserProps> = ({ view }) => {
+  const tilemap: Tilemap = parseTilemap(view)
 
-
-  console.log(splitCells)
-  return <div>{tilemapStr}</div>
+  return (
+    <pre>
+      <code>{JSON.stringify(tilemap, null, 1)}</code>
+    </pre>
+  )
 }
 
-function getTilemapStr(view: string) {
-  const regexp = /<body>[\s+]*<main>[\s+]*<div>(.*)<\/div>[\s+]*<\/main>[\s+]*<\/body>/gs;
+function parseTilemap(view: string): Tilemap {
+  const htmlDoc = new DOMParser().parseFromString(view, 'text/html')
+  const tm = htmlDoc.getElementById('tilemap')
 
-  const arr = Array.from(view.matchAll(regexp), m => m[1])
-
-  if (arr.length > 0) {
-    return arr[0]
+  if (tm === null) {
+    throw new Error('could not read tilemap')
   }
 
-  throw new Error('could not read tilemap') 
+  const rows: ReadonlyArray<TilemapRow> = Array.from(tm.children).map(parseRow)
+
+  const tilemap: Tilemap = { rows }
+
+  return tilemap
 }
 
-function getSplitRows(tilemap: string) {
-  const regexp = /<\/div>[\s+]*<div class='tilemap-row'>|<div class='tilemap-row'>|<\/div>(?!.*<\/div>)/gs
-  
-
-  return tilemap.split(regexp).slice(1, -1)
+function parseRow(row: Element): TilemapRow {
+  const cells: ReadonlyArray<TilemapCell> = Array.from(row.children).map(parseCell)
+  return { cells }
 }
 
-function getSplitCells(splitRows: ReadonlyArray<string>) {
-  const regexp = /<\/div>[\s+]*<div class='tilemap-cell'>|<div class='tilemap-cell'>|<\/div>(?!.*<\/div>)/gs
-
-  return splitRows.map(splitRow => splitRow.split(regexp).slice(1, -1))
+function parseCell(cell: Element): TilemapCell {
+  const elements: ReadonlyArray<TilemapElement> = Array.from(cell.children).map(parseElement)
+  return { elements }
 }
 
-
+function parseElement(element: Element): TilemapElement {
+  return {
+    className: element.className
+  }
+}

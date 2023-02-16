@@ -10,8 +10,7 @@
   "license": "MIT",
   "dependencies": {
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "styled-components": "^5.3.6"
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@types/node": "^16.11.6",
@@ -20,6 +19,7 @@
     "@types/styled-components": "^5.1.26",
     "esbuild": "0.14.47",
     "obsidian": "latest",
+    "styled-components": "latest",
     "typescript": "4.7.4"
   }
 }

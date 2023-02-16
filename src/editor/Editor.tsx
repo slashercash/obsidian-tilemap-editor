@@ -9,7 +9,7 @@ interface IEditor {
 }
 
 const Editor = ({ view, isEditMode, onViewChanged }: IEditor) => {
-  return <Parser view={view} />
+  // return <Parser view={view} />
 
   if (isEditMode) {
     return <Edit view={view} onViewChanged={onViewChanged} />
@@ -121,10 +121,27 @@ const Parser: FC<ParserProps> = ({ view }) => {
   const tilemap: Tilemap = parseTilemap(view)
 
   return (
-    <pre>
-      <code>{JSON.stringify(tilemap, null, 1)}</code>
-    </pre>
+    <main id='tilemap-editor'>
+      <div>
+        {tilemap.rows.map((row, i) => 
+        <div key={i} className='tilemap-row'>
+          {row.cells.map((cell, i) => 
+          <div key={i} className='tilemap-cell'>
+            {cell.elements.map((element, i) =>
+            <div key={i} className={element.className}></div>
+            )}
+          </div>)}
+        </div>
+        )}
+      </div>
+    </main>
   )
+
+  // return (
+  //   <pre>
+  //     <code>{JSON.stringify(tilemap, null, 1)}</code>
+  //   </pre>
+  // )
 }
 
 function parseTilemap(view: string): Tilemap {

@@ -14,10 +14,10 @@
     "@types/react-dom": "^18.0.8",
     "@types/styled-components": "^5.1.26",
     "esbuild": "0.14.47",
-    "obsidian": "latest",
+    "obsidian": "1.1.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "styled-components": "latest",
+    "styled-components": "5.3.6",
     "typescript": "4.7.4"
   }
 }

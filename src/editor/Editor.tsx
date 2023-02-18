@@ -1,6 +1,7 @@
 import React, { FC, useState } from 'react'
+import { EditStyle } from 'src/styles/EditStyle'
+import { ParserStyle } from 'src/styles/parserStyle'
 import { Tilemap, TilemapCell, TilemapElement, TilemapRow } from 'src/types/tilemap'
-import styled from 'styled-components'
 
 interface IEditor {
   view: string
@@ -9,7 +10,7 @@ interface IEditor {
 }
 
 const Editor = ({ view, isEditMode, onViewChanged }: IEditor) => {
-  // return <Parser view={view} />
+  return <Parser view={view} />
 
   if (isEditMode) {
     return <Edit view={view} onViewChanged={onViewChanged} />
@@ -41,31 +42,6 @@ const Edit = ({ view, onViewChanged }: IEdit) => {
     </EditStyle>
   )
 }
-
-const EditStyle = styled.main`
-  > section {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-
-    > div {
-      width: 50px;
-      height: 50px;
-      &:hover {
-        cursor: pointer;
-      }
-    }
-    > .red {
-      background-color: red;
-    }
-    > .green {
-      background-color: green;
-    }
-    > .yellow {
-      background-color: yellow;
-    }
-  }
-`
 
 interface InnerHtmlProps {
   view: string
@@ -121,7 +97,7 @@ const Parser: FC<ParserProps> = ({ view }) => {
   const tilemap: Tilemap = parseTilemap(view)
 
   return (
-    <main id='tilemap-editor'>
+    <ParserStyle>
       <div>
         {tilemap.rows.map((row, i) => 
         <div key={i} className='tilemap-row'>
@@ -134,14 +110,8 @@ const Parser: FC<ParserProps> = ({ view }) => {
         </div>
         )}
       </div>
-    </main>
+    </ParserStyle>
   )
-
-  // return (
-  //   <pre>
-  //     <code>{JSON.stringify(tilemap, null, 1)}</code>
-  //   </pre>
-  // )
 }
 
 function parseTilemap(view: string): Tilemap {

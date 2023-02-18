@@ -1,6 +1,7 @@
-import React, { FC, useState } from 'react'
+import React, { FC } from 'react'
 import { EditStyle } from 'src/styles/EditStyle'
-import { ParserStyle } from 'src/styles/parserStyle'
+import { MainStyle } from 'src/styles/MainStyle'
+import { ParserStyle } from 'src/styles/ParserStyle'
 import { Tilemap, TilemapCell, TilemapElement, TilemapRow } from 'src/types/tilemap'
 
 interface IEditor {
@@ -10,13 +11,12 @@ interface IEditor {
 }
 
 const Editor = ({ view, isEditMode, onViewChanged }: IEditor) => {
-  return <Parser view={view} />
-
-  if (isEditMode) {
-    return <Edit view={view} onViewChanged={onViewChanged} />
-  } else {
-    return <InnerHtml view={view} />
-  }
+  return (
+    <MainStyle>
+      {isEditMode && <Edit view={view} onViewChanged={onViewChanged} />}
+      <Parser view={view} />
+    </MainStyle>
+  )
 }
 export default Editor
 
@@ -33,59 +33,10 @@ const Edit = ({ view, onViewChanged }: IEdit) => {
 
   return (
     <EditStyle>
-      <section>
-        <div className='red' onClick={() => changeColorTo('red')} />
-        <div className='green' onClick={() => changeColorTo('green')} />
-        <div className='yellow' onClick={() => changeColorTo('yellow')} />
-      </section>
-      <InnerHtml view={view} />
+      <div className='red' onClick={() => changeColorTo('red')} />
+      <div className='green' onClick={() => changeColorTo('green')} />
+      <div className='yellow' onClick={() => changeColorTo('yellow')} />
     </EditStyle>
-  )
-}
-
-interface InnerHtmlProps {
-  view: string
-}
-
-const InnerHtml: FC<InnerHtmlProps> = ({ view }) => {
-  const [prevTouchDistance, setPrevTouchDistance] = useState(0)
-  const [size, setSize] = useState(1)
-
-  const getDistance = (x1: number, y1: number, x2: number, y2: number) => {
-    let y = x2 - x1
-    let x = y2 - y1
-    return Math.sqrt(x * x + y * y)
-  }
-
-  const setTouches = (touches: React.TouchList) => {
-    if (touches.length === 2) {
-      const tA = touches[0]
-      const tB = touches[1]
-      const distance = getDistance(tA.pageX, tA.pageY, tB.pageX, tB.pageY)
-
-      const sizeFactor = prevTouchDistance === 0 ? 1 : (1 / prevTouchDistance) * distance
-
-      setSize(size * sizeFactor)
-
-      setPrevTouchDistance(distance)
-    } else {
-      setPrevTouchDistance(0)
-    }
-  }
-
-  return (
-    <>
-      <div
-        style={{ transform: `scale(${size})` }}
-        dangerouslySetInnerHTML={{ __html: view }}
-        onTouchStart={(e) => setTouches(e.touches)}
-        onTouchMove={(e) => setTouches(e.touches)}
-        onTouchEnd={(e) => setTouches(e.touches)}
-        onTouchCancel={(e) => setTouches(e.touches)}
-      />
-      <p>{`Distance --> ${prevTouchDistance}`}</p>
-      <p>{`Size --> ${size}`}</p>
-    </>
   )
 }
 
@@ -98,19 +49,17 @@ const Parser: FC<ParserProps> = ({ view }) => {
 
   return (
     <ParserStyle>
-      <div>
-        {tilemap.rows.map((row, i) => (
-          <div key={i} className='tilemap-row'>
-            {row.cells.map((cell, i) => (
-              <div key={i} className='tilemap-cell'>
-                {cell.elements.map((element, i) => (
-                  <div key={i} className={element.className}></div>
-                ))}
-              </div>
-            ))}
-          </div>
-        ))}
-      </div>
+      {tilemap.rows.map((row, i) => (
+        <div key={i} className='tilemap-row'>
+          {row.cells.map((cell, i) => (
+            <div key={i} className='tilemap-cell'>
+              {cell.elements.map((element, i) => (
+                <div key={i} className={element.className}></div>
+              ))}
+            </div>
+          ))}
+        </div>
+      ))}
     </ParserStyle>
   )
 }
@@ -145,3 +94,49 @@ function parseElement(element: Element): TilemapElement {
     className: element.className
   }
 }
+
+// interface InnerHtmlProps {
+//   view: string
+// }
+
+// const InnerHtml: FC<InnerHtmlProps> = ({ view }) => {
+//   const [prevTouchDistance, setPrevTouchDistance] = useState(0)
+//   const [size, setSize] = useState(1)
+
+//   const getDistance = (x1: number, y1: number, x2: number, y2: number) => {
+//     let y = x2 - x1
+//     let x = y2 - y1
+//     return Math.sqrt(x * x + y * y)
+//   }
+
+//   const setTouches = (touches: React.TouchList) => {
+//     if (touches.length === 2) {
+//       const tA = touches[0]
+//       const tB = touches[1]
+//       const distance = getDistance(tA.pageX, tA.pageY, tB.pageX, tB.pageY)
+
+//       const sizeFactor = prevTouchDistance === 0 ? 1 : (1 / prevTouchDistance) * distance
+
+//       setSize(size * sizeFactor)
+
+//       setPrevTouchDistance(distance)
+//     } else {
+//       setPrevTouchDistance(0)
+//     }
+//   }
+
+//   return (
+//     <>
+//       <div
+//         style={{ transform: `scale(${size})` }}
+//         dangerouslySetInnerHTML={{ __html: view }}
+//         onTouchStart={(e) => setTouches(e.touches)}
+//         onTouchMove={(e) => setTouches(e.touches)}
+//         onTouchEnd={(e) => setTouches(e.touches)}
+//         onTouchCancel={(e) => setTouches(e.touches)}
+//       />
+//       <p>{`Distance --> ${prevTouchDistance}`}</p>
+//       <p>{`Size --> ${size}`}</p>
+//     </>
+//   )
+// }

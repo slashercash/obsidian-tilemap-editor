@@ -1,9 +1,6 @@
 import styled from 'styled-components'
 
-export const ParserStyle = styled.main`
-  display: flex;
-  justify-content: center;
-
+export const ParserStyle = styled.div`
   .tilemap-row {
     display: flex;
   }

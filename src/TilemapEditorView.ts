@@ -1,4 +1,4 @@
-import { WorkspaceLeaf, FileView, TFile, Notice } from 'obsidian'
+import { WorkspaceLeaf, FileView } from 'obsidian'
 import { createRoot, Root } from 'react-dom/client'
 import Editor from './editor/Editor'
 

@@ -99,16 +99,17 @@ const Parser: FC<ParserProps> = ({ view }) => {
   return (
     <ParserStyle>
       <div>
-        {tilemap.rows.map((row, i) => 
-        <div key={i} className='tilemap-row'>
-          {row.cells.map((cell, i) => 
-          <div key={i} className='tilemap-cell'>
-            {cell.elements.map((element, i) =>
-            <div key={i} className={element.className}></div>
-            )}
-          </div>)}
-        </div>
-        )}
+        {tilemap.rows.map((row, i) => (
+          <div key={i} className='tilemap-row'>
+            {row.cells.map((cell, i) => (
+              <div key={i} className='tilemap-cell'>
+                {cell.elements.map((element, i) => (
+                  <div key={i} className={element.className}></div>
+                ))}
+              </div>
+            ))}
+          </div>
+        ))}
       </div>
     </ParserStyle>
   )

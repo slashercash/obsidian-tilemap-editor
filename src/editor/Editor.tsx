@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, { FC, useCallback, useState } from 'react'
 import { EditStyle } from 'src/styles/EditStyle'
 import { MainStyle } from 'src/styles/MainStyle'
 import { ParserStyle } from 'src/styles/ParserStyle'
@@ -13,8 +13,8 @@ interface IEditor {
 const Editor = ({ view, isEditMode, onViewChanged }: IEditor) => {
   return (
     <MainStyle>
-      {isEditMode && <Edit view={view} onViewChanged={onViewChanged} />}
-      <Parser view={view} />
+      {/* {isEditMode && <Edit view={view} onViewChanged={onViewChanged} />} */}
+      <Parser view={view} isEditMode={isEditMode} />
     </MainStyle>
   )
 }
@@ -42,19 +42,26 @@ const Edit = ({ view, onViewChanged }: IEdit) => {
 
 interface ParserProps {
   view: string
+  isEditMode: boolean
 }
 
-const Parser: FC<ParserProps> = ({ view }) => {
-  const tilemap: Tilemap = parseTilemap(view)
+const Parser: FC<ParserProps> = ({ view, isEditMode }) => {
+  const [tilemap, setTilemap] = useState(parseTilemap(view))
+
+  const updateTile = useCallback((rowKey: number, cellKey: number) => {
+    const hasTile = tilemap.rows[rowKey].cells[cellKey].elements.length > 0
+    tilemap.rows[rowKey].cells[cellKey].elements = hasTile ? [] : [{ className: 'tile' }]
+    setTilemap({ ...tilemap })
+  }, [])
 
   return (
-    <ParserStyle>
-      {tilemap.rows.map((row, i) => (
-        <div key={i} className='tilemap-row'>
-          {row.cells.map((cell, i) => (
-            <div key={i} className='tilemap-cell'>
-              {cell.elements.map((element, i) => (
-                <div key={i} className={element.className}></div>
+    <ParserStyle className={isEditMode ? 'tilemap-editmode' : undefined}>
+      {tilemap.rows.map((row, rowKey) => (
+        <div key={rowKey} className='tilemap-row'>
+          {row.cells.map((cell, cellKey) => (
+            <div key={cellKey} className='tilemap-cell' onClick={() => isEditMode && updateTile(rowKey, cellKey)}>
+              {cell.elements.map((element, elementKey) => (
+                <div key={elementKey} className={element.className}></div>
               ))}
             </div>
           ))}

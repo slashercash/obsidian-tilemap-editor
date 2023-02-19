@@ -18,4 +18,12 @@ export const ParserStyle = styled.div`
     background-color: rgb(93, 0, 255);
     box-shadow: inset 0 0 0 1px black;
   }
+
+  &.tilemap-editmode .tilemap-cell:hover {
+    box-shadow: inset 0 0 0 1px red;
+    cursor: pointer;
+    > div {
+      box-shadow: inset 0 0 0 1px red;
+    }
+  }
 `

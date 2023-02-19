@@ -1,20 +1,20 @@
-import React, { FC, useCallback, useState } from 'react'
+import React, { FC, useCallback } from 'react'
 import { EditStyle } from 'src/styles/EditStyle'
 import { MainStyle } from 'src/styles/MainStyle'
 import { ParserStyle } from 'src/styles/ParserStyle'
-import { Tilemap, TilemapCell, TilemapElement, TilemapRow } from 'src/types/tilemap'
+import { Tilemap } from 'src/types/tilemap'
 
 interface IEditor {
-  view: string
+  tilemap: Tilemap
   isEditMode: boolean
-  onViewChanged: (newView: string) => void
+  onTilemapChanged: (t: Tilemap) => void
 }
 
-const Editor = ({ view, isEditMode, onViewChanged }: IEditor) => {
+const Editor = ({ tilemap, isEditMode, onTilemapChanged }: IEditor) => {
   return (
     <MainStyle>
       {/* {isEditMode && <Edit view={view} onViewChanged={onViewChanged} />} */}
-      <Parser view={view} isEditMode={isEditMode} />
+      <Parser tilemap={tilemap} isEditMode={isEditMode} onTilemapChanged={onTilemapChanged} />
     </MainStyle>
   )
 }
@@ -41,17 +41,16 @@ const Edit = ({ view, onViewChanged }: IEdit) => {
 }
 
 interface ParserProps {
-  view: string
+  tilemap: Tilemap
   isEditMode: boolean
+  onTilemapChanged: (t: Tilemap) => void
 }
 
-const Parser: FC<ParserProps> = ({ view, isEditMode }) => {
-  const [tilemap, setTilemap] = useState(parseTilemap(view))
-
+const Parser: FC<ParserProps> = ({ tilemap, isEditMode, onTilemapChanged }) => {
   const updateTile = useCallback((rowKey: number, cellKey: number) => {
     const hasTile = tilemap.rows[rowKey].cells[cellKey].elements.length > 0
     tilemap.rows[rowKey].cells[cellKey].elements = hasTile ? [] : [{ className: 'tile' }]
-    setTilemap({ ...tilemap })
+    onTilemapChanged(tilemap)
   }, [])
 
   return (
@@ -69,37 +68,6 @@ const Parser: FC<ParserProps> = ({ view, isEditMode }) => {
       ))}
     </ParserStyle>
   )
-}
-
-function parseTilemap(view: string): Tilemap {
-  const htmlDoc = new DOMParser().parseFromString(view, 'text/html')
-  const tm = htmlDoc.getElementById('tilemap')
-
-  if (tm === null) {
-    throw new Error('could not read tilemap')
-  }
-
-  const rows: ReadonlyArray<TilemapRow> = Array.from(tm.children).map(parseRow)
-
-  const tilemap: Tilemap = { rows }
-
-  return tilemap
-}
-
-function parseRow(row: Element): TilemapRow {
-  const cells: ReadonlyArray<TilemapCell> = Array.from(row.children).map(parseCell)
-  return { cells }
-}
-
-function parseCell(cell: Element): TilemapCell {
-  const elements: ReadonlyArray<TilemapElement> = Array.from(cell.children).map(parseElement)
-  return { elements }
-}
-
-function parseElement(element: Element): TilemapElement {
-  return {
-    className: element.className
-  }
 }
 
 // interface InnerHtmlProps {

@@ -1,4 +1,4 @@
-import { WorkspaceLeaf, FileView } from 'obsidian'
+import { WorkspaceLeaf, FileView, Notice } from 'obsidian'
 import { createRoot, Root } from 'react-dom/client'
 import Editor from './editor/Editor'
 import { Tilemap, TilemapCell, TilemapElement, TilemapRow } from './types/tilemap'
@@ -66,8 +66,8 @@ export class TilemapEditorView extends FileView {
 
     this.saveAction_Element = this.addAction('checkmark', 'Save', () => {
       const newFileContent = parseFileContent(this.tilemap)
-      console.log(newFileContent)
-      // this.app.vault.modify(this.file, newFileContent)
+      this.app.vault.modify(this.file, newFileContent)
+      new Notice('File saved')
     })
 
     this.readAction_Element.hide()
@@ -129,7 +129,6 @@ function parseFileContent(tilemap: Tilemap): string {
   const div = htmlDoc.createElement('div')
   div.setAttribute('id', 'tilemap')
 
-  style.appendText(cssStyle)
   style.appendText('')
   main.appendChild(div)
   body.appendChild(main)
@@ -160,7 +159,7 @@ function parseFileContent(tilemap: Tilemap): string {
     div.appendChild(rowElement)
   })
 
-  return format(htmlDoc.documentElement).innerHTML
+  return format(htmlDoc.documentElement).innerHTML.replace('<style></style>', `<style>${cssStyle}</style>`)
 }
 
 const cssStyle = `
@@ -185,7 +184,7 @@ const cssStyle = `
     background-color: rgb(93, 0, 255);
     box-shadow: inset 0 0 0 1px black;
   }
-` // '>' becomes '&gt'
+`
 
 function format(node: Element, level: number = 0) {
   var indentBefore = new Array(level++ + 1).join('  '),

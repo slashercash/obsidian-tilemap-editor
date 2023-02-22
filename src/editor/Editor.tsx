@@ -10,7 +10,7 @@ interface IEditor {
   onTilemapChanged: (t: Tilemap) => void
 }
 
-const Editor = ({ tilemap, isEditMode, onTilemapChanged }: IEditor) => {
+export const Editor = ({ tilemap, isEditMode, onTilemapChanged }: IEditor) => {
   return (
     <MainStyle>
       {/* {isEditMode && <Edit view={view} onViewChanged={onViewChanged} />} */}
@@ -18,7 +18,6 @@ const Editor = ({ tilemap, isEditMode, onTilemapChanged }: IEditor) => {
     </MainStyle>
   )
 }
-export default Editor
 
 interface IEdit {
   view: string

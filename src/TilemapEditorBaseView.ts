@@ -14,7 +14,7 @@ export abstract class TilemapEditorBaseView extends FileView {
     super(leaf)
   }
 
-  abstract onLoaded(rootElement: Element): void
+  abstract onLoaded(rootElement: HTMLElement): void
   abstract onUnloaded(): void
   abstract onFileLoaded(fileContent: string): void
   abstract onEditModeChanged(isEditMode: boolean): void
@@ -32,7 +32,12 @@ export abstract class TilemapEditorBaseView extends FileView {
     this.readAction_Element.hide()
     this.saveAction_Element.hide()
 
-    this.onLoaded(this.containerEl.children[1])
+    const rootElement = this.containerEl.children[1] as HTMLElement
+    rootElement.style.padding = '0' // TODO: outsource this
+    rootElement.style.display = 'flex'
+    rootElement.style.flexWrap = 'wrap'
+    rootElement.style.justifyContent = 'center'
+    this.onLoaded(rootElement)
   }
 
   public async onLoadFile(): Promise<void> {

@@ -9,7 +9,7 @@ export class TilemapEditorView extends TilemapEditorBaseView {
   private tilemap: Tilemap
   private isEditMode: boolean = false
 
-  public onLoaded(rootElement: Element): void {
+  public onLoaded(rootElement: HTMLElement): void {
     this.reactRoot = createRoot(rootElement)
   }
 

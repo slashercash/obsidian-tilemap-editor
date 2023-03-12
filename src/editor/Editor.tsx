@@ -12,32 +12,16 @@ interface IEditor {
 
 export const Editor = ({ tilemap, isEditMode, onTilemapChanged }: IEditor) => {
   return (
-    <MainStyle>
-      {/* {isEditMode && <Edit view={view} onViewChanged={onViewChanged} />} */}
-      <Parser tilemap={tilemap} isEditMode={isEditMode} onTilemapChanged={onTilemapChanged} />
-    </MainStyle>
+    <>
+      <MainStyle>
+        <Parser tilemap={tilemap} isEditMode={isEditMode} onTilemapChanged={onTilemapChanged} />
+      </MainStyle>
+      {isEditMode && <Edit />}
+    </>
   )
 }
 
-interface IEdit {
-  view: string
-  onViewChanged: (view: string) => void
-}
-
-const Edit = ({ view, onViewChanged }: IEdit) => {
-  const changeColorTo = (color: string) => {
-    const newView = view.replace(/(red|green|yellow)/, color)
-    onViewChanged(newView)
-  }
-
-  return (
-    <EditStyle>
-      <div className='red' onClick={() => changeColorTo('red')} />
-      <div className='green' onClick={() => changeColorTo('green')} />
-      <div className='yellow' onClick={() => changeColorTo('yellow')} />
-    </EditStyle>
-  )
-}
+const Edit: FC = () => <EditStyle>EditorPanel</EditStyle>
 
 interface ParserProps {
   tilemap: Tilemap

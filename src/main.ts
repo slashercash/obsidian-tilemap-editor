@@ -1,6 +1,6 @@
 import { Menu, MenuItem, Notice, Plugin } from 'obsidian'
-import { VIEW_TYPE_TILE, TILE_FILE_EXTENSIONS } from './TilemapEditorBaseView'
-import { TilemapEditorView } from './TilemapEditorView'
+import { VIEW_TYPE_TILE, TILE_FILE_EXTENSIONS } from './app/TilemapEditorBaseView'
+import { TilemapEditorView } from './app/TilemapEditorView'
 
 export default class TilemapEditorPlugin extends Plugin {
   async onload() {

@@ -1,35 +1,14 @@
 import React, { FC, useCallback } from 'react'
-import { EditStyle } from 'src/styles/EditStyle'
-import { MainStyle } from 'src/styles/MainStyle'
 import { ParserStyle } from 'src/styles/ParserStyle'
 import { Tilemap } from 'src/types/tilemap'
 
-interface IEditor {
+interface RendererProps {
   tilemap: Tilemap
   isEditMode: boolean
   onTilemapChanged: (t: Tilemap) => void
 }
 
-export const Editor = ({ tilemap, isEditMode, onTilemapChanged }: IEditor) => {
-  return (
-    <>
-      <MainStyle>
-        <Parser tilemap={tilemap} isEditMode={isEditMode} onTilemapChanged={onTilemapChanged} />
-      </MainStyle>
-      {isEditMode && <Edit />}
-    </>
-  )
-}
-
-const Edit: FC = () => <EditStyle>EditorPanel</EditStyle>
-
-interface ParserProps {
-  tilemap: Tilemap
-  isEditMode: boolean
-  onTilemapChanged: (t: Tilemap) => void
-}
-
-const Parser: FC<ParserProps> = ({ tilemap, isEditMode, onTilemapChanged }) => {
+export const Renderer: FC<RendererProps> = ({ tilemap, isEditMode, onTilemapChanged }) => {
   const updateTile = useCallback((rowKey: number, cellKey: number) => {
     const hasTile = tilemap.rows[rowKey].cells[cellKey].elements.length > 0
     tilemap.rows[rowKey].cells[cellKey].elements = hasTile ? [] : [{ className: 'tile' }]

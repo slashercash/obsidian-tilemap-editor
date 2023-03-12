@@ -1,6 +1,6 @@
-import { Tilemap, TilemapCell, TilemapElement, TilemapRow } from './types/tilemap'
+import { Tilemap, TilemapCell, TilemapElement, TilemapRow } from 'src/types/tilemap'
 
-export class Parser {
+export class FileParser {
   static stringToTilemap(fileContent: string): Tilemap {
     const htmlDoc: Document = new DOMParser().parseFromString(fileContent, 'text/html')
     const tilemapElement = htmlDoc.getElementById('tilemap')

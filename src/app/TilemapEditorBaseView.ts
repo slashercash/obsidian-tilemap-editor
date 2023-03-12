@@ -33,10 +33,7 @@ export abstract class TilemapEditorBaseView extends FileView {
     this.saveAction_Element.hide()
 
     const rootElement = this.containerEl.children[1] as HTMLElement
-    rootElement.style.padding = '0' // TODO: outsource this
-    rootElement.style.display = 'flex'
-    rootElement.style.flexWrap = 'wrap'
-    rootElement.style.justifyContent = 'center'
+    rootElement.addClass('view-content-tilemap-editor')
     this.onLoaded(rootElement)
   }
 

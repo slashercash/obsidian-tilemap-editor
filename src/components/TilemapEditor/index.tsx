@@ -1,8 +1,7 @@
-import React, { FC, useCallback } from 'react'
-import { EditStyle } from 'src/styles/EditStyle'
-import { MainStyle } from 'src/styles/MainStyle'
+import React, { FC } from 'react'
 import { Tilemap } from 'src/types/tilemap'
 import { Renderer } from '../Renderer'
+import { Toolbar } from '../Toolbar'
 
 interface TilemapEditorProps {
   tilemap: Tilemap
@@ -12,13 +11,9 @@ interface TilemapEditorProps {
 
 export const TilemapEditor: FC<TilemapEditorProps> = ({ tilemap, isEditMode, onTilemapChanged }) => {
   return (
-    <>
-      <MainStyle>
-        <Renderer tilemap={tilemap} isEditMode={isEditMode} onTilemapChanged={onTilemapChanged} />
-      </MainStyle>
-      {isEditMode && <Edit />}
-    </>
+    <div className={'tilemap-editor'}>
+      <Renderer tilemap={tilemap} isEditMode={isEditMode} onTilemapChanged={onTilemapChanged} />
+      {isEditMode && <Toolbar />}
+    </div>
   )
 }
-
-const Edit: FC = () => <EditStyle>EditorPanel</EditStyle>

@@ -1,5 +1,4 @@
 import React, { FC, useCallback } from 'react'
-import { ParserStyle } from 'src/styles/ParserStyle'
 import { Tilemap } from 'src/types/tilemap'
 
 interface RendererProps {
@@ -16,19 +15,21 @@ export const Renderer: FC<RendererProps> = ({ tilemap, isEditMode, onTilemapChan
   }, [])
 
   return (
-    <ParserStyle className={isEditMode ? 'tilemap-editmode' : undefined}>
-      {tilemap.rows.map((row, rowKey) => (
-        <div key={rowKey} className='tilemap-row'>
-          {row.cells.map((cell, cellKey) => (
-            <div key={cellKey} className='tilemap-cell' onClick={() => isEditMode && updateTile(rowKey, cellKey)}>
-              {cell.elements.map((element, elementKey) => (
-                <div key={elementKey} className={element.className}></div>
-              ))}
-            </div>
-          ))}
-        </div>
-      ))}
-    </ParserStyle>
+    <div className={'tilemap-renderer' + (isEditMode ? ' tilemap-renderer--edit' : '')}>
+      <div className={'tilemap'}>
+        {tilemap.rows.map((row, rowKey) => (
+          <div key={rowKey} className='tilemap-row'>
+            {row.cells.map((cell, cellKey) => (
+              <div key={cellKey} className='tilemap-cell' onClick={() => isEditMode && updateTile(rowKey, cellKey)}>
+                {cell.elements.map((element, elementKey) => (
+                  <div key={elementKey} className={element.className}></div>
+                ))}
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
   )
 }
 

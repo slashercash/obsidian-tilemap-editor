@@ -1,20 +1,21 @@
-import { createRoot, Root } from 'react-dom/client'
+import React from 'react'
+import ReactDOM from 'react-dom'
 import { TilemapEditor } from 'src/components/TilemapEditor'
 import { Tilemap } from 'src/types/tilemap'
 import { TilemapEditorBaseView } from './TilemapEditorBaseView'
 import { FileParser } from './FileParser'
 
 export class TilemapEditorView extends TilemapEditorBaseView {
-  private reactRoot?: Root
+  private rootElement?: HTMLElement
   private tilemap?: Tilemap
   private isEditMode: boolean = false
 
   public onLoaded(rootElement: HTMLElement): void {
-    this.reactRoot = createRoot(rootElement)
+    this.rootElement = rootElement
   }
 
   public onUnloaded(): void {
-    this.reactRoot?.unmount()
+    this.rootElement && ReactDOM.unmountComponentAtNode(this.rootElement)
   }
 
   public onFileLoaded(fileContent: string): void {
@@ -40,14 +41,18 @@ export class TilemapEditorView extends TilemapEditorBaseView {
   }
 
   private renderTilemapEditor() {
-    if (this.tilemap && this.reactRoot) {
-      const tilemapEditor = TilemapEditor({
-        tilemap: this.tilemap,
-        isEditMode: this.isEditMode,
-        onTilemapChanged: this.onTilemapChanged
-      })
+    const tilemap = this.tilemap
+    const rootElement = this.rootElement
+    if (tilemap && rootElement) {
+      const tilemapEditor = React.createElement(() =>
+        TilemapEditor({
+          tilemap,
+          isEditMode: this.isEditMode,
+          onTilemapChanged: this.onTilemapChanged
+        })
+      )
       // console.log('render tilemapEditor')
-      this.reactRoot?.render(tilemapEditor)
+      ReactDOM.render(tilemapEditor, rootElement)
     }
   }
 }

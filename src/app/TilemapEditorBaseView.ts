@@ -4,11 +4,11 @@ export const TILE_FILE_EXTENSIONS = ['html']
 export const VIEW_TYPE_TILE = 'tile-view'
 
 export abstract class TilemapEditorBaseView extends FileView {
-  public allowNoFile: false
+  public allowNoFile = false
 
-  private editAction_Element: HTMLElement
-  private readAction_Element: HTMLElement
-  private saveAction_Element: HTMLElement
+  private editAction_Element?: HTMLElement
+  private readAction_Element?: HTMLElement
+  private saveAction_Element?: HTMLElement
 
   constructor(leaf: WorkspaceLeaf) {
     super(leaf)
@@ -18,7 +18,7 @@ export abstract class TilemapEditorBaseView extends FileView {
   abstract onUnloaded(): void
   abstract onFileLoaded(fileContent: string): void
   abstract onEditModeChanged(isEditMode: boolean): void
-  abstract getContentToSave(): string
+  abstract getContentToSave(): [success: boolean, content: string]
 
   public async onload(): Promise<void> {
     this.editAction_Element = this.addAction('pencil', 'Current view: reading\nClick to edit', () =>
@@ -43,9 +43,9 @@ export abstract class TilemapEditorBaseView extends FileView {
   }
 
   public async onunload(): Promise<void> {
-    this.editAction_Element.remove()
-    this.readAction_Element.remove()
-    this.saveAction_Element.remove()
+    this.editAction_Element?.remove()
+    this.readAction_Element?.remove()
+    this.saveAction_Element?.remove()
     this.onUnloaded()
   }
 
@@ -59,20 +59,24 @@ export abstract class TilemapEditorBaseView extends FileView {
 
   private setIsEditMode = (isEditMode: boolean): void => {
     if (isEditMode) {
-      this.editAction_Element.hide()
-      this.saveAction_Element.show()
-      this.readAction_Element.show()
+      this.editAction_Element?.hide()
+      this.saveAction_Element?.show()
+      this.readAction_Element?.show()
     } else {
-      this.saveAction_Element.hide()
-      this.readAction_Element.hide()
-      this.editAction_Element.show()
+      this.saveAction_Element?.hide()
+      this.readAction_Element?.hide()
+      this.editAction_Element?.show()
     }
     this.onEditModeChanged(isEditMode)
   }
 
   private save = (): void => {
-    const contentToSave = this.getContentToSave()
-    this.app.vault.modify(this.file, contentToSave)
-    new Notice('File saved')
+    const [success, content] = this.getContentToSave()
+    if (success) {
+      this.app.vault.modify(this.file, content)
+      new Notice('File saved')
+    } else {
+      new Notice('Error while saving')
+    }
   }
 }

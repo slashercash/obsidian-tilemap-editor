@@ -10,6 +10,8 @@ interface TilemapEditorProps {
 }
 
 export const TilemapEditor: FC<TilemapEditorProps> = ({ tilemap, isEditMode, onTilemapChanged }) => {
+  // const [tilemapee, setTilemap] = React.useState(5)
+
   return (
     <div className={'tilemap-editor'}>
       <Renderer tilemap={tilemap} isEditMode={isEditMode} onTilemapChanged={onTilemapChanged} />

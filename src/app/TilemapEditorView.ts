@@ -5,8 +5,8 @@ import { TilemapEditorBaseView } from './TilemapEditorBaseView'
 import { FileParser } from './FileParser'
 
 export class TilemapEditorView extends TilemapEditorBaseView {
-  private reactRoot: Root
-  private tilemap: Tilemap
+  private reactRoot?: Root
+  private tilemap?: Tilemap
   private isEditMode: boolean = false
 
   public onLoaded(rootElement: HTMLElement): void {
@@ -14,7 +14,7 @@ export class TilemapEditorView extends TilemapEditorBaseView {
   }
 
   public onUnloaded(): void {
-    this.reactRoot.unmount()
+    this.reactRoot?.unmount()
   }
 
   public onFileLoaded(fileContent: string): void {
@@ -27,8 +27,11 @@ export class TilemapEditorView extends TilemapEditorBaseView {
     this.renderTilemapEditor()
   }
 
-  public getContentToSave(): string {
-    return FileParser.tilemapToString(this.tilemap)
+  public getContentToSave(): [success: boolean, content: string] {
+    if (this.tilemap) {
+      return [true, FileParser.tilemapToString(this.tilemap)]
+    }
+    return [false, '']
   }
 
   private onTilemapChanged = (tilemap: Tilemap): void => {
@@ -37,11 +40,14 @@ export class TilemapEditorView extends TilemapEditorBaseView {
   }
 
   private renderTilemapEditor() {
-    const tilemapEditor = TilemapEditor({
-      tilemap: this.tilemap,
-      isEditMode: this.isEditMode,
-      onTilemapChanged: this.onTilemapChanged
-    })
-    this.reactRoot.render(tilemapEditor)
+    if (this.tilemap && this.reactRoot) {
+      const tilemapEditor = TilemapEditor({
+        tilemap: this.tilemap,
+        isEditMode: this.isEditMode,
+        onTilemapChanged: this.onTilemapChanged
+      })
+      // console.log('render tilemapEditor')
+      this.reactRoot?.render(tilemapEditor)
+    }
   }
 }

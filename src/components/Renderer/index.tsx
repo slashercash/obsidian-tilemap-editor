@@ -1,7 +1,8 @@
 import React, { FC, useCallback } from 'react'
+import { cn } from 'src/helper/className'
 import { Tilemap } from 'src/types/tilemap'
 
-interface RendererProps {
+type RendererProps = {
   tilemap: Tilemap
   isEditMode: boolean
   onTilemapChanged: (t: Tilemap) => void
@@ -18,7 +19,7 @@ export const Renderer: FC<RendererProps> = ({ tilemap, isEditMode, onTilemapChan
   )
 
   return (
-    <div className={'tilemap-renderer' + (isEditMode ? ' tilemap-renderer--edit' : '')}>
+    <div className={cn('tilemap-renderer', isEditMode && 'edit')}>
       <div className={'tilemap'}>
         {tilemap.rows.map((row, rowKey) => (
           <div key={rowKey} className='tilemap-row'>
@@ -36,7 +37,7 @@ export const Renderer: FC<RendererProps> = ({ tilemap, isEditMode, onTilemapChan
   )
 }
 
-// interface InnerHtmlProps {
+// type InnerHtmlProps = {
 //   view: string
 // }
 

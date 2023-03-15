@@ -35,23 +35,11 @@ export class TilemapEditorView extends TilemapEditorBaseView {
     return [false, '']
   }
 
-  private onTilemapChanged = (tilemap: Tilemap): void => {
-    this.tilemap = tilemap
-    this.renderTilemapEditor()
-  }
-
   private renderTilemapEditor() {
     const tilemap = this.tilemap
     const rootElement = this.rootElement
     if (tilemap && rootElement) {
-      const tilemapEditor = React.createElement(() =>
-        TilemapEditor({
-          tilemap,
-          isEditMode: this.isEditMode,
-          onTilemapChanged: this.onTilemapChanged
-        })
-      )
-      // console.log('render tilemapEditor')
+      const tilemapEditor = React.createElement(() => TilemapEditor({ tilemap, isEditMode: this.isEditMode }))
       ReactDOM.render(tilemapEditor, rootElement)
     }
   }

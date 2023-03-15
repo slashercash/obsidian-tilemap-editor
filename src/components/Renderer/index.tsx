@@ -8,11 +8,14 @@ interface RendererProps {
 }
 
 export const Renderer: FC<RendererProps> = ({ tilemap, isEditMode, onTilemapChanged }) => {
-  const updateTile = useCallback((rowKey: number, cellKey: number) => {
-    const hasTile = tilemap.rows[rowKey].cells[cellKey].elements.length > 0
-    tilemap.rows[rowKey].cells[cellKey].elements = hasTile ? [] : [{ className: 'tile' }]
-    onTilemapChanged(tilemap)
-  }, [])
+  const updateTile = useCallback(
+    (rowKey: number, cellKey: number) => {
+      const hasTile = tilemap.rows[rowKey].cells[cellKey].elements.length > 0
+      tilemap.rows[rowKey].cells[cellKey].elements = hasTile ? [] : [{ className: 'tile' }]
+      onTilemapChanged({ ...tilemap })
+    },
+    [tilemap, onTilemapChanged]
+  )
 
   return (
     <div className={'tilemap-renderer' + (isEditMode ? ' tilemap-renderer--edit' : '')}>

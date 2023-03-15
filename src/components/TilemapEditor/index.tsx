@@ -15,7 +15,12 @@ export const TilemapEditor: FC<TilemapEditorProps> = ({ tilemap, isEditMode }) =
 
   return (
     <div className={'tilemap-editor'}>
-      <Renderer tilemap={internalTilemap} isEditMode={isEditMode} onTilemapChanged={setInternalTilemap} />
+      <Renderer
+        tilemap={internalTilemap}
+        isEditMode={isEditMode}
+        toolbarAction={toolbarAction}
+        onTilemapChanged={setInternalTilemap}
+      />
       {isEditMode && <Toolbar toolbarAction={toolbarAction} onToolbarActionChange={setToolbarAction} />}
     </div>
   )

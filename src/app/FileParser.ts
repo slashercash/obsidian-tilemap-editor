@@ -111,6 +111,11 @@ const cssStyle = `
     background-color: rgb(93, 0, 255);
     box-shadow: inset 0 0 0 1px black;
   }
+  .circle {
+    border-radius: 50%;
+    background-color: rgb(184, 32, 32);
+    box-shadow: inset 0 0 0 1px black;
+  }
 `
 
 function htmlToString(html: HTMLElement): string {
@@ -124,9 +129,12 @@ function format(node: Element, level: number = 0) {
 
   for (var i = 0; i < node.children.length; i++) {
     textNode = document.createTextNode('\n' + indentBefore)
-    node.insertBefore(textNode, node.children[i])
+    node.insertBefore(textNode, node.children[i] ?? null)
 
-    format(node.children[i], level)
+    const child = node.children[i]
+    if (child !== undefined) {
+      format(child, level)
+    }
 
     if (node.lastElementChild == node.children[i]) {
       textNode = document.createTextNode('\n' + indentAfter)

@@ -1,21 +1,24 @@
 import React, { FC, useCallback } from 'react'
 import { cn } from 'src/helper/className'
-import { Tilemap } from 'src/types/tilemap'
+import { Tilemap, TilemapCell, TilemapElement } from 'src/types/tilemap'
+import { ToolbarAction } from 'src/types/toolbarAction'
 
 type RendererProps = {
   tilemap: Tilemap
   isEditMode: boolean
+  toolbarAction: ToolbarAction
   onTilemapChanged: (t: Tilemap) => void
 }
 
-export const Renderer: FC<RendererProps> = ({ tilemap, isEditMode, onTilemapChanged }) => {
+export const Renderer: FC<RendererProps> = ({ tilemap, isEditMode, toolbarAction, onTilemapChanged }) => {
   const updateTile = useCallback(
     (rowKey: number, cellKey: number) => {
-      const hasTile = tilemap.rows[rowKey].cells[cellKey].elements.length > 0
-      tilemap.rows[rowKey].cells[cellKey].elements = hasTile ? [] : [{ className: 'tile' }]
-      onTilemapChanged({ ...tilemap })
+      if (isEditMode) {
+        handle[toolbarAction](tilemap, rowKey, cellKey)
+        onTilemapChanged({ ...tilemap })
+      }
     },
-    [tilemap, onTilemapChanged]
+    [tilemap, isEditMode, toolbarAction, onTilemapChanged]
   )
 
   return (
@@ -24,7 +27,7 @@ export const Renderer: FC<RendererProps> = ({ tilemap, isEditMode, onTilemapChan
         {tilemap.rows.map((row, rowKey) => (
           <div key={rowKey} className='tilemap-row'>
             {row.cells.map((cell, cellKey) => (
-              <div key={cellKey} className='tilemap-cell' onClick={() => isEditMode && updateTile(rowKey, cellKey)}>
+              <div key={cellKey} className='tilemap-cell' onClick={() => updateTile(rowKey, cellKey)}>
                 {cell.elements.map((element, elementKey) => (
                   <div key={elementKey} className={element.className}></div>
                 ))}
@@ -35,6 +38,37 @@ export const Renderer: FC<RendererProps> = ({ tilemap, isEditMode, onTilemapChan
       </div>
     </div>
   )
+}
+
+type HandleFn = (tilemap: Tilemap, rowKey: number, cellKey: number) => void
+
+const handle: { [Key in ToolbarAction]: HandleFn } = {
+  tile: setElement({ className: 'tile' }),
+  circle: setElement({ className: 'circle' }),
+  delete: deleteElement
+}
+
+function setElement(element: TilemapElement): HandleFn {
+  return (tilemap: Tilemap, rowKey: number, cellKey: number) => {
+    const cell = getCell(tilemap, rowKey, cellKey)
+    if (cell) {
+      cell.elements = [element]
+    }
+  }
+}
+
+function deleteElement(tilemap: Tilemap, rowKey: number, cellKey: number): void {
+  const cell = getCell(tilemap, rowKey, cellKey)
+  if (cell) {
+    cell.elements = []
+  }
+}
+
+function getCell(tilemap: Tilemap, rowKey: number, cellKey: number): TilemapCell | undefined {
+  const row = tilemap.rows[rowKey]
+  if (row) {
+    return row.cells[cellKey]
+  }
 }
 
 // type InnerHtmlProps = {

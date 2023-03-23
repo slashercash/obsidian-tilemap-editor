@@ -89,6 +89,67 @@ function divToHtml(doc: Document, div: HTMLDivElement): HTMLHtmlElement {
   return html
 }
 
+export function getNewTilemap(): string {
+  const base = baseTilemap
+  return base.replace('<style></style>', `<style>${cssStyle}</style>`)
+}
+
+const baseTilemap = `<body>
+<main>
+  <div id="tilemap">
+    <div class="tilemap-row">
+      <div class="tilemap-cell"></div>
+      <div class="tilemap-cell"></div>
+      <div class="tilemap-cell"></div>
+      <div class="tilemap-cell"></div>
+      <div class="tilemap-cell"></div>
+      <div class="tilemap-cell"></div>
+    </div>
+    <div class="tilemap-row">
+      <div class="tilemap-cell"></div>
+      <div class="tilemap-cell"></div>
+      <div class="tilemap-cell"></div>
+      <div class="tilemap-cell"></div>
+      <div class="tilemap-cell"></div>
+      <div class="tilemap-cell"></div>
+    </div>
+    <div class="tilemap-row">
+      <div class="tilemap-cell"></div>
+      <div class="tilemap-cell"></div>
+      <div class="tilemap-cell"></div>
+      <div class="tilemap-cell"></div>
+      <div class="tilemap-cell"></div>
+      <div class="tilemap-cell"></div>
+    </div>
+    <div class="tilemap-row">
+      <div class="tilemap-cell"></div>
+      <div class="tilemap-cell"></div>
+      <div class="tilemap-cell"></div>
+      <div class="tilemap-cell"></div>
+      <div class="tilemap-cell"></div>
+      <div class="tilemap-cell"></div>
+    </div>
+    <div class="tilemap-row">
+      <div class="tilemap-cell"></div>
+      <div class="tilemap-cell"></div>
+      <div class="tilemap-cell"></div>
+      <div class="tilemap-cell"></div>
+      <div class="tilemap-cell"></div>
+      <div class="tilemap-cell"></div>
+    </div>
+    <div class="tilemap-row">
+      <div class="tilemap-cell"></div>
+      <div class="tilemap-cell"></div>
+      <div class="tilemap-cell"></div>
+      <div class="tilemap-cell"></div>
+      <div class="tilemap-cell"></div>
+      <div class="tilemap-cell"></div>
+    </div>
+  </div>
+</main>
+</body>
+<style></style>`
+
 const cssStyle = `
   main {
     display: flex;

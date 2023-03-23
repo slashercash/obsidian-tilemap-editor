@@ -19,7 +19,7 @@ export default class TilemapEditorPlugin extends Plugin {
 
     this.registerExtensions(TILE_FILE_EXTENSIONS, VIEW_TYPE_TILE)
 
-    const fileToOpen = this.app.vault.getFiles().find((f) => f.basename === '04_minimal-prototype-V0')
+    const fileToOpen = this.app.vault.getFiles().find((f) => f.basename === 'prototype-V0')
     if (fileToOpen) this.app.workspace.getLeaf().openFile(fileToOpen)
   }
 

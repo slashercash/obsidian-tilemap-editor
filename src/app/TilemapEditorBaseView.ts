@@ -1,6 +1,6 @@
 import { FileView, WorkspaceLeaf, Notice } from 'obsidian'
 
-export const TILE_FILE_EXTENSIONS = ['html']
+export const TILE_FILE_EXTENSIONS = ['tile']
 export const VIEW_TYPE_TILE = 'tile-view'
 
 export abstract class TilemapEditorBaseView extends FileView {

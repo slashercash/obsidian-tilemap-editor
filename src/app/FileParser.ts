@@ -1,4 +1,6 @@
 import { Tilemap, TilemapCell, TilemapElement, TilemapRow } from 'src/types/tilemap'
+import { htmlToString } from 'src/helper/htmlToString'
+import { FileCreator } from './FileCreator'
 
 export class FileParser {
   static stringToTilemap(fileContent: string): Tilemap {
@@ -14,10 +16,8 @@ export class FileParser {
 
   static tilemapToString(tilemap: Tilemap): string {
     const html = tilemapToHtml(tilemap)
-
     const htmlString = htmlToString(html)
-
-    return htmlString.replace('<style></style>', `<style>${cssStyle}</style>`)
+    return FileCreator.appendStyle(htmlString)
   }
 }
 
@@ -78,130 +78,10 @@ function divToHtml(doc: Document, div: HTMLDivElement): HTMLHtmlElement {
   const html = doc.createElement('html')
   const body = doc.createElement('body')
   const main = doc.createElement('main')
-  const style = doc.createElement('style')
-  style.appendText('')
 
   main.appendChild(div)
   body.appendChild(main)
   html.appendChild(body)
-  html.appendChild(style)
 
   return html
-}
-
-export function getNewTilemap(): string {
-  const base = baseTilemap
-  return base.replace('<style></style>', `<style>${cssStyle}</style>`)
-}
-
-const baseTilemap = `<body>
-<main>
-  <div id="tilemap">
-    <div class="tilemap-row">
-      <div class="tilemap-cell"></div>
-      <div class="tilemap-cell"></div>
-      <div class="tilemap-cell"></div>
-      <div class="tilemap-cell"></div>
-      <div class="tilemap-cell"></div>
-      <div class="tilemap-cell"></div>
-    </div>
-    <div class="tilemap-row">
-      <div class="tilemap-cell"></div>
-      <div class="tilemap-cell"></div>
-      <div class="tilemap-cell"></div>
-      <div class="tilemap-cell"></div>
-      <div class="tilemap-cell"></div>
-      <div class="tilemap-cell"></div>
-    </div>
-    <div class="tilemap-row">
-      <div class="tilemap-cell"></div>
-      <div class="tilemap-cell"></div>
-      <div class="tilemap-cell"></div>
-      <div class="tilemap-cell"></div>
-      <div class="tilemap-cell"></div>
-      <div class="tilemap-cell"></div>
-    </div>
-    <div class="tilemap-row">
-      <div class="tilemap-cell"></div>
-      <div class="tilemap-cell"></div>
-      <div class="tilemap-cell"></div>
-      <div class="tilemap-cell"></div>
-      <div class="tilemap-cell"></div>
-      <div class="tilemap-cell"></div>
-    </div>
-    <div class="tilemap-row">
-      <div class="tilemap-cell"></div>
-      <div class="tilemap-cell"></div>
-      <div class="tilemap-cell"></div>
-      <div class="tilemap-cell"></div>
-      <div class="tilemap-cell"></div>
-      <div class="tilemap-cell"></div>
-    </div>
-    <div class="tilemap-row">
-      <div class="tilemap-cell"></div>
-      <div class="tilemap-cell"></div>
-      <div class="tilemap-cell"></div>
-      <div class="tilemap-cell"></div>
-      <div class="tilemap-cell"></div>
-      <div class="tilemap-cell"></div>
-    </div>
-  </div>
-</main>
-</body>
-<style></style>`
-
-const cssStyle = `
-  main {
-    display: flex;
-    justify-content: center;
-  }
-  .tilemap-row {
-    display: flex;
-  }
-  .tilemap-cell {
-    display: grid;
-    height: 30px;
-    width: 30px;
-    box-shadow: inset 0 0 0 1px lightgray;
-  }
-  .tilemap-cell > div {
-    grid-row-start: 1;
-    grid-column-start: 1;
-  }
-  .tile {
-    background-color: rgb(93, 0, 255);
-    box-shadow: inset 0 0 0 1px black;
-  }
-  .circle {
-    border-radius: 50%;
-    background-color: rgb(184, 32, 32);
-    box-shadow: inset 0 0 0 1px black;
-  }
-`
-
-function htmlToString(html: HTMLElement): string {
-  return format(html).innerHTML
-}
-
-function format(node: Element, level: number = 0) {
-  var indentBefore = new Array(level++ + 1).join('  '),
-    indentAfter = new Array(level - 1).join('  '),
-    textNode
-
-  for (var i = 0; i < node.children.length; i++) {
-    textNode = document.createTextNode('\n' + indentBefore)
-    node.insertBefore(textNode, node.children[i] ?? null)
-
-    const child = node.children[i]
-    if (child !== undefined) {
-      format(child, level)
-    }
-
-    if (node.lastElementChild == node.children[i]) {
-      textNode = document.createTextNode('\n' + indentAfter)
-      node.appendChild(textNode)
-    }
-  }
-
-  return node
 }

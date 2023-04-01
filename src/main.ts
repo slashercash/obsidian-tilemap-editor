@@ -1,7 +1,7 @@
 import { Menu, MenuItem, Plugin, TAbstractFile, TFile, TFolder } from 'obsidian'
 import { VIEW_TYPE_TILE, TILE_FILE_EXTENSION } from './app/TilemapEditorBaseView'
 import { TilemapEditorView } from './app/TilemapEditorView'
-import { getNewTilemap } from './app/FileParser'
+import { FileCreator } from './app/FileCreator'
 
 export default class TilemapEditorPlugin extends Plugin {
   async onload() {
@@ -14,7 +14,7 @@ export default class TilemapEditorPlugin extends Plugin {
             item
               .setTitle('New Tilemap')
               .setIcon('dice')
-              .onClick(() => this.app.vault.create(getPath(folder), getNewTilemap()))
+              .onClick(() => this.app.vault.create(getPath(folder), FileCreator.newFile()))
           })
         }
       })
@@ -22,7 +22,7 @@ export default class TilemapEditorPlugin extends Plugin {
 
     this.registerExtensions([TILE_FILE_EXTENSION], VIEW_TYPE_TILE)
 
-    const fileToOpen = this.app.vault.getFiles().find((f) => f.basename === 'prototype-V0')
+    const fileToOpen = this.app.vault.getFiles().find((f) => f.name === 'Untitled.tile')
     if (fileToOpen) this.app.workspace.getLeaf().openFile(fileToOpen)
   }
 

@@ -1,6 +1,6 @@
-import { Tilemap, TilemapCell, TilemapElement, TilemapRow } from 'src/types/tilemap'
-import { htmlToString } from 'src/helper/htmlToString'
-import { FileCreator } from './FileCreator'
+import { Tilemap, TilemapCell, TilemapElement, TilemapRow } from 'types/tilemap'
+import { htmlToString } from 'helper/htmlToString'
+import { FileCreator } from 'app/FileCreator'
 
 export class FileParser {
   static stringToTilemap(fileContent: string): Tilemap {

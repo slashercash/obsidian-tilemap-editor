@@ -1,7 +1,7 @@
 import { Menu, MenuItem, Plugin, TAbstractFile, TFile, TFolder } from 'obsidian'
-import { VIEW_TYPE_TILE, TILE_FILE_EXTENSION } from './app/TilemapEditorBaseView'
-import { TilemapEditorView } from './app/TilemapEditorView'
-import { FileCreator } from './app/FileCreator'
+import { VIEW_TYPE_TILE, TILE_FILE_EXTENSION } from 'app/TilemapEditorBaseView'
+import { TilemapEditorView } from 'app/TilemapEditorView'
+import { FileCreator } from 'app/FileCreator'
 
 export default class TilemapEditorPlugin extends Plugin {
   async onload() {

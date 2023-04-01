@@ -1,9 +1,9 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { TilemapEditor } from 'src/components/TilemapEditor'
-import { Tilemap } from 'src/types/tilemap'
-import { TilemapEditorBaseView } from './TilemapEditorBaseView'
-import { FileParser } from './FileParser'
+import { TilemapEditor } from 'components/TilemapEditor'
+import { Tilemap } from 'types/tilemap'
+import { TilemapEditorBaseView } from 'app/TilemapEditorBaseView'
+import { FileParser } from 'app/FileParser'
 
 export class TilemapEditorView extends TilemapEditorBaseView {
   private rootElement?: HTMLElement

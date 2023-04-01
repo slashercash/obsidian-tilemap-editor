@@ -1,6 +1,6 @@
 let newFile: string
 
-import { htmlToString } from 'src/helper/htmlToString'
+import { htmlToString } from 'helper/htmlToString'
 
 export class FileCreator {
   static newFile(): string {

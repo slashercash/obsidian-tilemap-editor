@@ -1,8 +1,8 @@
 import React, { FC, useState } from 'react'
-import { Tilemap } from 'src/types/tilemap'
-import { ToolbarAction, toolbarActions } from 'src/types/toolbarAction'
-import { Renderer } from '../Renderer'
-import { Toolbar } from '../Toolbar'
+import { Tilemap } from 'types/tilemap'
+import { ToolbarAction, toolbarActions } from 'types/toolbarAction'
+import { Renderer } from 'components/Renderer'
+import { Toolbar } from 'components/Toolbar'
 
 type TilemapEditorProps = {
   tilemap: Tilemap

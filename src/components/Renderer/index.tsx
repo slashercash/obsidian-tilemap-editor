@@ -1,7 +1,7 @@
 import React, { FC, useCallback } from 'react'
-import { cn } from 'src/helper/className'
-import { Tilemap, TilemapCell, TilemapElement } from 'src/types/tilemap'
-import { ToolbarAction } from 'src/types/toolbarAction'
+import { cn } from 'helper/className'
+import { Tilemap, TilemapCell, TilemapElement } from 'types/tilemap'
+import { ToolbarAction } from 'types/toolbarAction'
 
 type RendererProps = {
   tilemap: Tilemap

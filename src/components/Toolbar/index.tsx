@@ -1,6 +1,6 @@
 import React, { FC } from 'react'
-import { cn } from 'src/helper/className'
-import { toolbarActions, ToolbarAction } from 'src/types/toolbarAction'
+import { cn } from 'helper/className'
+import { toolbarActions, ToolbarAction } from 'types/toolbarAction'
 
 type ToolbarProps = {
   toolbarAction: ToolbarAction

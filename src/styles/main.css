@@ -1,0 +1,14 @@
+.view-content-tilemap-editor {
+  padding: 0 !important;
+}
+
+.view-content-tilemap-editor .tilemap-editor {
+  height: 100%;
+
+  display: flex;     /* 00001: tilemap-toolbar sticks at bottom */
+  flex-flow: column; /* 00001 */
+}
+
+.view-content-tilemap-editor .tilemap-renderer {
+  flex: 1;           /* 00001 */
+}

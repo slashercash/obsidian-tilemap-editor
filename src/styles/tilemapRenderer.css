@@ -1,0 +1,36 @@
+.view-content-tilemap-editor .tilemap  {
+  width: min-content;
+  margin: auto;
+  padding: 20px;
+}
+
+.view-content-tilemap-editor .tilemap-row {
+  display: flex;
+}
+
+.view-content-tilemap-editor .tilemap-cell {
+  display: grid;
+  height: 30px;
+  width: 30px;
+  box-shadow: inset 0 0 0 1px lightgray;
+}
+
+.view-content-tilemap-editor .tilemap-cell > div {
+  grid-row-start: 1;
+  grid-column-start: 1;
+}
+
+.view-content-tilemap-editor .tile {
+  background-color: rgb(93, 0, 255);
+  box-shadow: inset 0 0 0 1px black;
+}
+
+.view-content-tilemap-editor .circle {
+  border-radius: 50%;
+  background-color: rgb(184, 32, 32);
+  box-shadow: inset 0 0 0 1px black;
+}
+
+.view-content-tilemap-editor .tilemap-renderer--edit .tilemap-cell:hover {
+  cursor: pointer;
+}

@@ -1,6 +1,7 @@
 let newFile: string
 
 import { htmlToString } from 'helper/htmlToString'
+import { cssStyle } from 'styles/tilemapRenderer'
 
 export class FileCreator {
   static newFile(): string {
@@ -50,33 +51,3 @@ function createHtmlTilemap(columnCnt: number, rowCnt: number): HTMLElement {
 
   return html
 }
-
-const cssStyle = `<style>
-  main {
-    display: flex;
-    justify-content: center;
-  }
-  .tilemap-row {
-    display: flex;
-  }
-  .tilemap-cell {
-    display: grid;
-    height: 30px;
-    width: 30px;
-    box-shadow: inset 0 0 0 1px lightgray;
-  }
-  .tilemap-cell > div {
-    grid-row-start: 1;
-    grid-column-start: 1;
-  }
-  .tile {
-    background-color: rgb(93, 0, 255);
-    box-shadow: inset 0 0 0 1px black;
-  }
-  .circle {
-    border-radius: 50%;
-    background-color: rgb(184, 32, 32);
-    box-shadow: inset 0 0 0 1px black;
-  }
-</style>
-`

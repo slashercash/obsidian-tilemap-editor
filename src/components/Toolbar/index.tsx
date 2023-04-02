@@ -1,6 +1,7 @@
-import React, { FC } from 'react'
+import type { FC, ToolbarAction } from 'types'
+import { toolbarActions } from 'types/enums'
+import React from 'react'
 import { cn } from 'helper/className'
-import { toolbarActions, ToolbarAction } from 'types/toolbarAction'
 
 type ToolbarProps = {
   toolbarAction: ToolbarAction

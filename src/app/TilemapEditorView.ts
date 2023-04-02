@@ -1,7 +1,7 @@
+import type { Tilemap } from 'types'
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { TilemapEditor } from 'components/TilemapEditor'
-import { Tilemap } from 'types/tilemap'
 import { TilemapEditorBaseView } from 'app/TilemapEditorBaseView'
 import { FileParser } from 'app/FileParser'
 

@@ -1,6 +1,6 @@
-import React, { FC, useState } from 'react'
-import { Tilemap } from 'types/tilemap'
-import { ToolbarAction, toolbarActions } from 'types/toolbarAction'
+import type { FC, ToolbarAction, Tilemap } from 'types'
+import { toolbarActions } from 'types/enums'
+import React, { useState } from 'react'
 import { Renderer } from 'components/Renderer'
 import { Toolbar } from 'components/Toolbar'
 

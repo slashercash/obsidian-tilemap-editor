@@ -1,4 +1,4 @@
-import { Tilemap, TilemapCell, TilemapElement, TilemapRow } from 'types/tilemap'
+import type { Tilemap, TilemapCell, TilemapElement, TilemapRow } from 'types'
 import { htmlToString } from 'helper/htmlToString'
 import { FileCreator } from 'app/FileCreator'
 

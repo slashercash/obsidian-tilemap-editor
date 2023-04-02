@@ -8,7 +8,7 @@
     "allowJs": true,
     "noImplicitAny": true,
     "moduleResolution": "node",
-    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
     "jsx": "react",
     "allowSyntheticDefaultImports": true,
     "strict": true,

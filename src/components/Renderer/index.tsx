@@ -20,21 +20,51 @@ export const Renderer: FC<RendererProps> = ({ tilemap, isEditMode, toolbarAction
     [tilemap, isEditMode, toolbarAction, onTilemapChanged]
   )
 
+  const Space: FC = () => (
+    <div className={'space'}>
+      {tilemap.rows.map((row, rowKey) => (
+        <div key={rowKey} className='space-row'>
+          {row.cells.map((_, cellKey) => (
+            <div key={cellKey} className='space-cell'></div>
+          ))}
+        </div>
+      ))}
+    </div>
+  )
+
+  const TilemapComponent: FC = () => (
+    <div className={'tilemap'}>
+      {tilemap.rows.map((row, rowKey) => (
+        <div key={rowKey} className='tilemap-row'>
+          {row.cells.map((cell, cellKey) => (
+            <div key={cellKey} className='tilemap-cell' onClick={() => updateTile(rowKey, cellKey)}>
+              {cell.elements.map((element, elementKey) => (
+                <div key={elementKey} className={element.className}></div>
+              ))}
+            </div>
+          ))}
+        </div>
+      ))}
+    </div>
+  )
+
   return (
     <div className={cn('tilemap-renderer', isEditMode && 'edit')}>
-      <div className={'tilemap'}>
-        {tilemap.rows.map((row, rowKey) => (
-          <div key={rowKey} className='tilemap-row'>
-            {row.cells.map((cell, cellKey) => (
-              <div key={cellKey} className='tilemap-cell' onClick={() => updateTile(rowKey, cellKey)}>
-                {cell.elements.map((element, elementKey) => (
-                  <div key={elementKey} className={element.className}></div>
-                ))}
-              </div>
-            ))}
-          </div>
-        ))}
-      </div>
+      <section>
+        <Space />
+        <Space />
+        <Space />
+      </section>
+      <section>
+        <Space />
+        <TilemapComponent />
+        <Space />
+      </section>
+      <section>
+        <Space />
+        <Space />
+        <Space />
+      </section>
     </div>
   )
 }

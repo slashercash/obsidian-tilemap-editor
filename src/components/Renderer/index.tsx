@@ -10,6 +10,9 @@ type RendererProps = {
 }
 
 export const Renderer: FC<RendererProps> = ({ tilemap, isEditMode, toolbarAction, onTilemapChanged }) => {
+  const spaceVertical = 13
+  const spaceHorizontal = 8
+
   const updateTile = useCallback(
     (rowKey: number, cellKey: number) => {
       if (isEditMode) {
@@ -20,17 +23,9 @@ export const Renderer: FC<RendererProps> = ({ tilemap, isEditMode, toolbarAction
     [tilemap, isEditMode, toolbarAction, onTilemapChanged]
   )
 
-  const Space: FC = () => (
-    <div className={'space'}>
-      {tilemap.rows.map((row, rowKey) => (
-        <div key={rowKey} className='space-row'>
-          {row.cells.map((_, cellKey) => (
-            <div key={cellKey} className='space-cell'></div>
-          ))}
-        </div>
-      ))}
-    </div>
-  )
+  const EdgeSpace: FC = createSpace(spaceHorizontal, spaceVertical)
+  const HorizontSpace: FC = createSpace(spaceHorizontal, tilemap.rows.length)
+  const VerticalSpace: FC = createSpace(tilemap.rows[0]?.cells.length ?? 0, spaceVertical)
 
   const TilemapComponent: FC = () => (
     <div className={'tilemap'}>
@@ -51,19 +46,19 @@ export const Renderer: FC<RendererProps> = ({ tilemap, isEditMode, toolbarAction
   return (
     <div className={cn('tilemap-renderer', isEditMode && 'edit')}>
       <section>
-        <Space />
-        <Space />
-        <Space />
+        <EdgeSpace />
+        <VerticalSpace />
+        <EdgeSpace />
       </section>
       <section>
-        <Space />
+        <HorizontSpace />
         <TilemapComponent />
-        <Space />
+        <HorizontSpace />
       </section>
       <section>
-        <Space />
-        <Space />
-        <Space />
+        <EdgeSpace />
+        <VerticalSpace />
+        <EdgeSpace />
       </section>
     </div>
   )
@@ -98,6 +93,20 @@ function getCell(tilemap: Tilemap, rowKey: number, cellKey: number): TilemapCell
   if (row) {
     return row.cells[cellKey]
   }
+}
+
+function createSpace(x: number, y: number): FC {
+  return () => (
+    <div className={'space'}>
+      {[...Array(y)].map((_, rowKey) => (
+        <div key={rowKey} className='space-row'>
+          {[...Array(x)].map((_, cellKey) => (
+            <div key={cellKey} className='space-cell'></div>
+          ))}
+        </div>
+      ))}
+    </div>
+  )
 }
 
 // type InnerHtmlProps = {

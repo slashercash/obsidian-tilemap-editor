@@ -20,11 +20,12 @@ export const Renderer: FC<RendererProps> = ({ tilemap, isEditMode, toolbarAction
     [tilemap, isEditMode, toolbarAction, onTilemapChanged]
   )
 
-  const tilemapVertical = tilemap.rows.length
-  const tilemapHorizontal = tilemap.rows[0]?.cells.length ?? 0
-
   return (
-    <SpaceWrapper isEditMode={isEditMode} tilemapVertical={tilemapVertical} tilemapHorizontal={tilemapHorizontal}>
+    <SpaceWrapper
+      isEditMode={isEditMode}
+      tilemapSizeVertical={tilemap.rows.length}
+      tilemapSizeHorizontal={tilemap.rows[0]?.cells.length ?? 0}
+    >
       <div className={'tilemap'}>
         {tilemap.rows.map((row, rowKey) => (
           <div key={rowKey} className='tilemap-row'>

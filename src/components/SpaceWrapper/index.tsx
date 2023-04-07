@@ -1,40 +1,42 @@
 import type { FC, ReactNode } from 'types'
-import React, { useLayoutEffect, useRef } from 'react'
+import React, { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { cn } from 'helper/className'
 
 type SpaceWrapperProps = {
   isEditMode: boolean
-  tilemapVertical: number
-  tilemapHorizontal: number
+  tilemapSizeVertical: number
+  tilemapSizeHorizontal: number
   children: ReactNode
 }
 
-export const SpaceWrapper: FC<SpaceWrapperProps> = ({ isEditMode, tilemapVertical, tilemapHorizontal, children }) => {
+export const SpaceWrapper: FC<SpaceWrapperProps> = ({
+  isEditMode,
+  tilemapSizeVertical,
+  tilemapSizeHorizontal,
+  children
+}) => {
   const ref = useRef<HTMLDivElement>(null)
+  const [editorSizeVertical, setEditorSizeVertical] = useState(0)
+  const [editorSizeHorizontal, setEditorSizeHorizontal] = useState(0)
 
   useLayoutEffect(() => {
-    console.log('effect ')
     const obs = new ResizeObserver(([entry]) => {
       if (entry) {
-        console.log(`height: ${entry.contentRect.height} | width: ${entry.contentRect.width}`)
+        setEditorSizeHorizontal(Math.floor(entry.contentRect.width / 30))
+        setEditorSizeVertical(Math.floor(entry.contentRect.height / 30))
       }
     })
-
     if (ref.current) {
       obs.observe(ref.current)
     }
     return () => {
-      console.log('disconnect ')
       obs.disconnect()
     }
   }, [])
 
-  const spaceVertical = 13
-  const spaceHorizontal = 8
-
-  const EdgeSpace: FC = createSpace(spaceHorizontal, spaceVertical)
-  const HorizontSpace: FC = createSpace(spaceHorizontal, tilemapVertical)
-  const VerticalSpace: FC = createSpace(tilemapHorizontal, spaceVertical)
+  const EdgeSpace: FC = createSpace(editorSizeHorizontal, editorSizeVertical)
+  const HorizontSpace: FC = createSpace(editorSizeHorizontal, tilemapSizeVertical)
+  const VerticalSpace: FC = createSpace(tilemapSizeHorizontal, editorSizeVertical)
 
   return (
     <div ref={ref} className={cn('tilemap-renderer', isEditMode && 'edit')}>

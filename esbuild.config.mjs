@@ -22,26 +22,15 @@ esbuild
   .catch(() => process.exit(1))
 
 function rawLoader() {
+  const filter = /\?raw$/
   return {
-    name: 'raw',
+    name: 'rawLoader',
     setup(build) {
-      build.onResolve({ filter: /\?raw$/ }, (args) => {
-        return {
-          path: args.path,
-          pluginData: {
-            isAbsolute: path.isAbsolute(args.path),
-            resolveDir: args.resolveDir
-          },
-          namespace: 'raw-loader'
-        }
-      })
-      build.onLoad({ filter: /\?raw$/, namespace: 'raw-loader' }, async (args) => {
-        const fullPath = args.pluginData.isAbsolute ? args.path : path.join(args.pluginData.resolveDir, args.path)
-        return {
-          contents: await readFile(fullPath.replace(/\?raw$/, '')),
-          loader: 'text'
-        }
-      })
+      build.onResolve({ filter }, (args) => ({ path: path.join(args.resolveDir, args.path) }))
+      build.onLoad({ filter }, async (args) => ({
+        contents: await readFile(args.path.replace(filter, '')),
+        loader: 'text'
+      }))
     }
   }
 }

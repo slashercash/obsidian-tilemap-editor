@@ -1,7 +1,7 @@
 let newFile: string
 
 import { htmlToString } from 'helper/htmlToString'
-import { cssStyle } from 'styles/tilemapRenderer'
+import { getRawStyle } from 'styles/tilemapRenderer'
 
 export class FileCreator {
   static newFile(): string {
@@ -13,7 +13,7 @@ export class FileCreator {
     return newFile
   }
   static appendStyle(htmlFile: string): string {
-    return htmlFile + cssStyle
+    return htmlFile + getRawStyle()
   }
 }
 

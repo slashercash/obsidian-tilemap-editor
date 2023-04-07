@@ -1,9 +1,16 @@
 // @ts-ignore:next-line
 import tilemapRenderer from './tilemapRenderer.css?raw'
 
-let str = removePrefix(tilemapRenderer)
-str = format(str)
-export const cssStyle = wrapStyleElement(str)
+let style: string
+
+export function getRawStyle() {
+  if (!style) {
+    style = removePrefix(tilemapRenderer)
+    style = format(style)
+    style = wrapStyleElement(style)
+  }
+  return style
+}
 
 function removePrefix(str: string): string {
   return str.replace(/\.view-content-tilemap-editor\s/gm, '')

@@ -1,6 +1,6 @@
 import type { FC, Tilemap, TilemapCell, TilemapElement, ToolbarAction } from 'types'
 import React, { useCallback } from 'react'
-import { cn } from 'helper/className'
+import { SpaceWrapper } from 'components/SpaceWrapper'
 
 type RendererProps = {
   tilemap: Tilemap
@@ -10,9 +10,6 @@ type RendererProps = {
 }
 
 export const Renderer: FC<RendererProps> = ({ tilemap, isEditMode, toolbarAction, onTilemapChanged }) => {
-  const spaceVertical = 13
-  const spaceHorizontal = 8
-
   const updateTile = useCallback(
     (rowKey: number, cellKey: number) => {
       if (isEditMode) {
@@ -23,44 +20,25 @@ export const Renderer: FC<RendererProps> = ({ tilemap, isEditMode, toolbarAction
     [tilemap, isEditMode, toolbarAction, onTilemapChanged]
   )
 
-  const EdgeSpace: FC = createSpace(spaceHorizontal, spaceVertical)
-  const HorizontSpace: FC = createSpace(spaceHorizontal, tilemap.rows.length)
-  const VerticalSpace: FC = createSpace(tilemap.rows[0]?.cells.length ?? 0, spaceVertical)
-
-  const TilemapComponent: FC = () => (
-    <div className={'tilemap'}>
-      {tilemap.rows.map((row, rowKey) => (
-        <div key={rowKey} className='tilemap-row'>
-          {row.cells.map((cell, cellKey) => (
-            <div key={cellKey} className='tilemap-cell' onClick={() => updateTile(rowKey, cellKey)}>
-              {cell.elements.map((element, elementKey) => (
-                <div key={elementKey} className={element.className}></div>
-              ))}
-            </div>
-          ))}
-        </div>
-      ))}
-    </div>
-  )
+  const tilemapVertical = tilemap.rows.length
+  const tilemapHorizontal = tilemap.rows[0]?.cells.length ?? 0
 
   return (
-    <div className={cn('tilemap-renderer', isEditMode && 'edit')}>
-      <section>
-        <EdgeSpace />
-        <VerticalSpace />
-        <EdgeSpace />
-      </section>
-      <section>
-        <HorizontSpace />
-        <TilemapComponent />
-        <HorizontSpace />
-      </section>
-      <section>
-        <EdgeSpace />
-        <VerticalSpace />
-        <EdgeSpace />
-      </section>
-    </div>
+    <SpaceWrapper isEditMode={isEditMode} tilemapVertical={tilemapVertical} tilemapHorizontal={tilemapHorizontal}>
+      <div className={'tilemap'}>
+        {tilemap.rows.map((row, rowKey) => (
+          <div key={rowKey} className='tilemap-row'>
+            {row.cells.map((cell, cellKey) => (
+              <div key={cellKey} className='tilemap-cell' onClick={() => updateTile(rowKey, cellKey)}>
+                {cell.elements.map((element, elementKey) => (
+                  <div key={elementKey} className={element.className}></div>
+                ))}
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    </SpaceWrapper>
   )
 }
 
@@ -93,20 +71,6 @@ function getCell(tilemap: Tilemap, rowKey: number, cellKey: number): TilemapCell
   if (row) {
     return row.cells[cellKey]
   }
-}
-
-function createSpace(x: number, y: number): FC {
-  return () => (
-    <div className={'space'}>
-      {[...Array(y)].map((_, rowKey) => (
-        <div key={rowKey} className='space-row'>
-          {[...Array(x)].map((_, cellKey) => (
-            <div key={cellKey} className='space-cell'></div>
-          ))}
-        </div>
-      ))}
-    </div>
-  )
 }
 
 // type InnerHtmlProps = {

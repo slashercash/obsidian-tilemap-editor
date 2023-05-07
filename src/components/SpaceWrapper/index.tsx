@@ -4,26 +4,29 @@ import { cn } from 'helper/className'
 
 type SpaceWrapperProps = {
   isEditMode: boolean
-  tilemapSizeVertical: number
-  tilemapSizeHorizontal: number
+  tilesCountVertical: number
+  tilesCountHorizontal: number
   children: ReactNode
 }
 
 export const SpaceWrapper: FC<SpaceWrapperProps> = ({
   isEditMode,
-  tilemapSizeVertical,
-  tilemapSizeHorizontal,
+  tilesCountVertical,
+  tilesCountHorizontal,
   children
 }) => {
   const ref = useRef<HTMLDivElement>(null)
-  const [editorSizeVertical, setEditorSizeVertical] = useState(0)
-  const [editorSizeHorizontal, setEditorSizeHorizontal] = useState(0)
+  const [editorHeight, setEditorHeight] = useState(0)
+  const [editorWidth, setEditorWidth] = useState(0)
 
   useLayoutEffect(() => {
     const obs = new ResizeObserver(([entry]) => {
       if (entry) {
-        setEditorSizeHorizontal(Math.floor(entry.contentRect.width / 30))
-        setEditorSizeVertical(Math.floor(entry.contentRect.height / 30))
+        const spaceTilesCountHorizontal = Math.floor(entry.contentRect.width / 30) * 2
+        const spaceTilesCountVertical = Math.floor(entry.contentRect.height / 30) * 2
+
+        setEditorWidth((spaceTilesCountHorizontal + tilesCountHorizontal) * 30)
+        setEditorHeight((spaceTilesCountVertical + tilesCountVertical) * 30)
       }
     })
     if (ref.current) {
@@ -34,41 +37,31 @@ export const SpaceWrapper: FC<SpaceWrapperProps> = ({
     }
   }, [])
 
-  const EdgeSpace: FC = createSpace(editorSizeHorizontal, editorSizeVertical)
-  const HorizontSpace: FC = createSpace(editorSizeHorizontal, tilemapSizeVertical)
-  const VerticalSpace: FC = createSpace(tilemapSizeHorizontal, editorSizeVertical)
-
   return (
     <div ref={ref} className={cn('tilemap-renderer', isEditMode && 'edit')}>
-      <section>
-        <EdgeSpace />
-        <VerticalSpace />
-        <EdgeSpace />
-      </section>
-      <section>
-        <HorizontSpace />
+      <ScrollGrid width={editorWidth + 'px'} height={editorHeight + 'px'}>
         {children}
-        <HorizontSpace />
-      </section>
-      <section>
-        <EdgeSpace />
-        <VerticalSpace />
-        <EdgeSpace />
-      </section>
+      </ScrollGrid>
     </div>
   )
 }
 
-function createSpace(x: number, y: number): FC {
-  return () => (
-    <div className={'space'}>
-      {[...Array(y)].map((_, rowKey) => (
-        <div key={rowKey} className='space-row'>
-          {[...Array(x)].map((_, cellKey) => (
-            <div key={cellKey} className='space-cell'></div>
-          ))}
-        </div>
-      ))}
-    </div>
-  )
+type ScrollGridProps = {
+  width: string
+  height: string
+  children: ReactNode
 }
+
+const ScrollGrid: FC<ScrollGridProps> = ({ width, height, children }) => (
+  <div style={{ width, height, position: 'relative' }}>
+    <svg width='100%' height='100%'>
+      <defs>
+        <pattern id='grid' width='30' height='30' patternUnits='userSpaceOnUse'>
+          <path d='M 30 0 L 0 0 0 30' fill='none' stroke='gray' strokeWidth='1' />
+        </pattern>
+      </defs>
+      <rect width='100%' height='100%' fill='url(#grid)' />
+    </svg>
+    {children}
+  </div>
+)

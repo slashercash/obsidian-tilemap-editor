@@ -3,17 +3,19 @@ import React, { useLayoutEffect, useEffect, useRef, useState } from 'react'
 import { cn } from 'helper/className'
 
 type SpaceWrapperProps = {
+  children: ReactNode
   isEditMode: boolean
   tilesCountVertical: number
   tilesCountHorizontal: number
-  children: ReactNode
+  onSpaceClicked: (x: number, y: number) => void
 }
 
 export const SpaceWrapper: FC<SpaceWrapperProps> = ({
+  children,
   isEditMode,
   tilesCountVertical,
   tilesCountHorizontal,
-  children
+  onSpaceClicked
 }) => {
   const ref = useRef<HTMLDivElement>(null)
   const [editorDimensions, setEditorDimensions] = useState({ width: 0, height: 0 })
@@ -48,7 +50,11 @@ export const SpaceWrapper: FC<SpaceWrapperProps> = ({
 
   return (
     <div ref={ref} className={cn('tilemap-renderer', isEditMode && 'edit')}>
-      <ScrollGrid width={editorDimensions.width + 'px'} height={editorDimensions.height + 'px'}>
+      <ScrollGrid
+        width={editorDimensions.width + 'px'}
+        height={editorDimensions.height + 'px'}
+        onSpaceClicked={onSpaceClicked}
+      >
         {children}
       </ScrollGrid>
     </div>
@@ -56,13 +62,25 @@ export const SpaceWrapper: FC<SpaceWrapperProps> = ({
 }
 
 type ScrollGridProps = {
+  children: ReactNode
   width: string
   height: string
-  children: ReactNode
+  onSpaceClicked: (x: number, y: number) => void
 }
 
-const ScrollGrid: FC<ScrollGridProps> = ({ width, height, children }) => (
-  <div style={{ width, height, position: 'relative' }}>
+const ScrollGrid: FC<ScrollGridProps> = ({ children, width, height, onSpaceClicked }) => (
+  <div
+    style={{ width, height, position: 'relative' }}
+    onClick={(e) => {
+      const parent = e.currentTarget.parentElement
+      if (parent) {
+        const boundingClientRect = parent.getBoundingClientRect()
+        const x = Math.round(e.clientX - boundingClientRect.left + parent.scrollLeft)
+        const y = Math.round(e.clientY - boundingClientRect.top + parent.scrollTop)
+        onSpaceClicked(x, y)
+      }
+    }}
+  >
     <svg width='100%' height='100%'>
       <defs>
         <pattern id='grid' width='30' height='30' patternUnits='userSpaceOnUse'>

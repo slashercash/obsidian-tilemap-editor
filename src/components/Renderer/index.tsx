@@ -25,12 +25,20 @@ export const Renderer: FC<RendererProps> = ({ tilemap, isEditMode, toolbarAction
       isEditMode={isEditMode}
       tilesCountVertical={tilemap.rows.length}
       tilesCountHorizontal={tilemap.rows[0]?.cells.length ?? 0}
+      onSpaceClicked={(x, y) => console.log(x, y)}
     >
       <div className={'tilemap'}>
         {tilemap.rows.map((row, rowKey) => (
           <div key={rowKey} className='tilemap-row'>
             {row.cells.map((cell, cellKey) => (
-              <div key={cellKey} className='tilemap-cell' onClick={() => updateTile(rowKey, cellKey)}>
+              <div
+                key={cellKey}
+                className='tilemap-cell'
+                onClick={(e) => {
+                  e.stopPropagation()
+                  updateTile(rowKey, cellKey)
+                }}
+              >
                 {cell.elements.map((element, elementKey) => (
                   <div key={elementKey} className={element.className}></div>
                 ))}

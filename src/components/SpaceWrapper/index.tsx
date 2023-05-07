@@ -1,5 +1,5 @@
 import type { FC, ReactNode } from 'types'
-import React, { useLayoutEffect, useMemo, useRef, useState } from 'react'
+import React, { useLayoutEffect, useEffect, useRef, useState } from 'react'
 import { cn } from 'helper/className'
 
 type SpaceWrapperProps = {
@@ -16,17 +16,18 @@ export const SpaceWrapper: FC<SpaceWrapperProps> = ({
   children
 }) => {
   const ref = useRef<HTMLDivElement>(null)
-  const [editorHeight, setEditorHeight] = useState(0)
-  const [editorWidth, setEditorWidth] = useState(0)
+  const [editorDimensions, setEditorDimensions] = useState({ width: 0, height: 0 })
+  const [doCenter, setDoCenter] = useState<boolean>(true)
 
   useLayoutEffect(() => {
     const obs = new ResizeObserver(([entry]) => {
       if (entry) {
         const spaceTilesCountHorizontal = Math.floor(entry.contentRect.width / 30) * 2
         const spaceTilesCountVertical = Math.floor(entry.contentRect.height / 30) * 2
-
-        setEditorWidth((spaceTilesCountHorizontal + tilesCountHorizontal) * 30)
-        setEditorHeight((spaceTilesCountVertical + tilesCountVertical) * 30)
+        setEditorDimensions({
+          width: (spaceTilesCountHorizontal + tilesCountHorizontal) * 30,
+          height: (spaceTilesCountVertical + tilesCountVertical) * 30
+        })
       }
     })
     if (ref.current) {
@@ -37,9 +38,17 @@ export const SpaceWrapper: FC<SpaceWrapperProps> = ({
     }
   }, [])
 
+  useEffect(() => {
+    if (doCenter && editorDimensions.width != 0 && editorDimensions.height != 0 && ref.current) {
+      setDoCenter(false)
+      ref.current.scrollLeft = (ref.current.scrollWidth - ref.current.clientWidth) / 2
+      ref.current.scrollTop = (ref.current.scrollHeight - ref.current.clientHeight) / 2
+    }
+  }, [editorDimensions])
+
   return (
     <div ref={ref} className={cn('tilemap-renderer', isEditMode && 'edit')}>
-      <ScrollGrid width={editorWidth + 'px'} height={editorHeight + 'px'}>
+      <ScrollGrid width={editorDimensions.width + 'px'} height={editorDimensions.height + 'px'}>
         {children}
       </ScrollGrid>
     </div>

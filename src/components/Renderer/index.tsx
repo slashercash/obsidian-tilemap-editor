@@ -25,7 +25,7 @@ export const Renderer: FC<RendererProps> = ({ tilemap, isEditMode, toolbarAction
       isEditMode={isEditMode}
       tilesCountVertical={tilemap.rows.length}
       tilesCountHorizontal={tilemap.rows[0]?.cells.length ?? 0}
-      onSpaceClicked={(x, y) => console.log(x, y)}
+      onSpaceClicked={(offsetX, offsetY) => console.log(offsetX, offsetY)}
     >
       <div className={'tilemap'}>
         {tilemap.rows.map((row, rowKey) => (

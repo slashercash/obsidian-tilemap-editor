@@ -7,7 +7,7 @@ type SpaceWrapperProps = {
   isEditMode: boolean
   tilesCountVertical: number
   tilesCountHorizontal: number
-  onSpaceClicked: (x: number, y: number) => void
+  onSpaceClicked: (offsetX: number, offsetY: number) => void
 }
 
 export const SpaceWrapper: FC<SpaceWrapperProps> = ({
@@ -18,17 +18,15 @@ export const SpaceWrapper: FC<SpaceWrapperProps> = ({
   onSpaceClicked
 }) => {
   const ref = useRef<HTMLDivElement>(null)
-  const [editorDimensions, setEditorDimensions] = useState({ width: 0, height: 0 })
+  const [spaceTilesCount, setSpaceTilesCount] = useState({ horizontal: 0, vertical: 0 })
   const [doCenter, setDoCenter] = useState<boolean>(true)
 
   useLayoutEffect(() => {
     const obs = new ResizeObserver(([entry]) => {
       if (entry) {
-        const spaceTilesCountHorizontal = Math.floor(entry.contentRect.width / 30) * 2
-        const spaceTilesCountVertical = Math.floor(entry.contentRect.height / 30) * 2
-        setEditorDimensions({
-          width: (spaceTilesCountHorizontal + tilesCountHorizontal) * 30,
-          height: (spaceTilesCountVertical + tilesCountVertical) * 30
+        setSpaceTilesCount({
+          horizontal: Math.floor(entry.contentRect.width / 30),
+          vertical: Math.floor(entry.contentRect.height / 30)
         })
       }
     })
@@ -41,19 +39,23 @@ export const SpaceWrapper: FC<SpaceWrapperProps> = ({
   }, [])
 
   useEffect(() => {
-    if (doCenter && editorDimensions.width != 0 && editorDimensions.height != 0 && ref.current) {
+    if (doCenter && spaceTilesCount.horizontal != 0 && spaceTilesCount.vertical != 0 && ref.current) {
       setDoCenter(false)
       ref.current.scrollLeft = (ref.current.scrollWidth - ref.current.clientWidth) / 2
       ref.current.scrollTop = (ref.current.scrollHeight - ref.current.clientHeight) / 2
     }
-  }, [editorDimensions])
+  }, [spaceTilesCount])
 
   return (
     <div ref={ref} className={cn('tilemap-renderer', isEditMode && 'edit')}>
       <ScrollGrid
-        width={editorDimensions.width + 'px'}
-        height={editorDimensions.height + 'px'}
-        onSpaceClicked={onSpaceClicked}
+        width={(spaceTilesCount.horizontal * 2 + tilesCountHorizontal) * 30}
+        height={(spaceTilesCount.vertical * 2 + tilesCountVertical) * 30}
+        onSpaceClicked={(spaceTileX, spaceTileY) => {
+          const offsetX = spaceTileX - spaceTilesCount.horizontal
+          const offsetY = spaceTileY - spaceTilesCount.vertical
+          onSpaceClicked(offsetX, offsetY)
+        }}
       >
         {children}
       </ScrollGrid>
@@ -63,21 +65,21 @@ export const SpaceWrapper: FC<SpaceWrapperProps> = ({
 
 type ScrollGridProps = {
   children: ReactNode
-  width: string
-  height: string
-  onSpaceClicked: (x: number, y: number) => void
+  width: number
+  height: number
+  onSpaceClicked: (spaceTileX: number, spaceTileY: number) => void
 }
 
 const ScrollGrid: FC<ScrollGridProps> = ({ children, width, height, onSpaceClicked }) => (
   <div
-    style={{ width, height, position: 'relative' }}
+    style={{ width: width + 'px', height: height + 'px', position: 'relative' }}
     onClick={(e) => {
       const parent = e.currentTarget.parentElement
       if (parent) {
         const boundingClientRect = parent.getBoundingClientRect()
-        const x = Math.round(e.clientX - boundingClientRect.left + parent.scrollLeft)
-        const y = Math.round(e.clientY - boundingClientRect.top + parent.scrollTop)
-        onSpaceClicked(x, y)
+        const spaceTileX = Math.floor((e.clientX - boundingClientRect.left + parent.scrollLeft) / 30)
+        const spaceTileY = Math.floor((e.clientY - boundingClientRect.top + parent.scrollTop) / 30)
+        onSpaceClicked(spaceTileX, spaceTileY)
       }
     }}
   >

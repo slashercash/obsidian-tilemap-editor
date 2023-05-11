@@ -4,14 +4,15 @@ import { SpaceWrapper } from './SpaceWrapper'
 
 type RendererProps = {
   tilemap: Tilemap
+  isEditMode: boolean
   onTilemapClicked: (rowKey: number, cellKey: number) => void
   onSpaceClicked: (offsetX: number, offsetY: number) => void
 }
 
-export const Renderer: FC<RendererProps> = ({ tilemap, onTilemapClicked, onSpaceClicked }) => {
+export const Renderer: FC<RendererProps> = ({ tilemap, isEditMode, onTilemapClicked, onSpaceClicked }) => {
   return (
     <SpaceWrapper
-      isEditMode={true}
+      isEditMode={isEditMode}
       tilesCountVertical={tilemap.rows.length}
       tilesCountHorizontal={tilemap.rows[0]?.cells.length ?? 0}
       onSpaceClicked={onSpaceClicked}

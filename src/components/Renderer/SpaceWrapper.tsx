@@ -55,6 +55,14 @@ export const SpaceWrapper: FC<SpaceWrapperProps> = ({
           const offsetX = spaceTileX - spaceTilesCount.horizontal
           const offsetY = spaceTileY - spaceTilesCount.vertical
           onSpaceClicked(offsetX, offsetY)
+          if (isEditMode && ref.current) {
+            if (offsetX < 0) {
+              ref.current.scrollLeft += offsetX * -30
+            }
+            if (offsetY < 0) {
+              ref.current.scrollTop += offsetY * -30
+            }
+          }
         }}
       >
         {children}

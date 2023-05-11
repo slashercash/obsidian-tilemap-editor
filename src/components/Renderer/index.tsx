@@ -1,51 +1,20 @@
-import type { FC, Tilemap, TilemapRow, TilemapCell, TilemapElement, ToolbarAction } from 'types'
+import type { FC, Tilemap } from 'types'
 import React from 'react'
-import { SpaceWrapper } from 'components/SpaceWrapper'
+import { SpaceWrapper } from './SpaceWrapper'
 
 type RendererProps = {
   tilemap: Tilemap
-  isEditMode: boolean
-  toolbarAction: ToolbarAction
-  onTilemapChanged: (t: Tilemap) => void
+  onTilemapClicked: (rowKey: number, cellKey: number) => void
+  onSpaceClicked: (offsetX: number, offsetY: number) => void
 }
 
-export const Renderer: FC<RendererProps> = ({ tilemap, isEditMode, toolbarAction, onTilemapChanged }) => {
-  const updateTile = (rowKey: number, cellKey: number) => {
-    if (isEditMode) {
-      handle[toolbarAction](tilemap, rowKey, cellKey)
-      onTilemapChanged({ ...tilemap })
-    }
-  }
-
-  const enlargeTilemap = (offsetX: number, offsetY: number) => {
-    const tilemapWidth = tilemap.rows[0]?.cells.length ?? 0
-    const tilemapHeight = tilemap.rows.length
-
-    const addHorizontally = getAddValue(offsetX, tilemapWidth)
-    const addVertically = getAddValue(offsetY, tilemapHeight)
-
-    if (addVertically != 0) {
-      const newRows: ReadonlyArray<TilemapRow> = [...Array(Math.abs(addVertically))].map(() => ({
-        cells: [...Array(Math.abs(tilemapWidth))].map(() => ({ elements: [] }))
-      }))
-      tilemap.rows = addVertically < 0 ? [...newRows, ...tilemap.rows] : [...tilemap.rows, ...newRows]
-    }
-
-    if (addHorizontally != 0) {
-      tilemap.rows = tilemap.rows.map((row) => {
-        const newCells: Array<TilemapCell> = [...Array(Math.abs(addHorizontally))].map(() => ({ elements: [] }))
-        return { cells: addHorizontally < 0 ? [...newCells, ...row.cells] : [...row.cells, ...newCells] }
-      })
-    }
-    onTilemapChanged({ ...tilemap })
-  }
-
+export const Renderer: FC<RendererProps> = ({ tilemap, onTilemapClicked, onSpaceClicked }) => {
   return (
     <SpaceWrapper
-      isEditMode={isEditMode}
+      isEditMode={true}
       tilesCountVertical={tilemap.rows.length}
       tilesCountHorizontal={tilemap.rows[0]?.cells.length ?? 0}
-      onSpaceClicked={enlargeTilemap}
+      onSpaceClicked={onSpaceClicked}
     >
       <div className={'tilemap'}>
         {tilemap.rows.map((row, rowKey) => (
@@ -56,7 +25,7 @@ export const Renderer: FC<RendererProps> = ({ tilemap, isEditMode, toolbarAction
                 className='tilemap-cell'
                 onClick={(e) => {
                   e.stopPropagation()
-                  updateTile(rowKey, cellKey)
+                  onTilemapClicked(rowKey, cellKey)
                 }}
               >
                 {cell.elements.map((element, elementKey) => (
@@ -69,47 +38,6 @@ export const Renderer: FC<RendererProps> = ({ tilemap, isEditMode, toolbarAction
       </div>
     </SpaceWrapper>
   )
-}
-
-type HandleFn = (tilemap: Tilemap, rowKey: number, cellKey: number) => void
-
-const handle: { [Key in ToolbarAction]: HandleFn } = {
-  tile: setElement({ className: 'tile' }),
-  circle: setElement({ className: 'circle' }),
-  delete: deleteElement
-}
-
-function setElement(element: TilemapElement): HandleFn {
-  return (tilemap: Tilemap, rowKey: number, cellKey: number) => {
-    const cell = getCell(tilemap, rowKey, cellKey)
-    if (cell) {
-      cell.elements = [element]
-    }
-  }
-}
-
-function deleteElement(tilemap: Tilemap, rowKey: number, cellKey: number): void {
-  const cell = getCell(tilemap, rowKey, cellKey)
-  if (cell) {
-    cell.elements = []
-  }
-}
-
-function getCell(tilemap: Tilemap, rowKey: number, cellKey: number): TilemapCell | undefined {
-  const row = tilemap.rows[rowKey]
-  if (row) {
-    return row.cells[cellKey]
-  }
-}
-
-function getAddValue(offset: number, distance: number): number {
-  if (offset < 0) {
-    return offset
-  }
-  if (offset >= distance) {
-    return offset - distance + 1
-  }
-  return 0
 }
 
 // type InnerHtmlProps = {

@@ -23,6 +23,7 @@ export const TilemapEditor: FC<TilemapEditorProps> = ({ tilemap, isEditMode }) =
   function onSpaceClicked(offsetX: number, offsetY: number): void {
     if (isEditMode) {
       enlargeTilemap(tilemap, offsetX, offsetY)
+      handle[toolbarAction](tilemap, Math.max(offsetY, 0), Math.max(offsetX, 0))
       setInternalTilemap({ ...tilemap })
     }
   }

@@ -22,7 +22,7 @@ export const TilemapEditor: FC<TilemapEditorProps> = ({ tilemap, isEditMode }) =
 
   function onSpaceClicked(offsetX: number, offsetY: number): void {
     if (isEditMode) {
-      enlargeTilemap(tilemap, offsetX, offsetY)
+      expandTilemap(tilemap, offsetX, offsetY)
       handle[toolbarAction](tilemap, Math.max(offsetY, 0), Math.max(offsetX, 0))
       setInternalTilemap({ ...tilemap })
     }
@@ -63,6 +63,14 @@ function deleteElement(tilemap: Tilemap, rowKey: number, cellKey: number): void 
   if (cell) {
     cell.elements = []
   }
+  const tilesCountVertical = tilemap.rows.length
+  const tilesCountHorizontal = tilemap.rows[0]?.cells.length ?? 0
+  const isOnEdge =
+    rowKey === 0 || cellKey === 0 || rowKey + 1 === tilesCountVertical || cellKey + 1 === tilesCountHorizontal
+
+  if (isOnEdge) {
+    trimTilemap(tilemap)
+  }
 }
 
 function getCell(tilemap: Tilemap, rowKey: number, cellKey: number): TilemapCell | undefined {
@@ -72,7 +80,7 @@ function getCell(tilemap: Tilemap, rowKey: number, cellKey: number): TilemapCell
   }
 }
 
-function enlargeTilemap(tilemap: Tilemap, offsetX: number, offsetY: number): void {
+function expandTilemap(tilemap: Tilemap, offsetX: number, offsetY: number): void {
   const tilemapWidth = tilemap.rows[0]?.cells.length ?? 0
   const tilemapHeight = tilemap.rows.length
 
@@ -102,4 +110,46 @@ function getAddValue(offset: number, distance: number): number {
     return offset - distance + 1
   }
   return 0
+}
+
+type TrimValue = {
+  top: number
+  right: number
+  bottom: number
+  left: number
+}
+
+function trimTilemap(tilemap: Tilemap): void {
+  const tilesCountVertical = tilemap.rows.length
+  const tilesCountHorizontal = tilemap.rows[0]?.cells.length ?? 0
+
+  const trim = tilemap.rows.reduce(
+    (trim, row, rowIndex) => {
+      const trimCells = row.cells.reduce(
+        (trimCells, cell, cellIndex) => {
+          if (cell.elements.length > 0) {
+            trimCells.left = Math.min(trimCells.left, cellIndex)
+            trimCells.right = Math.min(trimCells.right, row.cells.length - 1 - cellIndex)
+          }
+          return trimCells
+        },
+        { left: tilesCountHorizontal, right: tilesCountHorizontal }
+      )
+      if (trimCells.left < tilesCountHorizontal) {
+        trim.top = Math.min(trim.top, rowIndex)
+        trim.bottom = Math.min(trim.bottom, tilemap.rows.length - 1 - rowIndex)
+      }
+      trim.right = Math.min(trim.right, trimCells.right)
+      trim.left = Math.min(trim.left, trimCells.left)
+      return trim
+    },
+    {
+      top: tilesCountVertical,
+      right: tilesCountHorizontal,
+      bottom: tilesCountVertical,
+      left: tilesCountHorizontal
+    }
+  )
+
+  console.log(trim)
 }

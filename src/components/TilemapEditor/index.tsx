@@ -63,10 +63,12 @@ function deleteElement(tilemap: Tilemap, rowKey: number, cellKey: number): void 
   if (cell) {
     cell.elements = []
   }
-  const tilesCountVertical = tilemap.rows.length
-  const tilesCountHorizontal = tilemap.rows[0]?.cells.length ?? 0
+
   const isOnEdge =
-    rowKey === 0 || cellKey === 0 || rowKey + 1 === tilesCountVertical || cellKey + 1 === tilesCountHorizontal
+    rowKey === 0 ||
+    cellKey === 0 ||
+    rowKey === tilemap.rows.length - 1 ||
+    cellKey === (tilemap.rows[0]?.cells.length ?? 0) - 1
 
   if (isOnEdge) {
     trimTilemap(tilemap)
@@ -112,13 +114,6 @@ function getAddValue(offset: number, distance: number): number {
   return 0
 }
 
-type TrimValue = {
-  top: number
-  right: number
-  bottom: number
-  left: number
-}
-
 function trimTilemap(tilemap: Tilemap): void {
   const tilesCountVertical = tilemap.rows.length
   const tilesCountHorizontal = tilemap.rows[0]?.cells.length ?? 0
@@ -151,5 +146,11 @@ function trimTilemap(tilemap: Tilemap): void {
     }
   )
 
-  console.log(trim)
+  tilemap.rows = tilemap.rows.reduce<ReadonlyArray<TilemapRow>>((acc, row, i) => {
+    if (trim.top <= i && tilesCountVertical - trim.bottom > i) {
+      row.cells = row.cells.slice(trim.left, tilesCountHorizontal - trim.right)
+      acc = [...acc, row]
+    }
+    return acc
+  }, [])
 }

@@ -6,7 +6,7 @@ import { getRawStyle } from 'styles/tilemapRenderer'
 export class FileCreator {
   static newFile(): string {
     if (!newFile) {
-      const html = createHtmlTilemap(6, 6)
+      const html = createHtmlTilemap()
       const file = htmlToString(html)
       newFile = this.appendStyle(file)
     }
@@ -17,28 +17,11 @@ export class FileCreator {
   }
 }
 
-function createHtmlTilemap(columnCnt: number, rowCnt: number): HTMLElement {
+function createHtmlTilemap(): HTMLElement {
   const doc = new Document()
-
-  const divTilemapCell = doc.createElement('div')
-  divTilemapCell.setAttribute('class', 'tilemap-cell')
-  divTilemapCell.appendText('')
-
-  const divTilemapRow = doc.createElement('div')
-  divTilemapRow.setAttribute('class', 'tilemap-row')
-  divTilemapRow.appendChild(divTilemapCell)
-
-  for (let column = 1; column < columnCnt; column++) {
-    divTilemapCell.after(divTilemapCell.cloneNode(true))
-  }
 
   const divTilemap = doc.createElement('div')
   divTilemap.setAttribute('id', 'tilemap')
-  divTilemap.appendChild(divTilemapRow)
-
-  for (let row = 1; row < rowCnt; row++) {
-    divTilemapRow.after(divTilemapRow.cloneNode(true))
-  }
 
   const main = doc.createElement('main')
   main.appendChild(divTilemap)

@@ -1,9 +1,10 @@
-import type { FC, ReactNode } from 'types'
+import type { FC, RefObject, ReactNode } from 'types'
 import React, { useLayoutEffect, useEffect, useRef, useState } from 'react'
 import { cn } from 'helper/className'
 
 type SpaceWrapperProps = {
   children: ReactNode
+  tilemapRendererRef: RefObject<HTMLDivElement>
   isEditMode: boolean
   tilesCountVertical: number
   tilesCountHorizontal: number
@@ -12,12 +13,12 @@ type SpaceWrapperProps = {
 
 export const SpaceWrapper: FC<SpaceWrapperProps> = ({
   children,
+  tilemapRendererRef: ref,
   isEditMode,
   tilesCountVertical,
   tilesCountHorizontal,
   onSpaceClicked
 }) => {
-  const ref = useRef<HTMLDivElement>(null)
   const [spaceTilesCount, setSpaceTilesCount] = useState({ horizontal: 0, vertical: 0 })
   const [doCenter, setDoCenter] = useState<boolean>(true)
 
@@ -55,14 +56,6 @@ export const SpaceWrapper: FC<SpaceWrapperProps> = ({
           const offsetX = spaceTileX - spaceTilesCount.horizontal
           const offsetY = spaceTileY - spaceTilesCount.vertical
           onSpaceClicked(offsetX, offsetY)
-          if (isEditMode && ref.current) {
-            if (offsetX < 0) {
-              ref.current.scrollLeft += offsetX * -30
-            }
-            if (offsetY < 0) {
-              ref.current.scrollTop += offsetY * -30
-            }
-          }
         }}
       >
         {children}

@@ -1,17 +1,25 @@
-import type { FC, Tilemap } from 'types'
+import type { FC, RefObject, Tilemap } from 'types'
 import React from 'react'
 import { SpaceWrapper } from './SpaceWrapper'
 
 type RendererProps = {
+  tilemapRendererRef: RefObject<HTMLDivElement>
   tilemap: Tilemap
   isEditMode: boolean
   onTilemapClicked: (rowKey: number, cellKey: number) => void
   onSpaceClicked: (offsetX: number, offsetY: number) => void
 }
 
-export const Renderer: FC<RendererProps> = ({ tilemap, isEditMode, onTilemapClicked, onSpaceClicked }) => {
+export const Renderer: FC<RendererProps> = ({
+  tilemapRendererRef,
+  tilemap,
+  isEditMode,
+  onTilemapClicked,
+  onSpaceClicked
+}) => {
   return (
     <SpaceWrapper
+      tilemapRendererRef={tilemapRendererRef}
       isEditMode={isEditMode}
       tilesCountVertical={tilemap.rows.length}
       tilesCountHorizontal={tilemap.rows[0]?.cells.length ?? 0}

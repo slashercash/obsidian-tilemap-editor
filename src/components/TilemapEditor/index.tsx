@@ -23,8 +23,8 @@ export const TilemapEditor: FC<TilemapEditorProps> = ({ tilemap, isEditMode }) =
 
   function onSpaceClicked(offsetX: number, offsetY: number): void {
     if (isEditMode && toolbarAction != toolbarActions.delete) {
-      expandTilemap(tilemap, offsetX, offsetY, tilemapRendererRef)
-      handle[toolbarAction](tilemap, Math.max(offsetY, 0), Math.max(offsetX, 0), tilemapRendererRef)
+      const [rowKey, cellKey] = expandTilemap(tilemap, offsetX, offsetY, tilemapRendererRef)
+      handle[toolbarAction](tilemap, rowKey, cellKey, tilemapRendererRef)
       setInternalTilemap({ ...tilemap })
     }
   }
@@ -108,9 +108,18 @@ function expandTilemap(
   offsetX: number,
   offsetY: number,
   tilemapRendererRef: RefObject<HTMLDivElement>
-): void {
+): [rowKey: number, cellKey: number] {
   const tilemapWidth = tilemap.rows[0]?.cells.length ?? 0
   const tilemapHeight = tilemap.rows.length
+
+  if (tilemapWidth === 0 && tilemapHeight === 0) {
+    tilemap.rows = [{ cells: [{ elements: [] }] }]
+    if (tilemapRendererRef.current) {
+      tilemapRendererRef.current.scrollLeft += offsetX * -30
+      tilemapRendererRef.current.scrollTop += offsetY * -30
+    }
+    return [0, 0]
+  }
 
   const addHorizontally = getAddValue(offsetX, tilemapWidth)
   const addVertically = getAddValue(offsetY, tilemapHeight)
@@ -129,15 +138,16 @@ function expandTilemap(
     })
   }
 
-  if (!tilemapRendererRef.current) {
-    return
+  if (tilemapRendererRef.current) {
+    if (offsetX < 0) {
+      tilemapRendererRef.current.scrollLeft += offsetX * -30
+    }
+    if (offsetY < 0) {
+      tilemapRendererRef.current.scrollTop += offsetY * -30
+    }
   }
-  if (offsetX < 0) {
-    tilemapRendererRef.current.scrollLeft += offsetX * -30
-  }
-  if (offsetY < 0) {
-    tilemapRendererRef.current.scrollTop += offsetY * -30
-  }
+
+  return [Math.max(offsetY, 0), Math.max(offsetX, 0)]
 }
 
 function getAddValue(offset: number, distance: number): number {

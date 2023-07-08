@@ -24,19 +24,3 @@
 .view-content-tilemap-editor .tilemap-renderer--edit .tilemap-cell:hover {
   cursor: pointer;
 }
-
-.view-content-tilemap-editor .tilemap-renderer section {
-  display: flex;
-  width: min-content;
-  margin: auto;
-}
-
-.view-content-tilemap-editor .space-row {
-  display: flex;
-}
-
-.view-content-tilemap-editor .space-cell {
-  height: 30px;
-  width: 30px;
-  box-shadow: inset 0 0 0 1px rgb(67, 67, 67);
-}

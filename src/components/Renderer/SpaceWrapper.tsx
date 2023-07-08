@@ -9,7 +9,7 @@ type SpaceWrapperProps = {
   tilesCountVertical: number
   tilesCountHorizontal: number
   zoomFactor: number
-  onSpaceClicked: (offsetX: number, offsetY: number) => void
+  onSpaceClicked: (offsetX: number, offsetY: number, zoomFactor: number) => void
 }
 
 export const SpaceWrapper: FC<SpaceWrapperProps> = ({
@@ -58,7 +58,7 @@ export const SpaceWrapper: FC<SpaceWrapperProps> = ({
         onSpaceClicked={(spaceTileX, spaceTileY) => {
           const offsetX = spaceTileX - spaceTilesCount.horizontal
           const offsetY = spaceTileY - spaceTilesCount.vertical
-          onSpaceClicked(offsetX, offsetY)
+          onSpaceClicked(offsetX, offsetY, zoomFactor)
         }}
       >
         {children}

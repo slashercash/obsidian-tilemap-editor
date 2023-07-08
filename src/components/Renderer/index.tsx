@@ -6,8 +6,8 @@ type RendererProps = {
   tilemapRendererRef: RefObject<HTMLDivElement>
   tilemap: Tilemap
   isEditMode: boolean
-  onTilemapClicked: (rowKey: number, cellKey: number) => void
-  onSpaceClicked: (offsetX: number, offsetY: number) => void
+  onTilemapClicked: (rowKey: number, cellKey: number, zoomFactor: number) => void
+  onSpaceClicked: (offsetX: number, offsetY: number, zoomFactor: number) => void
 }
 
 export const Renderer: FC<RendererProps> = ({
@@ -38,7 +38,7 @@ export const Renderer: FC<RendererProps> = ({
                     style={{ width: zoomFactor + 'px', height: zoomFactor + 'px' }}
                     onClick={(e) => {
                       e.stopPropagation()
-                      onTilemapClicked(rowKey, cellKey)
+                      onTilemapClicked(rowKey, cellKey, zoomFactor)
                     }}
                   >
                     {cell.elements.map((element, elementKey) => (

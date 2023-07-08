@@ -14,17 +14,17 @@ export const TilemapEditor: FC<TilemapEditorProps> = ({ tilemap, isEditMode }) =
   const [internalTilemap, setInternalTilemap] = useState(tilemap)
   const [toolbarAction, setToolbarAction] = useState<ToolbarAction>(toolbarActions.tile)
 
-  function onTilemapClicked(rowKey: number, cellKey: number) {
+  function onTilemapClicked(rowKey: number, cellKey: number, zoomFactor: number) {
     if (isEditMode) {
-      handle[toolbarAction](tilemap, rowKey, cellKey, tilemapRendererRef)
+      handle[toolbarAction](tilemap, rowKey, cellKey, tilemapRendererRef, zoomFactor)
       setInternalTilemap({ ...tilemap })
     }
   }
 
-  function onSpaceClicked(offsetX: number, offsetY: number): void {
+  function onSpaceClicked(offsetX: number, offsetY: number, zoomFactor: number): void {
     if (isEditMode && toolbarAction != toolbarActions.delete) {
-      const [rowKey, cellKey] = expandTilemap(tilemap, offsetX, offsetY, tilemapRendererRef)
-      handle[toolbarAction](tilemap, rowKey, cellKey, tilemapRendererRef)
+      const [rowKey, cellKey] = expandTilemap(tilemap, offsetX, offsetY, tilemapRendererRef, zoomFactor)
+      handle[toolbarAction](tilemap, rowKey, cellKey, tilemapRendererRef, zoomFactor)
       setInternalTilemap({ ...tilemap })
     }
   }
@@ -47,7 +47,8 @@ type HandleFn = (
   tilemap: Tilemap,
   rowKey: number,
   cellKey: number,
-  tilemapRendererRef: RefObject<HTMLDivElement>
+  tilemapRendererRef: RefObject<HTMLDivElement>,
+  zoomFactor: number
 ) => void
 
 const handle: { [Key in ToolbarAction]: HandleFn } = {
@@ -69,7 +70,8 @@ function deleteElement(
   tilemap: Tilemap,
   rowKey: number,
   cellKey: number,
-  tilemapRendererRef: RefObject<HTMLDivElement>
+  tilemapRendererRef: RefObject<HTMLDivElement>,
+  zoomFactor: number
 ): void {
   const cell = getCell(tilemap, rowKey, cellKey)
   if (cell) {
@@ -88,10 +90,10 @@ function deleteElement(
       return
     }
     if (scrollX > 0) {
-      tilemapRendererRef.current.scrollLeft += scrollX * -30
+      tilemapRendererRef.current.scrollLeft += scrollX * -zoomFactor
     }
     if (scrollY > 0) {
-      tilemapRendererRef.current.scrollTop += scrollY * -30
+      tilemapRendererRef.current.scrollTop += scrollY * -zoomFactor
     }
   }
 }
@@ -107,7 +109,8 @@ function expandTilemap(
   tilemap: Tilemap,
   offsetX: number,
   offsetY: number,
-  tilemapRendererRef: RefObject<HTMLDivElement>
+  tilemapRendererRef: RefObject<HTMLDivElement>,
+  zoomFactor: number
 ): [rowKey: number, cellKey: number] {
   const tilemapWidth = tilemap.rows[0]?.cells.length ?? 0
   const tilemapHeight = tilemap.rows.length
@@ -115,8 +118,8 @@ function expandTilemap(
   if (tilemapWidth === 0 && tilemapHeight === 0) {
     tilemap.rows = [{ cells: [{ elements: [] }] }]
     if (tilemapRendererRef.current) {
-      tilemapRendererRef.current.scrollLeft += offsetX * -30
-      tilemapRendererRef.current.scrollTop += offsetY * -30
+      tilemapRendererRef.current.scrollLeft += offsetX * -zoomFactor
+      tilemapRendererRef.current.scrollTop += offsetY * -zoomFactor
     }
     return [0, 0]
   }
@@ -140,10 +143,10 @@ function expandTilemap(
 
   if (tilemapRendererRef.current) {
     if (offsetX < 0) {
-      tilemapRendererRef.current.scrollLeft += offsetX * -30
+      tilemapRendererRef.current.scrollLeft += offsetX * -zoomFactor
     }
     if (offsetY < 0) {
-      tilemapRendererRef.current.scrollTop += offsetY * -30
+      tilemapRendererRef.current.scrollTop += offsetY * -zoomFactor
     }
   }
 

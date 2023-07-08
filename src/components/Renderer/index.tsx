@@ -18,35 +18,49 @@ export const Renderer: FC<RendererProps> = ({
   onSpaceClicked
 }) => {
   return (
-    <SpaceWrapper
-      tilemapRendererRef={tilemapRendererRef}
-      isEditMode={isEditMode}
-      tilesCountVertical={tilemap.rows.length}
-      tilesCountHorizontal={tilemap.rows[0]?.cells.length ?? 0}
-      onSpaceClicked={onSpaceClicked}
-    >
-      <div className={'tilemap'}>
-        {tilemap.rows.map((row, rowKey) => (
-          <div key={rowKey} className='tilemap-row'>
-            {row.cells.map((cell, cellKey) => (
-              <div
-                key={cellKey}
-                className='tilemap-cell'
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onTilemapClicked(rowKey, cellKey)
-                }}
-              >
-                {cell.elements.map((element, elementKey) => (
-                  <div key={elementKey} className={element.className}></div>
+    <ZoomWrapper>
+      {({ zoomFactor }) => (
+        <SpaceWrapper
+          tilemapRendererRef={tilemapRendererRef}
+          isEditMode={isEditMode}
+          tilesCountVertical={tilemap.rows.length}
+          tilesCountHorizontal={tilemap.rows[0]?.cells.length ?? 0}
+          zoomFactor={zoomFactor}
+          onSpaceClicked={onSpaceClicked}
+        >
+          <div className={'tilemap'}>
+            {tilemap.rows.map((row, rowKey) => (
+              <div key={rowKey} className='tilemap-row'>
+                {row.cells.map((cell, cellKey) => (
+                  <div
+                    key={cellKey}
+                    className='tilemap-cell'
+                    style={{ width: zoomFactor + 'px', height: zoomFactor + 'px' }}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onTilemapClicked(rowKey, cellKey)
+                    }}
+                  >
+                    {cell.elements.map((element, elementKey) => (
+                      <div key={elementKey} className={element.className}></div>
+                    ))}
+                  </div>
                 ))}
               </div>
             ))}
           </div>
-        ))}
-      </div>
-    </SpaceWrapper>
+        </SpaceWrapper>
+      )}
+    </ZoomWrapper>
   )
+}
+
+type ZoomWrapperProps = {
+  children: FC<{ zoomFactor: number }>
+}
+
+const ZoomWrapper: FC<ZoomWrapperProps> = ({ children }) => {
+  return children({ zoomFactor: 50 })
 }
 
 // type InnerHtmlProps = {

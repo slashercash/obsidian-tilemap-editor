@@ -1,4 +1,4 @@
-import type { FC, RefObject, ReactNode } from 'types'
+import type { FC, ReactNode } from 'types'
 import React, { useLayoutEffect, useEffect, useState } from 'react'
 
 type SpaceWrapperProps = {

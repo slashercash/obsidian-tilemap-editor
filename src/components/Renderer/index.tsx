@@ -61,7 +61,7 @@ type ZoomWrapperProps = {
   isEditMode: boolean
 }
 
-const ZoomWrapper: FC<ZoomWrapperProps> = ({ children: Children, tilemapRendererRef, isEditMode }) => {
+const ZoomWrapper: FC<ZoomWrapperProps> = ({ children, tilemapRendererRef, isEditMode }) => {
   const [prevTouchDistance, setPrevTouchDistance] = useState(0)
   const [size, setSize] = useState(30)
 
@@ -102,7 +102,7 @@ const ZoomWrapper: FC<ZoomWrapperProps> = ({ children: Children, tilemapRenderer
       onTouchEnd={(e) => setTouches(e.touches)}
       onTouchCancel={(e) => setTouches(e.touches)}
     >
-      {tilemapRendererDiv && <Children zoomFactor={size} tilemapRendererDiv={tilemapRendererDiv} />}
+      {tilemapRendererDiv && children({ zoomFactor: size, tilemapRendererDiv })}
     </div>
   )
 }

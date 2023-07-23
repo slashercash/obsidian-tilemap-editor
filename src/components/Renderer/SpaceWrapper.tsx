@@ -9,6 +9,7 @@ type SpaceWrapperProps = {
   tilesCountVertical: number
   tilesCountHorizontal: number
   zoomFactor: number
+  setTouches: (touches: React.TouchList) => void
   onSpaceClicked: (offsetX: number, offsetY: number, zoomFactor: number) => void
 }
 
@@ -19,6 +20,7 @@ export const SpaceWrapper: FC<SpaceWrapperProps> = ({
   tilesCountVertical,
   tilesCountHorizontal,
   zoomFactor,
+  setTouches,
   onSpaceClicked
 }) => {
   const [spaceTilesCount, setSpaceTilesCount] = useState({ horizontal: 0, vertical: 0 })
@@ -37,9 +39,10 @@ export const SpaceWrapper: FC<SpaceWrapperProps> = ({
       obs.observe(ref.current)
     }
     return () => {
+      console.log('disconnect')
       obs.disconnect()
     }
-  }, [])
+  }, [zoomFactor])
 
   useEffect(() => {
     if (doCenter && spaceTilesCount.horizontal != 0 && spaceTilesCount.vertical != 0 && ref.current) {
@@ -50,7 +53,14 @@ export const SpaceWrapper: FC<SpaceWrapperProps> = ({
   }, [spaceTilesCount])
 
   return (
-    <div ref={ref} className={cn('tilemap-renderer', isEditMode && 'edit')}>
+    <div
+      ref={ref}
+      className={cn('tilemap-renderer', isEditMode && 'edit')}
+      onTouchStart={(e) => setTouches(e.touches)}
+      onTouchMove={(e) => setTouches(e.touches)}
+      onTouchEnd={(e) => setTouches(e.touches)}
+      onTouchCancel={(e) => setTouches(e.touches)}
+    >
       <ScrollGrid
         width={spaceTilesCount.horizontal * 2 + tilesCountHorizontal}
         height={spaceTilesCount.vertical * 2 + tilesCountVertical}

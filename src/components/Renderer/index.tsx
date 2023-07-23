@@ -1,6 +1,7 @@
 import type { FC, RefObject, Tilemap } from 'types'
-import React, { useState } from 'react'
+import React, { useLayoutEffect, useState } from 'react'
 import { SpaceWrapper } from './SpaceWrapper'
+import { cn } from 'helper/className'
 
 type RendererProps = {
   tilemapRendererRef: RefObject<HTMLDivElement>
@@ -18,15 +19,13 @@ export const Renderer: FC<RendererProps> = ({
   onSpaceClicked
 }) => {
   return (
-    <ZoomWrapper>
-      {({ zoomFactor, setTouches }) => (
+    <ZoomWrapper tilemapRendererRef={tilemapRendererRef} isEditMode={isEditMode}>
+      {({ zoomFactor, tilemapRendererDiv }) => (
         <SpaceWrapper
-          tilemapRendererRef={tilemapRendererRef}
-          isEditMode={isEditMode}
+          tilemapRendererDiv={tilemapRendererDiv}
           tilesCountVertical={tilemap.rows.length}
           tilesCountHorizontal={tilemap.rows[0]?.cells.length ?? 0}
           zoomFactor={zoomFactor}
-          setTouches={setTouches}
           onSpaceClicked={onSpaceClicked}
         >
           <div className={'tilemap'}>
@@ -57,10 +56,12 @@ export const Renderer: FC<RendererProps> = ({
 }
 
 type ZoomWrapperProps = {
-  children: FC<{ zoomFactor: number; setTouches: (touches: React.TouchList) => void }>
+  children: FC<{ zoomFactor: number; tilemapRendererDiv: HTMLDivElement }>
+  tilemapRendererRef: RefObject<HTMLDivElement>
+  isEditMode: boolean
 }
 
-const ZoomWrapper: FC<ZoomWrapperProps> = ({ children }) => {
+const ZoomWrapper: FC<ZoomWrapperProps> = ({ children: Children, tilemapRendererRef, isEditMode }) => {
   const [prevTouchDistance, setPrevTouchDistance] = useState(0)
   const [size, setSize] = useState(30)
 
@@ -86,5 +87,22 @@ const ZoomWrapper: FC<ZoomWrapperProps> = ({ children }) => {
     }
   }
 
-  return children({ zoomFactor: size, setTouches })
+  const [tilemapRendererDiv, setTilemapRendererDiv] = useState<HTMLDivElement | null>(null)
+
+  useLayoutEffect(() => {
+    setTilemapRendererDiv(tilemapRendererRef.current)
+  }, [])
+
+  return (
+    <div
+      ref={tilemapRendererRef}
+      className={cn('tilemap-renderer', isEditMode && 'edit')}
+      onTouchStart={(e) => setTouches(e.touches)}
+      onTouchMove={(e) => setTouches(e.touches)}
+      onTouchEnd={(e) => setTouches(e.touches)}
+      onTouchCancel={(e) => setTouches(e.touches)}
+    >
+      {tilemapRendererDiv && <Children zoomFactor={size} tilemapRendererDiv={tilemapRendererDiv} />}
+    </div>
+  )
 }

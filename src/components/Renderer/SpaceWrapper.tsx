@@ -1,26 +1,21 @@
 import type { FC, RefObject, ReactNode } from 'types'
-import React, { useLayoutEffect, useEffect, useRef, useState } from 'react'
-import { cn } from 'helper/className'
+import React, { useLayoutEffect, useEffect, useState } from 'react'
 
 type SpaceWrapperProps = {
   children: ReactNode
-  tilemapRendererRef: RefObject<HTMLDivElement>
-  isEditMode: boolean
+  tilemapRendererDiv: HTMLDivElement
   tilesCountVertical: number
   tilesCountHorizontal: number
   zoomFactor: number
-  setTouches: (touches: React.TouchList) => void
   onSpaceClicked: (offsetX: number, offsetY: number, zoomFactor: number) => void
 }
 
 export const SpaceWrapper: FC<SpaceWrapperProps> = ({
   children,
-  tilemapRendererRef: ref,
-  isEditMode,
+  tilemapRendererDiv,
   tilesCountVertical,
   tilesCountHorizontal,
   zoomFactor,
-  setTouches,
   onSpaceClicked
 }) => {
   const [spaceTilesCount, setSpaceTilesCount] = useState({ horizontal: 0, vertical: 0 })
@@ -35,45 +30,33 @@ export const SpaceWrapper: FC<SpaceWrapperProps> = ({
         })
       }
     })
-    if (ref.current) {
-      obs.observe(ref.current)
-    }
+    obs.observe(tilemapRendererDiv)
     return () => {
-      console.log('disconnect')
       obs.disconnect()
     }
   }, [zoomFactor])
 
   useEffect(() => {
-    if (doCenter && spaceTilesCount.horizontal != 0 && spaceTilesCount.vertical != 0 && ref.current) {
+    if (doCenter && spaceTilesCount.horizontal != 0 && spaceTilesCount.vertical != 0) {
       setDoCenter(false)
-      ref.current.scrollLeft = (ref.current.scrollWidth - ref.current.clientWidth) / 2
-      ref.current.scrollTop = (ref.current.scrollHeight - ref.current.clientHeight) / 2
+      tilemapRendererDiv.scrollLeft = (tilemapRendererDiv.scrollWidth - tilemapRendererDiv.clientWidth) / 2
+      tilemapRendererDiv.scrollTop = (tilemapRendererDiv.scrollHeight - tilemapRendererDiv.clientHeight) / 2
     }
   }, [spaceTilesCount])
 
   return (
-    <div
-      ref={ref}
-      className={cn('tilemap-renderer', isEditMode && 'edit')}
-      onTouchStart={(e) => setTouches(e.touches)}
-      onTouchMove={(e) => setTouches(e.touches)}
-      onTouchEnd={(e) => setTouches(e.touches)}
-      onTouchCancel={(e) => setTouches(e.touches)}
+    <ScrollGrid
+      width={spaceTilesCount.horizontal * 2 + tilesCountHorizontal}
+      height={spaceTilesCount.vertical * 2 + tilesCountVertical}
+      zoomFactor={zoomFactor}
+      onSpaceClicked={(spaceTileX, spaceTileY) => {
+        const offsetX = spaceTileX - spaceTilesCount.horizontal
+        const offsetY = spaceTileY - spaceTilesCount.vertical
+        onSpaceClicked(offsetX, offsetY, zoomFactor)
+      }}
     >
-      <ScrollGrid
-        width={spaceTilesCount.horizontal * 2 + tilesCountHorizontal}
-        height={spaceTilesCount.vertical * 2 + tilesCountVertical}
-        zoomFactor={zoomFactor}
-        onSpaceClicked={(spaceTileX, spaceTileY) => {
-          const offsetX = spaceTileX - spaceTilesCount.horizontal
-          const offsetY = spaceTileY - spaceTilesCount.vertical
-          onSpaceClicked(offsetX, offsetY, zoomFactor)
-        }}
-      >
-        {children}
-      </ScrollGrid>
-    </div>
+      {children}
+    </ScrollGrid>
   )
 }
 

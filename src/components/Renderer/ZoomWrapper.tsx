@@ -1,4 +1,4 @@
-import type { FC, RefObject } from 'types'
+import type { FC, RefObject, TouchEvent } from 'types'
 import React, { useState, useLayoutEffect } from 'react'
 import { cn } from 'helper/className'
 
@@ -9,20 +9,19 @@ type ZoomWrapperProps = {
 }
 
 export const ZoomWrapper: FC<ZoomWrapperProps> = ({ children, tilemapRendererRef, isEditMode }) => {
+  const [tilemapRendererDiv, setTilemapRendererDiv] = useState<HTMLDivElement | null>(null)
   const [prevTouchDistance, setPrevTouchDistance] = useState(0)
   const [size, setSize] = useState(30)
 
-  const getDistance = (x1: number, y1: number, x2: number, y2: number) => {
-    let y = x2 - x1
-    let x = y2 - y1
-    return Math.sqrt(x * x + y * y)
-  }
+  useLayoutEffect(() => {
+    setTilemapRendererDiv(tilemapRendererRef.current)
+  }, [])
 
-  const setTouches = (touches: React.TouchList) => {
-    const tA = touches[0]
-    const tB = touches[1]
+  const onTouchEvent = (e: TouchEvent) => {
+    const tA = e.touches[0]
+    const tB = e.touches[1]
 
-    if (touches.length === 2 && tA && tB) {
+    if (e.touches.length === 2 && tA && tB && tilemapRendererDiv) {
       const distance = getDistance(tA.pageX, tA.pageY, tB.pageX, tB.pageY)
 
       const sizeFactor = prevTouchDistance === 0 ? 1 : (1 / prevTouchDistance) * distance
@@ -34,22 +33,22 @@ export const ZoomWrapper: FC<ZoomWrapperProps> = ({ children, tilemapRendererRef
     }
   }
 
-  const [tilemapRendererDiv, setTilemapRendererDiv] = useState<HTMLDivElement | null>(null)
-
-  useLayoutEffect(() => {
-    setTilemapRendererDiv(tilemapRendererRef.current)
-  }, [])
-
   return (
     <div
       ref={tilemapRendererRef}
       className={cn('tilemap-renderer', isEditMode && 'edit')}
-      onTouchStart={(e) => setTouches(e.touches)}
-      onTouchMove={(e) => setTouches(e.touches)}
-      onTouchEnd={(e) => setTouches(e.touches)}
-      onTouchCancel={(e) => setTouches(e.touches)}
+      onTouchStart={onTouchEvent}
+      onTouchMove={onTouchEvent}
+      onTouchEnd={onTouchEvent}
+      onTouchCancel={onTouchEvent}
     >
       {tilemapRendererDiv && children({ zoomFactor: size, tilemapRendererDiv })}
     </div>
   )
+}
+
+const getDistance = (x1: number, y1: number, x2: number, y2: number) => {
+  const y = x2 - x1
+  const x = y2 - y1
+  return Math.sqrt(x * x + y * y)
 }

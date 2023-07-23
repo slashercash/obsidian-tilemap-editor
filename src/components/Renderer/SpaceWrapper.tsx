@@ -19,14 +19,22 @@ export const SpaceWrapper: FC<SpaceWrapperProps> = ({
   onSpaceClicked
 }) => {
   const [spaceTilesCount, setSpaceTilesCount] = useState({ horizontal: 0, vertical: 0 })
+  const [margin, setMargin] = useState({ horizontal: 0, vertical: 0 })
   const [doCenter, setDoCenter] = useState<boolean>(true)
 
   useLayoutEffect(() => {
     const obs = new ResizeObserver(([entry]) => {
       if (entry) {
+        const horizontal = entry.contentRect.width / zoomFactor
+        const vertical = entry.contentRect.height / zoomFactor
+
         setSpaceTilesCount({
-          horizontal: Math.floor(entry.contentRect.width / zoomFactor),
-          vertical: Math.floor(entry.contentRect.height / zoomFactor)
+          horizontal: Math.floor(horizontal) - 1,
+          vertical: Math.floor(vertical) - 1
+        })
+        setMargin({
+          horizontal: horizontal % 1,
+          vertical: vertical % 1
         })
       }
     })
@@ -48,6 +56,8 @@ export const SpaceWrapper: FC<SpaceWrapperProps> = ({
     <ScrollGrid
       width={spaceTilesCount.horizontal * 2 + tilesCountHorizontal}
       height={spaceTilesCount.vertical * 2 + tilesCountVertical}
+      marginHorizontal={margin.horizontal}
+      marginVertical={margin.vertical}
       zoomFactor={zoomFactor}
       onSpaceClicked={(spaceTileX, spaceTileY) => {
         const offsetX = spaceTileX - spaceTilesCount.horizontal
@@ -64,13 +74,28 @@ type ScrollGridProps = {
   children: ReactNode
   width: number
   height: number
+  marginHorizontal: number
+  marginVertical: number
   zoomFactor: number
   onSpaceClicked: (spaceTileX: number, spaceTileY: number) => void
 }
 
-const ScrollGrid: FC<ScrollGridProps> = ({ children, width, height, zoomFactor, onSpaceClicked }) => (
+const ScrollGrid: FC<ScrollGridProps> = ({
+  children,
+  width,
+  height,
+  marginHorizontal,
+  marginVertical,
+  zoomFactor,
+  onSpaceClicked
+}) => (
   <div
-    style={{ width: width * zoomFactor + 'px', height: height * zoomFactor + 'px', position: 'relative' }}
+    style={{
+      width: width * zoomFactor + 'px',
+      height: height * zoomFactor + 'px',
+      position: 'relative',
+      margin: `${marginVertical * zoomFactor}px ${marginHorizontal * zoomFactor}px`
+    }}
     onClick={(e) => {
       const parent = e.currentTarget.parentElement
       if (parent) {

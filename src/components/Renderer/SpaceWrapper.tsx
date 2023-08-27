@@ -29,8 +29,8 @@ export const SpaceWrapper: FC<SpaceWrapperProps> = ({
         const vertical = entry.contentRect.height / zoomFactor
 
         setSpaceTilesCount({
-          horizontal: Math.floor(horizontal) - 1,
-          vertical: Math.floor(vertical) - 1
+          horizontal: Math.floor(horizontal),
+          vertical: Math.floor(vertical)
         })
         setMargin({
           horizontal: horizontal % 1,
@@ -91,10 +91,9 @@ const ScrollGrid: FC<ScrollGridProps> = ({
 }) => (
   <div
     style={{
-      width: width * zoomFactor + 'px',
-      height: height * zoomFactor + 'px',
-      position: 'relative',
-      margin: `${marginVertical * zoomFactor}px ${marginHorizontal * zoomFactor}px`
+      width: (width - 2 * (1 - marginHorizontal)) * zoomFactor + 'px',
+      height: (height - 2 * (1 - marginVertical)) * zoomFactor + 'px',
+      position: 'relative'
     }}
     onClick={(e) => {
       const parent = e.currentTarget.parentElement
@@ -112,7 +111,13 @@ const ScrollGrid: FC<ScrollGridProps> = ({
           <path d={`M ${zoomFactor} 0 L 0 0 0 ${zoomFactor}`} fill='none' stroke='gray' strokeWidth='1' />
         </pattern>
       </defs>
-      <rect width='100%' height='100%' fill='url(#grid)' />
+      <g
+        transform={`translate(${marginHorizontal * zoomFactor - zoomFactor}, ${
+          marginVertical * zoomFactor - zoomFactor
+        })`}
+      >
+        <rect width={width * zoomFactor} height={height * zoomFactor} fill='url(#grid)' />
+      </g>
     </svg>
     {children}
   </div>

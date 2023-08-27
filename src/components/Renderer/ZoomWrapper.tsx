@@ -1,4 +1,4 @@
-import type { FC, RefObject, TouchEvent } from 'types'
+import type { FC, RefObject, TouchEvent, WheelEvent } from 'types'
 import React, { useState, useLayoutEffect } from 'react'
 import { cn } from 'helper/className'
 
@@ -33,6 +33,20 @@ export const ZoomWrapper: FC<ZoomWrapperProps> = ({ children, tilemapRendererRef
     }
   }
 
+  const onWheel = (e: WheelEvent) => {
+    if (!e.ctrlKey) {
+      return
+    }
+
+    if (e.deltaY > 0) {
+      setTileSize(tileSize * 0.95)
+    }
+
+    if (e.deltaY < 0) {
+      setTileSize(tileSize * 1.05)
+    }
+  }
+
   return (
     <div
       ref={tilemapRendererRef}
@@ -41,13 +55,14 @@ export const ZoomWrapper: FC<ZoomWrapperProps> = ({ children, tilemapRendererRef
       onTouchMove={onTouchEvent}
       onTouchEnd={onTouchEvent}
       onTouchCancel={onTouchEvent}
+      onWheel={onWheel}
     >
       {tilemapRendererDiv && children({ tileSize, tilemapRendererDiv })}
     </div>
   )
 }
 
-const getDistance = (x1: number, y1: number, x2: number, y2: number) => {
+function getDistance(x1: number, y1: number, x2: number, y2: number) {
   const y = x2 - x1
   const x = y2 - y1
   return Math.sqrt(x * x + y * y)

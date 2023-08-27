@@ -21,6 +21,10 @@
   overflow: scroll;
 }
 
+.view-content-tilemap-editor .tilemap-renderer::-webkit-scrollbar {
+  display: none;
+}
+
 .view-content-tilemap-editor .tilemap-renderer--edit .tilemap-cell:hover {
   cursor: pointer;
 }

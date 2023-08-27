@@ -6,8 +6,8 @@ type SpaceWrapperProps = {
   tilemapRendererDiv: HTMLDivElement
   tilesCountVertical: number
   tilesCountHorizontal: number
-  zoomFactor: number
-  onSpaceClicked: (offsetX: number, offsetY: number, zoomFactor: number) => void
+  tileSize: number
+  onSpaceClicked: (offsetX: number, offsetY: number, tileSize: number) => void
 }
 
 export const SpaceWrapper: FC<SpaceWrapperProps> = ({
@@ -15,26 +15,26 @@ export const SpaceWrapper: FC<SpaceWrapperProps> = ({
   tilemapRendererDiv,
   tilesCountVertical,
   tilesCountHorizontal,
-  zoomFactor,
+  tileSize,
   onSpaceClicked
 }) => {
   const [spaceTilesCount, setSpaceTilesCount] = useState({ horizontal: 0, vertical: 0 })
-  const [margin, setMargin] = useState({ horizontal: 0, vertical: 0 })
+  const [overflow, setOverflow] = useState({ horizontal: 0, vertical: 0 })
   const [doCenter, setDoCenter] = useState<boolean>(true)
 
   useLayoutEffect(() => {
     const obs = new ResizeObserver(([entry]) => {
       if (entry) {
-        const horizontal = entry.contentRect.width / zoomFactor
-        const vertical = entry.contentRect.height / zoomFactor
+        const horizontal = entry.contentRect.width / tileSize
+        const vertical = entry.contentRect.height / tileSize
 
         setSpaceTilesCount({
           horizontal: Math.floor(horizontal),
           vertical: Math.floor(vertical)
         })
-        setMargin({
-          horizontal: horizontal % 1,
-          vertical: vertical % 1
+        setOverflow({
+          horizontal: (horizontal % 1) * tileSize,
+          vertical: (vertical % 1) * tileSize
         })
       }
     })
@@ -42,7 +42,7 @@ export const SpaceWrapper: FC<SpaceWrapperProps> = ({
     return () => {
       obs.disconnect()
     }
-  }, [zoomFactor])
+  }, [tileSize])
 
   useEffect(() => {
     if (doCenter && spaceTilesCount.horizontal != 0 && spaceTilesCount.vertical != 0) {
@@ -54,15 +54,15 @@ export const SpaceWrapper: FC<SpaceWrapperProps> = ({
 
   return (
     <ScrollGrid
-      width={spaceTilesCount.horizontal * 2 + tilesCountHorizontal}
-      height={spaceTilesCount.vertical * 2 + tilesCountVertical}
-      marginHorizontal={margin.horizontal}
-      marginVertical={margin.vertical}
-      zoomFactor={zoomFactor}
+      width={(spaceTilesCount.horizontal * 2 + tilesCountHorizontal) * tileSize}
+      height={(spaceTilesCount.vertical * 2 + tilesCountVertical) * tileSize}
+      overflowHorizontal={overflow.horizontal}
+      overflowVertical={overflow.vertical}
+      tileSize={tileSize}
       onSpaceClicked={(spaceTileX, spaceTileY) => {
         const offsetX = spaceTileX - spaceTilesCount.horizontal
         const offsetY = spaceTileY - spaceTilesCount.vertical
-        onSpaceClicked(offsetX, offsetY, zoomFactor)
+        onSpaceClicked(offsetX, offsetY, tileSize)
       }}
     >
       {children}
@@ -74,9 +74,9 @@ type ScrollGridProps = {
   children: ReactNode
   width: number
   height: number
-  marginHorizontal: number
-  marginVertical: number
-  zoomFactor: number
+  overflowHorizontal: number
+  overflowVertical: number
+  tileSize: number
   onSpaceClicked: (spaceTileX: number, spaceTileY: number) => void
 }
 
@@ -84,19 +84,19 @@ const ScrollGrid: FC<ScrollGridProps> = ({
   children,
   width,
   height,
-  marginHorizontal,
-  marginVertical,
-  zoomFactor,
+  overflowHorizontal,
+  overflowVertical,
+  tileSize,
   onSpaceClicked
 }) => {
-  const negativeZoomedMarginHorizontal = (1 - marginHorizontal) * zoomFactor
-  const negativeZoomedMarginVertical = (1 - marginVertical) * zoomFactor
+  const overflowHorizontalInverted = tileSize - overflowHorizontal
+  const overflowVerticalInverted = tileSize - overflowVertical
 
   return (
     <div
       style={{
-        width: width * zoomFactor - 2 * negativeZoomedMarginHorizontal + 'px',
-        height: height * zoomFactor - 2 * negativeZoomedMarginVertical + 'px',
+        width: width - 2 * overflowHorizontalInverted + 'px',
+        height: height - 2 * overflowVerticalInverted + 'px',
         position: 'relative'
       }}
       onClick={(e) => {
@@ -104,10 +104,10 @@ const ScrollGrid: FC<ScrollGridProps> = ({
         if (parent) {
           const boundingClientRect = parent.getBoundingClientRect()
           const spaceTileX = Math.floor(
-            (e.clientX - boundingClientRect.left + negativeZoomedMarginHorizontal + parent.scrollLeft) / zoomFactor
+            (e.clientX - boundingClientRect.left + overflowHorizontalInverted + parent.scrollLeft) / tileSize
           )
           const spaceTileY = Math.floor(
-            (e.clientY - boundingClientRect.top + negativeZoomedMarginVertical + parent.scrollTop) / zoomFactor
+            (e.clientY - boundingClientRect.top + overflowVerticalInverted + parent.scrollTop) / tileSize
           )
           onSpaceClicked(spaceTileX, spaceTileY)
         }
@@ -115,16 +115,12 @@ const ScrollGrid: FC<ScrollGridProps> = ({
     >
       <svg width='100%' height='100%'>
         <defs>
-          <pattern id='grid' width={zoomFactor} height={zoomFactor} patternUnits='userSpaceOnUse'>
-            <path d={`M ${zoomFactor} 0 L 0 0 0 ${zoomFactor}`} fill='none' stroke='gray' strokeWidth='1' />
+          <pattern id='grid' width={tileSize} height={tileSize} patternUnits='userSpaceOnUse'>
+            <path d={`M ${tileSize} 0 L 0 0 0 ${tileSize}`} fill='none' stroke='gray' strokeWidth='1' />
           </pattern>
         </defs>
-        <g
-          transform={`translate(${marginHorizontal * zoomFactor - zoomFactor}, ${
-            marginVertical * zoomFactor - zoomFactor
-          })`}
-        >
-          <rect width={width * zoomFactor} height={height * zoomFactor} fill='url(#grid)' />
+        <g transform={`translate(${overflowHorizontal - tileSize}, ${overflowVertical - tileSize})`}>
+          <rect width={width} height={height} fill='url(#grid)' />
         </g>
       </svg>
       {children}

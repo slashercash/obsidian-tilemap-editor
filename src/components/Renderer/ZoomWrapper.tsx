@@ -3,7 +3,7 @@ import React, { useState, useLayoutEffect } from 'react'
 import { cn } from 'helper/className'
 
 type ZoomWrapperProps = {
-  children: FC<{ zoomFactor: number; tilemapRendererDiv: HTMLDivElement }>
+  children: FC<{ tileSize: number; tilemapRendererDiv: HTMLDivElement }>
   tilemapRendererRef: RefObject<HTMLDivElement>
   isEditMode: boolean
 }
@@ -11,7 +11,7 @@ type ZoomWrapperProps = {
 export const ZoomWrapper: FC<ZoomWrapperProps> = ({ children, tilemapRendererRef, isEditMode }) => {
   const [tilemapRendererDiv, setTilemapRendererDiv] = useState<HTMLDivElement | null>(null)
   const [prevTouchDistance, setPrevTouchDistance] = useState(0)
-  const [size, setSize] = useState(30)
+  const [tileSize, setTileSize] = useState(30)
 
   useLayoutEffect(() => {
     setTilemapRendererDiv(tilemapRendererRef.current)
@@ -24,9 +24,9 @@ export const ZoomWrapper: FC<ZoomWrapperProps> = ({ children, tilemapRendererRef
     if (e.touches.length === 2 && tA && tB && tilemapRendererDiv) {
       const distance = getDistance(tA.pageX, tA.pageY, tB.pageX, tB.pageY)
 
-      const sizeFactor = prevTouchDistance === 0 ? 1 : (1 / prevTouchDistance) * distance
+      const zoomFactor = prevTouchDistance === 0 ? 1 : (1 / prevTouchDistance) * distance
 
-      setSize(size * sizeFactor)
+      setTileSize(tileSize * zoomFactor)
       setPrevTouchDistance(distance)
     } else {
       setPrevTouchDistance(0)
@@ -42,7 +42,7 @@ export const ZoomWrapper: FC<ZoomWrapperProps> = ({ children, tilemapRendererRef
       onTouchEnd={onTouchEvent}
       onTouchCancel={onTouchEvent}
     >
-      {tilemapRendererDiv && children({ zoomFactor: size, tilemapRendererDiv })}
+      {tilemapRendererDiv && children({ tileSize, tilemapRendererDiv })}
     </div>
   )
 }

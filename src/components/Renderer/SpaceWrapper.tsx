@@ -88,37 +88,46 @@ const ScrollGrid: FC<ScrollGridProps> = ({
   marginVertical,
   zoomFactor,
   onSpaceClicked
-}) => (
-  <div
-    style={{
-      width: (width - 2 * (1 - marginHorizontal)) * zoomFactor + 'px',
-      height: (height - 2 * (1 - marginVertical)) * zoomFactor + 'px',
-      position: 'relative'
-    }}
-    onClick={(e) => {
-      const parent = e.currentTarget.parentElement
-      if (parent) {
-        const boundingClientRect = parent.getBoundingClientRect()
-        const spaceTileX = Math.floor((e.clientX - boundingClientRect.left + parent.scrollLeft) / zoomFactor)
-        const spaceTileY = Math.floor((e.clientY - boundingClientRect.top + parent.scrollTop) / zoomFactor)
-        onSpaceClicked(spaceTileX, spaceTileY)
-      }
-    }}
-  >
-    <svg width='100%' height='100%'>
-      <defs>
-        <pattern id='grid' width={zoomFactor} height={zoomFactor} patternUnits='userSpaceOnUse'>
-          <path d={`M ${zoomFactor} 0 L 0 0 0 ${zoomFactor}`} fill='none' stroke='gray' strokeWidth='1' />
-        </pattern>
-      </defs>
-      <g
-        transform={`translate(${marginHorizontal * zoomFactor - zoomFactor}, ${
-          marginVertical * zoomFactor - zoomFactor
-        })`}
-      >
-        <rect width={width * zoomFactor} height={height * zoomFactor} fill='url(#grid)' />
-      </g>
-    </svg>
-    {children}
-  </div>
-)
+}) => {
+  const negativeZoomedMarginHorizontal = (1 - marginHorizontal) * zoomFactor
+  const negativeZoomedMarginVertical = (1 - marginVertical) * zoomFactor
+
+  return (
+    <div
+      style={{
+        width: width * zoomFactor - 2 * negativeZoomedMarginHorizontal + 'px',
+        height: height * zoomFactor - 2 * negativeZoomedMarginVertical + 'px',
+        position: 'relative'
+      }}
+      onClick={(e) => {
+        const parent = e.currentTarget.parentElement
+        if (parent) {
+          const boundingClientRect = parent.getBoundingClientRect()
+          const spaceTileX = Math.floor(
+            (e.clientX - boundingClientRect.left + negativeZoomedMarginHorizontal + parent.scrollLeft) / zoomFactor
+          )
+          const spaceTileY = Math.floor(
+            (e.clientY - boundingClientRect.top + negativeZoomedMarginVertical + parent.scrollTop) / zoomFactor
+          )
+          onSpaceClicked(spaceTileX, spaceTileY)
+        }
+      }}
+    >
+      <svg width='100%' height='100%'>
+        <defs>
+          <pattern id='grid' width={zoomFactor} height={zoomFactor} patternUnits='userSpaceOnUse'>
+            <path d={`M ${zoomFactor} 0 L 0 0 0 ${zoomFactor}`} fill='none' stroke='gray' strokeWidth='1' />
+          </pattern>
+        </defs>
+        <g
+          transform={`translate(${marginHorizontal * zoomFactor - zoomFactor}, ${
+            marginVertical * zoomFactor - zoomFactor
+          })`}
+        >
+          <rect width={width * zoomFactor} height={height * zoomFactor} fill='url(#grid)' />
+        </g>
+      </svg>
+      {children}
+    </div>
+  )
+}

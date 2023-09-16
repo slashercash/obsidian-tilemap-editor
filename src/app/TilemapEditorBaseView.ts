@@ -34,6 +34,10 @@ export abstract class TilemapEditorBaseView extends FileView {
 
     const rootElement = this.containerEl.children[1] as HTMLElement
     rootElement.addClass('view-content-tilemap-editor')
+
+    const mobileNavbar = document.getElementsByClassName('mobile-navbar')[0]
+    rootElement.style.marginBottom = mobileNavbar ? mobileNavbar.getBoundingClientRect().height + 'px' : '0'
+
     this.onLoaded(rootElement)
   }
 

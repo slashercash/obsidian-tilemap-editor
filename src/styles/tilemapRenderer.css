@@ -8,7 +8,6 @@
   display: grid;
   height: 30px;
   width: 30px;
-  box-shadow: inset 0 0 0 1px lightgray;
 }
 
 .view-content-tilemap-editor .tilemap-cell > div {

@@ -35,9 +35,7 @@ export abstract class TilemapEditorBaseView extends FileView {
     const rootElement = this.containerEl.children[1] as HTMLElement
     rootElement.addClass('view-content-tilemap-editor')
 
-    const mobileNavbar = document.getElementsByClassName('mobile-navbar')[0]
-    rootElement.style.marginBottom = mobileNavbar ? mobileNavbar.getBoundingClientRect().height + 'px' : '0'
-
+    this.hideMobileNavBar()
     this.onLoaded(rootElement)
   }
 
@@ -50,6 +48,7 @@ export abstract class TilemapEditorBaseView extends FileView {
     this.editAction_Element?.remove()
     this.readAction_Element?.remove()
     this.saveAction_Element?.remove()
+    this.showMobileNavBar()
     this.onUnloaded()
   }
 
@@ -81,6 +80,20 @@ export abstract class TilemapEditorBaseView extends FileView {
       new Notice('File saved')
     } else {
       new Notice('Error while saving')
+    }
+  }
+
+  private hideMobileNavBar() {
+    const mobileNavbar = document.getElementsByClassName('mobile-navbar')[0]
+    if (mobileNavbar && mobileNavbar instanceof HTMLElement) {
+      mobileNavbar.style.display = 'none'
+    }
+  }
+
+  private showMobileNavBar() {
+    const mobileNavbar = document.getElementsByClassName('mobile-navbar')[0]
+    if (mobileNavbar && mobileNavbar instanceof HTMLElement) {
+      mobileNavbar.style.display = 'unset'
     }
   }
 }

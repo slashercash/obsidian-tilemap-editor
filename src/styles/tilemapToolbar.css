@@ -1,16 +1,26 @@
 .view-content-tilemap-editor .tilemap-toolbar {
+  width: 100%;
+  z-index: 10;
+  position: absolute;
   display: flex;
   justify-content: center;
-  background-color: beige;
-  height: 140px;
+}
+
+.view-content-tilemap-editor .tilemap-toolbar-button-container {
+  background-color: rgba(0, 0, 0, 0.500);
+  width: min-content;
+  display: flex;
+  justify-content: center;
   padding: 10px;
-  gap: 10px
+  margin: 10px;
+  gap: 10px;
+  border-radius: 10px;
 }
 
 .view-content-tilemap-editor .tilemap-toolbar-button {
   background-color: rgb(171, 113, 113);
-  height: 70px;
-  width: 70px;
+  height: 45px;
+  width: 45px;
   padding: 0;
   box-shadow: unset;
 }
@@ -25,6 +35,6 @@
 }
 
 .view-content-tilemap-editor .tilemap-toolbar-button > div {
-  height: 50px;
-  width: 50px;
+  height: 30px;
+  width: 30px;
 }

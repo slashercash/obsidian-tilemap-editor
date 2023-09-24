@@ -1,5 +1,6 @@
 export type Tilemap = {
   rows: ReadonlyArray<TilemapRow>
+  metadata: TilemapMetadata
 }
 
 export type TilemapRow = {
@@ -12,4 +13,14 @@ export type TilemapCell = {
 
 export type TilemapElement = {
   className: string
+}
+
+export type TilemapMetadata = {
+  customTiles: Array<TilemapMetadataCustomTile>
+}
+
+type TilemapMetadataCustomTile = {
+  id: string
+  shape: string
+  color: string
 }

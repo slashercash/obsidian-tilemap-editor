@@ -1,9 +1,15 @@
-import type { Tilemap, TilemapCell, TilemapElement, TilemapRow } from 'types'
+import type { Tilemap, TilemapCell, TilemapElement, TilemapRow, TilemapMetadata } from 'types'
 import { htmlToString } from 'helper/htmlToString'
 import { FileCreator } from 'app/FileCreator'
 
 export class FileParser {
   static stringToTilemap(fileContent: string): Tilemap {
+    const metadataString = fileContent.substring(
+      fileContent.indexOf('<metadata>') + 10,
+      fileContent.indexOf('</metadata>')
+    )
+    const metadata: TilemapMetadata = JSON.parse(metadataString)
+
     const htmlDoc: Document = new DOMParser().parseFromString(fileContent, 'text/html')
     const tilemapElement = htmlDoc.getElementById('tilemap')
 
@@ -11,7 +17,7 @@ export class FileParser {
       throw new Error('could not read tilemap')
     }
 
-    return { rows: Array.from(tilemapElement.children).map(parseRow) }
+    return { rows: Array.from(tilemapElement.children).map(parseRow), metadata }
   }
 
   static tilemapToString(tilemap: Tilemap): string {

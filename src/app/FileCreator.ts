@@ -10,11 +10,32 @@ export class FileCreator {
       const file = htmlToString(html)
       newFile = this.appendStyle(file)
     }
-    return newFile
+    return appendMetadata(newFile)
   }
   static appendStyle(htmlFile: string): string {
     return htmlFile + getRawStyle()
   }
+}
+
+function appendMetadata(htmlFile: string) {
+  const metadata = `
+<!-- <metadata>
+{
+  "customTiles": [
+    {
+      "id": "00001",
+      "shape": "square",
+      "color": "blue"
+    },
+    {
+      "id": "00002",
+      "shape": "circle",
+      "color": "red"
+    }
+  ]
+}
+</metadata> -->`
+  return htmlFile + metadata
 }
 
 function createHtmlTilemap(): HTMLElement {

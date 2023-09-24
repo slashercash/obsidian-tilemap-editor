@@ -1,5 +1,5 @@
-const ToolbarActionTile = 'tile'
-const ToolbarActionCircle = 'circle'
+const ToolbarActionTile = 'tileOld'
+const ToolbarActionCircle = 'circleOld'
 const ToolbarActionDelete = 'delete'
 
 type ToolbarActions = {

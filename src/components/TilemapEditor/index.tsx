@@ -52,8 +52,8 @@ type HandleFn = (
 ) => void
 
 const handle: { [Key in ToolbarAction]: HandleFn } = {
-  tile: setElement({ className: 'tile' }),
-  circle: setElement({ className: 'circle' }),
+  tileOld: setElement({ className: 'tileOld' }),
+  circleOld: setElement({ className: 'circleOld' }),
   delete: deleteElement
 }
 

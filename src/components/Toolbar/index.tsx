@@ -22,7 +22,7 @@ export const Toolbar: FC<ToolbarProps> = ({ toolbarAction, onToolbarActionChange
             setEditTile(true)
           }}
         >
-          <div className={'tile'}></div>
+          <div className={'tileOld'}></div>
         </button>
         <button
           className={cn('tilemap-toolbar-button', toolbarAction === toolbarActions.circle && 'selected')}
@@ -32,7 +32,7 @@ export const Toolbar: FC<ToolbarProps> = ({ toolbarAction, onToolbarActionChange
             setEditTile(true)
           }}
         >
-          <div className={'circle'}></div>
+          <div className={'circleOld'}></div>
         </button>
         <button
           className={cn('tilemap-toolbar-button', toolbarAction === toolbarActions.delete && 'selected')}
@@ -45,11 +45,33 @@ export const Toolbar: FC<ToolbarProps> = ({ toolbarAction, onToolbarActionChange
           DELETE
         </button>
       </div>
-      {editTile && (
-        <div className={'tilemap-toolbar-edit-tile'}>
-          <button onClick={() => setEditTile(false)}>Cancel</button>
-        </div>
-      )}
+      {editTile && <EditTileSheet onCancel={() => setEditTile(false)} />}
     </div>
   )
 }
+
+type EditTileSheetProps = {
+  onCancel: () => void
+}
+
+const EditTileSheet: FC<EditTileSheetProps> = ({ onCancel }) => (
+  <div className={'tilemap-toolbar-edit-tile'}>
+    {/* <div>
+      <label>Name:</label>
+      <input type={'text'}></input>
+    </div> */}
+    <div>
+      <label>Shape:</label>
+    </div>
+    {/* <div>
+      <label>Border:</label>
+    </div> */}
+    <div>
+      <label>Color:</label>
+    </div>
+    {/* <div>
+      <label>Border color:</label>
+    </div> */}
+    <button onClick={onCancel}>Cancel</button>
+  </div>
+)

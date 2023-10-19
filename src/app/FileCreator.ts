@@ -2,6 +2,7 @@ let newFile: string
 
 import { htmlToString } from 'helper/htmlToString'
 import { getRawStyle } from 'styles/tilemapRenderer'
+import type { TilemapMetadata } from 'types'
 
 export class FileCreator {
   static newFile(): string {
@@ -10,14 +11,23 @@ export class FileCreator {
       const file = htmlToString(html)
       newFile = this.appendStyle(file)
     }
-    return appendMetadata(newFile)
+    return appendBaseMetadata(newFile)
   }
   static appendStyle(htmlFile: string): string {
     return htmlFile + getRawStyle()
   }
+  static appendMetadata(htmlFile: string, metadata: TilemapMetadata) {
+    return (
+      htmlFile +
+      `
+<!-- <metadata>
+${JSON.stringify(metadata, undefined, 2)}
+</metadata> -->`
+    )
+  }
 }
 
-function appendMetadata(htmlFile: string) {
+function appendBaseMetadata(htmlFile: string) {
   const metadata = `
 <!-- <metadata>
 {

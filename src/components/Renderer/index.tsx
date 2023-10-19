@@ -1,4 +1,4 @@
-import type { FC, RefObject, Tilemap } from 'types'
+import type { FC, RefObject, Tilemap, TilemapMetadata, CSSProperties } from 'types'
 import React from 'react'
 import { ZoomWrapper } from './ZoomWrapper'
 import { SpaceWrapper } from './SpaceWrapper'
@@ -18,6 +18,8 @@ export const Renderer: FC<RendererProps> = ({
   onTilemapClicked,
   onSpaceClicked
 }) => {
+  const styleMap = createStyleMap(tilemap.metadata)
+
   return (
     <ZoomWrapper tilemapRendererRef={tilemapRendererRef} isEditMode={isEditMode}>
       {({ tileSize, tilemapRendererDiv }) => (
@@ -42,7 +44,7 @@ export const Renderer: FC<RendererProps> = ({
                     }}
                   >
                     {cell.elements.map((element, elementKey) => (
-                      <div key={elementKey} className={element.className}></div>
+                      <div key={elementKey} style={styleMap.get(element.className)}></div>
                     ))}
                   </div>
                 ))}
@@ -54,3 +56,30 @@ export const Renderer: FC<RendererProps> = ({
     </ZoomWrapper>
   )
 }
+
+function createStyleMap(metadata: TilemapMetadata) {
+  return new Map(
+    metadata.customTiles.map((tile) => {
+      const className = `custom-tile-${tile.id}`
+      const style: CSSProperties = {
+        backgroundColor: tile.color,
+        borderRadius: tile.shape == 'circle' ? '50%' : undefined,
+        boxShadow: 'inset 0 0 0 1px black'
+      }
+      return [className, style]
+    })
+  )
+}
+
+// function createStyleStr(metadata: TilemapMetadata) {
+//   return metadata.customTiles
+//     .map((tile) => {
+//       const className = `.custom-tile-${tile.id}`
+//       const borderRadius = tile.shape == 'circle' ? '\n  border-radius: 50%;' : ''
+//       return `${className} {
+//   background-color: ${tile.color};
+//   box-shadow: inset 0 0 0 1px black;${borderRadius}
+// }`
+//     })
+//     .join('\n')
+// }

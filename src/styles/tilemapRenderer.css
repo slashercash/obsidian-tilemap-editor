@@ -14,14 +14,3 @@
   grid-row-start: 1;
   grid-column-start: 1;
 }
-
-.view-content-tilemap-editor .tileOld {
-  background-color: rgb(93, 0, 255);
-  box-shadow: inset 0 0 0 1px black;
-}
-
-.view-content-tilemap-editor .circleOld {
-  border-radius: 50%;
-  background-color: rgb(184, 32, 32);
-  box-shadow: inset 0 0 0 1px black;
-}

@@ -19,7 +19,7 @@ export type TilemapMetadata = {
   customTiles: Array<TilemapMetadataCustomTile>
 }
 
-type TilemapMetadataCustomTile = {
+export type TilemapMetadataCustomTile = {
   id: string
   shape: string
   color: string

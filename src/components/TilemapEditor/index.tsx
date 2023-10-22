@@ -1,5 +1,14 @@
-import type { FC, RefObject, ToolbarAction, Tilemap, TilemapRow, TilemapCell, TilemapElement } from 'types'
-import { toolbarActions } from 'types/enums'
+import type {
+  FC,
+  RefObject,
+  ToolbarAction,
+  Tilemap,
+  TilemapRow,
+  TilemapCell,
+  TilemapElement,
+  TilemapMetadataCustomTile,
+  CSSProperties
+} from 'types'
 import React, { useRef, useState } from 'react'
 import { Renderer } from 'components/Renderer'
 import { Toolbar } from 'components/Toolbar'
@@ -12,29 +21,51 @@ type TilemapEditorProps = {
 export const TilemapEditor: FC<TilemapEditorProps> = ({ tilemap, isEditMode }) => {
   const tilemapRendererRef = useRef<HTMLDivElement>(null)
   const [internalTilemap, setInternalTilemap] = useState(tilemap)
-  const [toolbarAction, setToolbarAction] = useState<ToolbarAction>(toolbarActions.tile)
+  const [selectedActionIndex, setSelectedActionIndex] = useState(0)
+
+  const classesAndStyles = internalTilemap.metadata.customTiles.map(getClassAndStyle)
+  const styleMap = new Map(classesAndStyles)
+  const actions: Array<ToolbarAction> = classesAndStyles.map(([className, styleProps]) => ({
+    type: 'add',
+    className,
+    styleProps
+  }))
+  actions.push({ type: 'delete' })
 
   function onTilemapClicked(rowKey: number, cellKey: number, tileSize: number) {
     if (isEditMode) {
-      handle[toolbarAction](tilemap, rowKey, cellKey, tilemapRendererRef, tileSize)
-      setInternalTilemap({ ...tilemap })
+      const action = actions[selectedActionIndex]
+      if (action) {
+        handle(action, tilemap, rowKey, cellKey, tilemapRendererRef, tileSize)
+        setInternalTilemap({ ...tilemap })
+      }
     }
   }
 
   function onSpaceClicked(offsetX: number, offsetY: number, tileSize: number): void {
-    if (isEditMode && toolbarAction != toolbarActions.delete) {
-      const [rowKey, cellKey] = expandTilemap(tilemap, offsetX, offsetY, tilemapRendererRef, tileSize)
-      handle[toolbarAction](tilemap, rowKey, cellKey, tilemapRendererRef, tileSize)
-      setInternalTilemap({ ...tilemap })
+    if (isEditMode) {
+      const action = actions[selectedActionIndex]
+      if (action && action.type != 'delete') {
+        const [rowKey, cellKey] = expandTilemap(tilemap, offsetX, offsetY, tilemapRendererRef, tileSize)
+        handle(action, tilemap, rowKey, cellKey, tilemapRendererRef, tileSize)
+        setInternalTilemap({ ...tilemap })
+      }
     }
   }
 
   return (
     <div className={'tilemap-editor'}>
-      {isEditMode && <Toolbar toolbarAction={toolbarAction} onToolbarActionChange={setToolbarAction} />}
+      {isEditMode && (
+        <Toolbar
+          actions={actions}
+          selectedActionIndex={selectedActionIndex}
+          setSelectedActionIndex={setSelectedActionIndex}
+        />
+      )}
       <Renderer
         tilemapRendererRef={tilemapRendererRef}
         tilemap={internalTilemap}
+        styleMap={styleMap}
         isEditMode={isEditMode}
         onTilemapClicked={onTilemapClicked}
         onSpaceClicked={onSpaceClicked}
@@ -51,10 +82,18 @@ type HandleFn = (
   tileSize: number
 ) => void
 
-const handle: { [Key in ToolbarAction]: HandleFn } = {
-  tileOld: setElement({ className: 'tileOld' }),
-  circleOld: setElement({ className: 'circleOld' }),
-  delete: deleteElement
+function handle(
+  action: ToolbarAction,
+  tilemap: Tilemap,
+  rowKey: number,
+  cellKey: number,
+  tilemapRendererRef: RefObject<HTMLDivElement>,
+  tileSize: number
+): void {
+  ;({
+    add: setElement({ className: action.className ?? '' }),
+    delete: deleteElement
+  })[action.type](tilemap, rowKey, cellKey, tilemapRendererRef, tileSize)
 }
 
 function setElement(element: TilemapElement): HandleFn {
@@ -205,3 +244,26 @@ function trimTilemap(tilemap: Tilemap): [scrollX: number, scrollY: number] {
 
   return [trim.left, trim.top]
 }
+
+function getClassAndStyle(tile: TilemapMetadataCustomTile): [string, CSSProperties] {
+  const className = `custom-tile-${tile.id}`
+  const style = {
+    backgroundColor: tile.color,
+    borderRadius: tile.shape == 'circle' ? '50%' : undefined,
+    boxShadow: 'inset 0 0 0 1px black'
+  }
+  return [className, style]
+}
+
+// function createStyleStr(metadata: TilemapMetadata) {
+//   return metadata.customTiles
+//     .map((tile) => {
+//       const className = `.custom-tile-${tile.id}`
+//       const borderRadius = tile.shape == 'circle' ? '\n  border-radius: 50%;' : ''
+//       return `${className} {
+//   background-color: ${tile.color};
+//   box-shadow: inset 0 0 0 1px black;${borderRadius}
+// }`
+//     })
+//     .join('\n')
+// }

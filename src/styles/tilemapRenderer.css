@@ -1,16 +1,13 @@
-/* content of this file is used for save-file creation */
-
 .view-content-tilemap-editor .tilemap-row {
   display: flex;
 }
 
 .view-content-tilemap-editor .tilemap-cell {
   display: grid;
-  height: 30px;
-  width: 30px;
 }
 
-.view-content-tilemap-editor .tilemap-cell > div {
+/* this is only needed for tile-stacking */
+/* .view-content-tilemap-editor .tilemap-cell > div {
   grid-row-start: 1;
   grid-column-start: 1;
-}
+} */

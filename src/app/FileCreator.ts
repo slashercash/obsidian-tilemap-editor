@@ -47,12 +47,6 @@ function metadataToStyle(metadata: TilemapMetadata): string {
   }
   .tilemap-cell {
     display: grid;
-    height: 30px;
-    width: 30px;
-  }
-  .tilemap-cell > div {
-    grid-row-start: 1;
-    grid-column-start: 1;
   }
 ${css}
 </style>

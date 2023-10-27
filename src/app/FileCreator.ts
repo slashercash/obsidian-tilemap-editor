@@ -1,7 +1,6 @@
 let newFile: string
 
 import { htmlToString } from 'helper/htmlToString'
-import { getRawStyle } from 'styles/tilemapRenderer'
 import type { TilemapMetadata } from 'types'
 
 export class FileCreator {
@@ -9,16 +8,14 @@ export class FileCreator {
     if (!newFile) {
       const html = createHtmlTilemap()
       const file = htmlToString(html)
-      newFile = this.appendStyle(file)
+      newFile = this.appendMetadata(file, baseMetadata)
     }
-    return appendBaseMetadata(newFile)
-  }
-  static appendStyle(htmlFile: string): string {
-    return htmlFile + getRawStyle()
+    return newFile
   }
   static appendMetadata(htmlFile: string, metadata: TilemapMetadata) {
     return (
       htmlFile +
+      metadataToStyle(metadata) +
       `
 <!-- <metadata>
 ${JSON.stringify(metadata, undefined, 2)}
@@ -27,25 +24,54 @@ ${JSON.stringify(metadata, undefined, 2)}
   }
 }
 
-function appendBaseMetadata(htmlFile: string) {
-  const metadata = `
-<!-- <metadata>
-{
-  "customTiles": [
+function metadataToStyle(metadata: TilemapMetadata): string {
+  const css = metadata.customTiles
+    .map((tile) => {
+      const className = `  .custom-tile-${tile.id}`
+      const borderRadius = tile.shape == 'circle' ? '\n    border-radius: 50%;' : ''
+      return `${className} {
+    background-color: ${tile.color};
+    box-shadow: inset 0 0 0 1px black;${borderRadius}
+  }`
+    })
+    .join('\n')
+
+  return `
+<style>
+  main {
+    display: flex;
+    justify-content: center;
+  }
+  .tilemap-row {
+    display: flex;
+  }
+  .tilemap-cell {
+    display: grid;
+    height: 30px;
+    width: 30px;
+  }
+  .tilemap-cell > div {
+    grid-row-start: 1;
+    grid-column-start: 1;
+  }
+${css}
+</style>
+`
+}
+
+const baseMetadata: TilemapMetadata = {
+  customTiles: [
     {
-      "id": "00001",
-      "shape": "square",
-      "color": "blue"
+      id: '00001',
+      shape: 'square',
+      color: 'blue'
     },
     {
-      "id": "00002",
-      "shape": "circle",
-      "color": "red"
+      id: '00002',
+      shape: 'circle',
+      color: 'red'
     }
   ]
-}
-</metadata> -->`
-  return htmlFile + metadata
 }
 
 function createHtmlTilemap(): HTMLElement {

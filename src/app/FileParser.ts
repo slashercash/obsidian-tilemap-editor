@@ -23,8 +23,7 @@ export class FileParser {
   static tilemapToString(tilemap: Tilemap): string {
     const html = tilemapToHtml(tilemap)
     const htmlString = htmlToString(html)
-    const htmlStringWithStyle = FileCreator.appendStyle(htmlString)
-    return FileCreator.appendMetadata(htmlStringWithStyle, tilemap.metadata)
+    return FileCreator.appendMetadata(htmlString, tilemap.metadata)
   }
 }
 

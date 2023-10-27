@@ -254,16 +254,3 @@ function getClassAndStyle(tile: TilemapMetadataCustomTile): [string, CSSProperti
   }
   return [className, style]
 }
-
-// function createStyleStr(metadata: TilemapMetadata) {
-//   return metadata.customTiles
-//     .map((tile) => {
-//       const className = `.custom-tile-${tile.id}`
-//       const borderRadius = tile.shape == 'circle' ? '\n  border-radius: 50%;' : ''
-//       return `${className} {
-//   background-color: ${tile.color};
-//   box-shadow: inset 0 0 0 1px black;${borderRadius}
-// }`
-//     })
-//     .join('\n')
-// }

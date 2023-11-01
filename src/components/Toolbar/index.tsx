@@ -74,12 +74,23 @@ export const Toolbar: FC<ToolbarProps> = ({ children, isEditMode, tilemapRendere
     }
   }
 
+  function onCustomTileChanged(tile: TilemapMetadataCustomTile) {
+    const index = tilemap.metadata.customTiles.findIndex((tile) => tile.id === tile.id)
+    if (index != -1) {
+      tilemap.metadata.customTiles[index] = tile
+      forceUpdate()
+      setEditTile({ ...tile })
+    }
+  }
+
   return (
     <>
       {isEditMode && (
         <div className={'tilemap-toolbar-overlay'}>
           <div className={'tilemap-toolbar-button-container'}>{actionButtons}</div>
-          {editTile && <EditTileSheet tile={editTile} onCancel={() => setEditTile(null)} />}
+          {editTile && (
+            <EditTileSheet tile={editTile} onChange={onCustomTileChanged} onCancel={() => setEditTile(null)} />
+          )}
         </div>
       )}
       {children({ styleMap: new Map(classesAndStyles), onSpaceClicked, onTilemapClicked })}

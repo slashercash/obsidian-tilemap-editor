@@ -3,10 +3,11 @@ import React from 'react'
 
 type EditTileSheetProps = {
   tile: TilemapMetadataCustomTile
+  onChange: (tile: TilemapMetadataCustomTile) => void
   onCancel: () => void
 }
 
-const EditTileSheet: FC<EditTileSheetProps> = ({ tile, onCancel }) => (
+const EditTileSheet: FC<EditTileSheetProps> = ({ tile, onChange, onCancel }) => (
   <div className={'tilemap-toolbar-edit-tile'}>
     {/* <div>
       <label>Name:</label>
@@ -14,14 +15,22 @@ const EditTileSheet: FC<EditTileSheetProps> = ({ tile, onCancel }) => (
     </div> */}
     <div>
       <label>Shape:</label>
-      <span>{tile.shape}</span>
+      <Dropdown
+        values={['square', 'circle']}
+        selectedValue={tile.shape}
+        onChange={(shape) => onChange({ ...tile, shape })}
+      />
     </div>
     {/* <div>
       <label>Border:</label>
     </div> */}
     <div>
       <label>Color:</label>
-      <span>{tile.color}</span>
+      <Dropdown
+        values={['red', 'blue']}
+        selectedValue={tile.color}
+        onChange={(color) => onChange({ ...tile, color })}
+      />
     </div>
     {/* <div>
       <label>Border color:</label>
@@ -31,3 +40,21 @@ const EditTileSheet: FC<EditTileSheetProps> = ({ tile, onCancel }) => (
 )
 
 export default EditTileSheet
+
+type DropdownProps = {
+  values: ReadonlyArray<string>
+  selectedValue: string
+  onChange: (value: string) => void
+}
+
+const Dropdown: FC<DropdownProps> = ({ values, selectedValue, onChange }) => {
+  return (
+    <select value={selectedValue} onChange={(e) => onChange(e.target.value)}>
+      {values.map((value, i) => (
+        <option key={i} value={value}>
+          {value}
+        </option>
+      ))}
+    </select>
+  )
+}

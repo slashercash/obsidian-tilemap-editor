@@ -11,6 +11,7 @@ import type {
 } from 'types'
 import React, { useReducer, useState } from 'react'
 import { cn } from 'helper/className'
+import EditTileSheet from './EditTileSheet'
 
 type ToolbarProps = {
   children: FC<{
@@ -26,7 +27,7 @@ type ToolbarProps = {
 export const Toolbar: FC<ToolbarProps> = ({ children, isEditMode, tilemapRendererRef, tilemap }) => {
   const [, forceUpdate] = useReducer((x) => x + 1, 0)
   const [selectedActionIndex, setSelectedActionIndex] = useState(0)
-  const [editTile, setEditTile] = useState(false)
+  const [editTile, setEditTile] = useState<TilemapMetadataCustomTile | null>(null)
 
   const classesAndStyles = tilemap.metadata.customTiles.map(getClassAndStyle)
   const actions: Array<ToolbarAction> = classesAndStyles.map(([className, styleProps]) => ({
@@ -41,8 +42,14 @@ export const Toolbar: FC<ToolbarProps> = ({ children, isEditMode, tilemapRendere
       key={i}
       selected={i === selectedActionIndex}
       toolbarAction={action}
-      onClick={() => setSelectedActionIndex(i)}
-      setEditTile={setEditTile}
+      onClick={() => {
+        setSelectedActionIndex(i)
+        if (editTile) setEditTile(tilemap.metadata.customTiles[i] ?? null)
+      }}
+      onClickRight={() => {
+        setSelectedActionIndex(i)
+        setEditTile(tilemap.metadata.customTiles[i] ?? null)
+      }}
     />
   ))
 
@@ -72,7 +79,7 @@ export const Toolbar: FC<ToolbarProps> = ({ children, isEditMode, tilemapRendere
       {isEditMode && (
         <div className={'tilemap-toolbar-overlay'}>
           <div className={'tilemap-toolbar-button-container'}>{actionButtons}</div>
-          {editTile && <EditTileSheet onCancel={() => setEditTile(false)} />}
+          {editTile && <EditTileSheet tile={editTile} onCancel={() => setEditTile(null)} />}
         </div>
       )}
       {children({ styleMap: new Map(classesAndStyles), onSpaceClicked, onTilemapClicked })}
@@ -84,46 +91,17 @@ type ActionButtonProps = {
   selected: boolean
   toolbarAction: ToolbarAction
   onClick: () => void
-  setEditTile: (b: boolean) => void
+  onClickRight: () => void
 }
 
-export const ActionButton: FC<ActionButtonProps> = ({ selected, toolbarAction, onClick, setEditTile }) => (
+export const ActionButton: FC<ActionButtonProps> = ({ selected, toolbarAction, onClick, onClickRight }) => (
   <button
     className={cn('tilemap-toolbar-button', selected && 'selected')}
     onClick={onClick}
-    onContextMenu={() => {
-      onClick()
-      setEditTile(true)
-    }}
+    onContextMenu={onClickRight}
   >
     {toolbarAction.type === 'delete' ? 'DELETE' : <div style={toolbarAction.styleProps}></div>}
   </button>
-)
-
-type EditTileSheetProps = {
-  onCancel: () => void
-}
-
-const EditTileSheet: FC<EditTileSheetProps> = ({ onCancel }) => (
-  <div className={'tilemap-toolbar-edit-tile'}>
-    {/* <div>
-      <label>Name:</label>
-      <input type={'text'}></input>
-    </div> */}
-    <div>
-      <label>Shape:</label>
-    </div>
-    {/* <div>
-      <label>Border:</label>
-    </div> */}
-    <div>
-      <label>Color:</label>
-    </div>
-    {/* <div>
-      <label>Border color:</label>
-    </div> */}
-    <button onClick={onCancel}>Cancel</button>
-  </div>
 )
 
 type HandleFn = (

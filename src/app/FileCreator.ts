@@ -47,6 +47,8 @@ function metadataToStyle(metadata: TilemapMetadata): string {
   }
   .tilemap-cell {
     display: grid;
+    height: 30px;
+    width: 30px;
   }
 ${css}
 </style>

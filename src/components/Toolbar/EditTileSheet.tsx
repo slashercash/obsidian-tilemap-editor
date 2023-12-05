@@ -4,9 +4,10 @@ import React from 'react'
 type EditTileSheetProps = {
   tile: TilemapMetadataCustomTile
   onChange: (tile: TilemapMetadataCustomTile) => void
+  onDeleteCustomTile: () => void
 }
 
-const EditTileSheet: FC<EditTileSheetProps> = ({ tile, onChange }) => (
+const EditTileSheet: FC<EditTileSheetProps> = ({ tile, onChange, onDeleteCustomTile }) => (
   <div className={'tilemap-toolbar-edit-tile'}>
     {/* <div>
       <label>Name:</label>
@@ -34,6 +35,7 @@ const EditTileSheet: FC<EditTileSheetProps> = ({ tile, onChange }) => (
     {/* <div>
       <label>Border color:</label>
     </div> */}
+    <button onClick={onDeleteCustomTile}>Delete custom tile</button>
   </div>
 )
 

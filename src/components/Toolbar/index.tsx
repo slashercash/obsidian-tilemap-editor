@@ -3,7 +3,7 @@ import React, { useReducer, useState } from 'react'
 import { cn } from 'helper/className'
 import EditTileSheet from './EditTileSheet'
 import { getCustomButtonSources } from './buttonSource'
-import ClickAction from './ClickAction'
+import ClickAction, { trimTilemap } from './ClickAction'
 
 type OnTilemapClickedFn = (rowKey: number, cellKey: number, tileSize: number) => void
 type OnSpaceClickedFn = (offsetX: number, offsetY: number, tileSize: number) => void
@@ -83,12 +83,28 @@ export const Toolbar: FC<ToolbarProps> = ({ children, isEditMode, editTiles, til
 
   const editTile = editTiles && tilemap.metadata.customTiles[selectedButtonIndex]
 
+  function onDeleteCustomTile() {
+    if (!editTile) {
+      return
+    }
+    tilemap.rows.forEach((row) => {
+      row.cells.forEach((cell) => {
+        cell.elements = cell.elements.filter((e) => e.className != `custom-tile-${editTile.id}`)
+      })
+    })
+    trimTilemap(tilemap)
+    tilemap.metadata.customTiles.splice(selectedButtonIndex, 1)
+    forceUpdate()
+  }
+
   return (
     <>
       {isEditMode && (
         <div className={'tilemap-toolbar-overlay'}>
           <div className={'tilemap-toolbar-button-container'}>{buttons}</div>
-          {editTile && <EditTileSheet tile={editTile} onChange={onCustomTileChanged} />}
+          {editTile && (
+            <EditTileSheet tile={editTile} onChange={onCustomTileChanged} onDeleteCustomTile={onDeleteCustomTile} />
+          )}
         </div>
       )}
       {children({ styleMap: new Map(classesAndStyles), onTilemapClicked, onSpaceClicked })}

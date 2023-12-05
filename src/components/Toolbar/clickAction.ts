@@ -110,7 +110,7 @@ function getAddValue(offset: number, distance: number): number {
   return 0
 }
 
-function trimTilemap(tilemap: Tilemap): [scrollX: number, scrollY: number] {
+export function trimTilemap(tilemap: Tilemap): [scrollX: number, scrollY: number] {
   const tilesCountVertical = tilemap.rows.length
   const tilesCountHorizontal = tilemap.rows[0]?.cells.length ?? 0
 

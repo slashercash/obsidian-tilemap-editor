@@ -14,14 +14,14 @@ type ToolbarProps = {
     onSpaceClicked: OnSpaceClickedFn
   }>
   isEditMode: boolean
+  editTiles: boolean
   tilemapRendererRef: RefObject<HTMLDivElement>
   tilemap: Tilemap
 }
 
-export const Toolbar: FC<ToolbarProps> = ({ children, isEditMode, tilemapRendererRef, tilemap }) => {
+export const Toolbar: FC<ToolbarProps> = ({ children, isEditMode, editTiles, tilemapRendererRef, tilemap }) => {
   const [, forceUpdate] = useReducer((x) => x + 1, 0)
   const [selectedButtonIndex, setSelectedButtonIndex] = useState(0)
-  const [editTile, setEditTile] = useState<TilemapMetadataCustomTile | null>(null)
   const classesAndStyles: ReadonlyArray<[string, CSSProperties]> = tilemap.metadata.customTiles.map(getClassAndStyle)
 
   const [onTilemapClicked, onSpaceClicked, buttons] = getButtonSources(
@@ -36,18 +36,7 @@ export const Toolbar: FC<ToolbarProps> = ({ children, isEditMode, tilemapRendere
         onSpaceClicked = buttonSource.onSpaceClicked
       }
       buttons.push(
-        <ActionButton
-          key={i}
-          selected={i === selectedButtonIndex}
-          onClick={() => {
-            setSelectedButtonIndex(i)
-            if (editTile) setEditTile(tilemap.metadata.customTiles[i] ?? null)
-          }}
-          onClickRight={() => {
-            setSelectedButtonIndex(i)
-            setEditTile(tilemap.metadata.customTiles[i] ?? null)
-          }}
-        >
+        <ActionButton key={i} selected={i === selectedButtonIndex} onClick={() => setSelectedButtonIndex(i)}>
           {buttonSource.child}
         </ActionButton>
       )
@@ -57,21 +46,21 @@ export const Toolbar: FC<ToolbarProps> = ({ children, isEditMode, tilemapRendere
   )
 
   function onCustomTileChanged(tile: TilemapMetadataCustomTile) {
-    const index = tilemap.metadata.customTiles.findIndex((tile) => tile.id === tile.id)
+    const index = tilemap.metadata.customTiles.findIndex((t) => t.id === tile.id)
     if (index != -1) {
       tilemap.metadata.customTiles[index] = tile
-      setEditTile({ ...tile })
+      forceUpdate()
     }
   }
+
+  const editTile = editTiles && tilemap.metadata.customTiles[selectedButtonIndex]
 
   return (
     <>
       {isEditMode && (
         <div className={'tilemap-toolbar-overlay'}>
           <div className={'tilemap-toolbar-button-container'}>{buttons}</div>
-          {editTile && (
-            <EditTileSheet tile={editTile} onChange={onCustomTileChanged} onCancel={() => setEditTile(null)} />
-          )}
+          {editTile && <EditTileSheet tile={editTile} onChange={onCustomTileChanged} />}
         </div>
       )}
       {children({ styleMap: new Map(classesAndStyles), onTilemapClicked, onSpaceClicked })}
@@ -83,15 +72,10 @@ type ActionButtonProps = {
   children: JSX.Element
   selected: boolean
   onClick: () => void
-  onClickRight: () => void
 }
 
-export const ActionButton: FC<ActionButtonProps> = ({ children, selected, onClick, onClickRight }) => (
-  <button
-    className={cn('tilemap-toolbar-button', selected && 'selected')}
-    onClick={onClick}
-    onContextMenu={onClickRight}
-  >
+export const ActionButton: FC<ActionButtonProps> = ({ children, selected, onClick }) => (
+  <button className={cn('tilemap-toolbar-button', selected && 'selected')} onClick={onClick}>
     {children}
   </button>
 )

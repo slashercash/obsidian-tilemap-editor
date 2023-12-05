@@ -9,6 +9,7 @@ export class TilemapEditorView extends TilemapEditorBaseView {
   private rootElement?: HTMLElement
   private tilemap?: Tilemap
   private isEditMode: boolean = false
+  private editTiles: boolean = false
 
   public onLoaded(rootElement: HTMLElement): void {
     this.rootElement = rootElement
@@ -28,6 +29,11 @@ export class TilemapEditorView extends TilemapEditorBaseView {
     this.renderTilemapEditor()
   }
 
+  public onEditTiles(): void {
+    this.editTiles = !this.editTiles
+    this.renderTilemapEditor()
+  }
+
   public getContentToSave(): [success: boolean, content: string] {
     if (this.tilemap) {
       return [true, FileParser.tilemapToString(this.tilemap)]
@@ -39,7 +45,9 @@ export class TilemapEditorView extends TilemapEditorBaseView {
     const tilemap = this.tilemap
     const rootElement = this.rootElement
     if (tilemap && rootElement) {
-      const tilemapEditor = React.createElement(() => TilemapEditor({ tilemap, isEditMode: this.isEditMode }))
+      const tilemapEditor = React.createElement(() =>
+        TilemapEditor({ tilemap, isEditMode: this.isEditMode, editTiles: this.editTiles })
+      )
       ReactDOM.render(tilemapEditor, rootElement)
     }
   }

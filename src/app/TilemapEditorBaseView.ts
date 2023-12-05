@@ -9,6 +9,7 @@ export abstract class TilemapEditorBaseView extends FileView {
   private editAction_Element?: HTMLElement
   private readAction_Element?: HTMLElement
   private saveAction_Element?: HTMLElement
+  private editTilesAction_Element?: HTMLElement
 
   constructor(leaf: WorkspaceLeaf) {
     super(leaf)
@@ -18,6 +19,7 @@ export abstract class TilemapEditorBaseView extends FileView {
   abstract onUnloaded(): void
   abstract onFileLoaded(fileContent: string): void
   abstract onEditModeChanged(isEditMode: boolean): void
+  abstract onEditTiles(): void
   abstract getContentToSave(): [success: boolean, content: string]
 
   public async onload(): Promise<void> {
@@ -29,8 +31,11 @@ export abstract class TilemapEditorBaseView extends FileView {
     )
     this.saveAction_Element = this.addAction('checkmark', 'Save', () => this.save())
 
+    this.editTilesAction_Element = this.addAction('edit', 'Edit Tiles', () => this.onEditTiles())
+
     this.readAction_Element.hide()
     this.saveAction_Element.hide()
+    this.editTilesAction_Element.hide()
 
     const rootElement = this.containerEl.children[1] as HTMLElement
     rootElement.addClass('view-content-tilemap-editor')
@@ -48,6 +53,7 @@ export abstract class TilemapEditorBaseView extends FileView {
     this.editAction_Element?.remove()
     this.readAction_Element?.remove()
     this.saveAction_Element?.remove()
+    this.editTilesAction_Element?.remove()
     this.showMobileNavBar()
     this.onUnloaded()
   }
@@ -65,10 +71,12 @@ export abstract class TilemapEditorBaseView extends FileView {
       this.editAction_Element?.hide()
       this.saveAction_Element?.show()
       this.readAction_Element?.show()
+      this.editTilesAction_Element?.show()
     } else {
       this.saveAction_Element?.hide()
       this.readAction_Element?.hide()
       this.editAction_Element?.show()
+      this.editTilesAction_Element?.hide()
     }
     this.onEditModeChanged(isEditMode)
   }

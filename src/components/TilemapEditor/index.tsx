@@ -6,14 +6,15 @@ import { Toolbar } from 'components/Toolbar'
 type TilemapEditorProps = {
   tilemap: Tilemap
   isEditMode: boolean
+  editTiles: boolean
 }
 
-export const TilemapEditor: FC<TilemapEditorProps> = ({ tilemap, isEditMode }) => {
+export const TilemapEditor: FC<TilemapEditorProps> = ({ tilemap, isEditMode, editTiles }) => {
   const tilemapRendererRef = useRef<HTMLDivElement>(null)
 
   return (
     <div className={'tilemap-editor'}>
-      <Toolbar isEditMode={isEditMode} tilemapRendererRef={tilemapRendererRef} tilemap={tilemap}>
+      <Toolbar isEditMode={isEditMode} editTiles={editTiles} tilemapRendererRef={tilemapRendererRef} tilemap={tilemap}>
         {({ styleMap, onTilemapClicked, onSpaceClicked }) => (
           <Renderer
             tilemapRendererRef={tilemapRendererRef}

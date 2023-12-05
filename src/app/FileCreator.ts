@@ -58,12 +58,12 @@ ${css}
 const baseMetadata: TilemapMetadata = {
   customTiles: [
     {
-      id: '00001',
+      id: 0,
       shape: 'square',
       color: 'blue'
     },
     {
-      id: '00002',
+      id: 1,
       shape: 'circle',
       color: 'red'
     }

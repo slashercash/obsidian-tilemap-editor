@@ -20,7 +20,7 @@ export type TilemapMetadata = {
 }
 
 export type TilemapMetadataCustomTile = {
-  id: string
+  id: number
   shape: string
   color: string
 }

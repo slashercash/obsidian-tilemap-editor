@@ -2,7 +2,8 @@ import type { CSSProperties, FC, RefObject, Tilemap, TilemapMetadataCustomTile }
 import React, { useReducer, useState } from 'react'
 import { cn } from 'helper/className'
 import EditTileSheet from './EditTileSheet'
-import { getButtonSources } from './buttonSource'
+import { getCustomButtonSources } from './buttonSource'
+import ClickAction from './ClickAction'
 
 type OnTilemapClickedFn = (rowKey: number, cellKey: number, tileSize: number) => void
 type OnSpaceClickedFn = (offsetX: number, offsetY: number, tileSize: number) => void
@@ -24,14 +25,23 @@ export const Toolbar: FC<ToolbarProps> = ({ children, isEditMode, editTiles, til
   const [selectedButtonIndex, setSelectedButtonIndex] = useState(0)
   const classesAndStyles: ReadonlyArray<[string, CSSProperties]> = tilemap.metadata.customTiles.map(getClassAndStyle)
 
-  const [onTilemapClicked, onSpaceClicked, buttons] = getButtonSources(
-    tilemap,
-    tilemapRendererRef,
-    classesAndStyles,
-    forceUpdate
-  ).reduce<[OnTilemapClickedFn, OnSpaceClickedFn, Array<JSX.Element>]>(
+  const buttonSources = getCustomButtonSources(tilemap, tilemapRendererRef, classesAndStyles, forceUpdate)
+  if (!editTiles) {
+    buttonSources.push({
+      child: React.createElement('span', {}, 'Delete'),
+      onTilemapClicked: (rowKey, cellKey, tileSize) => {
+        ClickAction.deleteElement(tilemap, tilemapRendererRef, rowKey, cellKey, tileSize)
+        forceUpdate()
+      },
+      onSpaceClicked: () => {}
+    })
+  }
+
+  const [onTilemapClicked, onSpaceClicked, buttons] = buttonSources.reduce<
+    [OnTilemapClickedFn, OnSpaceClickedFn, Array<JSX.Element>]
+  >(
     ([onTilemapClicked, onSpaceClicked, buttons], buttonSource, i) => {
-      if (isEditMode && i === selectedButtonIndex) {
+      if (isEditMode && !editTiles && i === selectedButtonIndex) {
         onTilemapClicked = buttonSource.onTilemapClicked
         onSpaceClicked = buttonSource.onSpaceClicked
       }
@@ -44,6 +54,24 @@ export const Toolbar: FC<ToolbarProps> = ({ children, isEditMode, editTiles, til
     },
     [() => {}, () => {}, []]
   )
+  if (editTiles) {
+    buttons.push(
+      <ActionButton
+        key={buttons.length}
+        selected={false}
+        onClick={() => {
+          tilemap.metadata.customTiles.push({
+            id: tilemap.metadata.customTiles.reduce((p, v) => (p < v.id ? v.id : p), 0) + 1,
+            shape: 'circle',
+            color: 'red'
+          })
+          forceUpdate()
+        }}
+      >
+        <>Create</>
+      </ActionButton>
+    )
+  }
 
   function onCustomTileChanged(tile: TilemapMetadataCustomTile) {
     const index = tilemap.metadata.customTiles.findIndex((t) => t.id === tile.id)

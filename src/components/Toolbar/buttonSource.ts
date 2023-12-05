@@ -8,26 +8,7 @@ type ButtonSource = {
   onSpaceClicked: (offsetX: number, offsetY: number, tileSize: number) => void
 }
 
-export function getButtonSources(
-  tilemap: Tilemap,
-  tilemapRendererRef: RefObject<HTMLDivElement>,
-  classesAndStyles: ReadonlyArray<[string, CSSProperties]>,
-  forceUpdate: React.DispatchWithoutAction
-): ReadonlyArray<ButtonSource> {
-  const buttonSources = getCustomButtonSources(tilemap, tilemapRendererRef, classesAndStyles, forceUpdate)
-  buttonSources.push({
-    child: React.createElement('span', {}, 'Delete'),
-    onTilemapClicked: (rowKey, cellKey, tileSize) => {
-      ClickAction.deleteElement(tilemap, tilemapRendererRef, rowKey, cellKey, tileSize)
-      forceUpdate()
-    },
-    onSpaceClicked: () => {}
-  })
-
-  return buttonSources
-}
-
-function getCustomButtonSources(
+export function getCustomButtonSources(
   tilemap: Tilemap,
   tilemapRendererRef: RefObject<HTMLDivElement>,
   classesAndStyles: ReadonlyArray<[string, CSSProperties]>,

@@ -3,7 +3,6 @@ export function htmlToString(html: HTMLElement): string {
 }
 
 function format(node: Element, level: number = 1): Element {
-  node.removeAttribute('style')
   var indentBefore = new Array(level++ + 1).join('  '),
     indentAfter = new Array(level - 1).join('  '),
     textNode

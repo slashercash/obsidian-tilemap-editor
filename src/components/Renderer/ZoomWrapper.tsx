@@ -50,17 +50,20 @@ export const ZoomWrapper: FC<ZoomWrapperProps> = ({ children, tilemapRendererRef
   }
 
   return (
-    <div
-      ref={tilemapRendererRef}
-      className={cn('tilemap-renderer', isEditMode && 'edit')}
-      onTouchStart={onTouchEvent}
-      onTouchMove={onTouchEvent}
-      onTouchEnd={onTouchEvent}
-      onTouchCancel={onTouchEvent}
-      onWheel={onWheel}
-    >
-      {tilemapRendererDiv && children({ tileSize, tilemapRendererDiv })}
-    </div>
+    <>
+      <div
+        ref={tilemapRendererRef}
+        className={cn('tilemap-renderer', isEditMode && 'edit')}
+        onTouchStart={onTouchEvent}
+        onTouchMove={onTouchEvent}
+        onTouchEnd={onTouchEvent}
+        onTouchCancel={onTouchEvent}
+        onWheel={onWheel}
+      >
+        {tilemapRendererDiv && children({ tileSize, tilemapRendererDiv })}
+      </div>
+      <style>{`.view-content-tilemap-editor .tilemap-cell { width:${tileSize}px;height:${tileSize}px; }`}</style>
+    </>
   )
 }
 

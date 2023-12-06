@@ -1,4 +1,4 @@
-import type { CSSProperties, FC, RefObject, TilemapMetadata, TilemapMetadataCustomTile } from 'types'
+import type { FC, RefObject, TilemapMetadata, TilemapMetadataCustomTile } from 'types'
 import React, { useReducer, useState } from 'react'
 import { cn } from 'helper/className'
 import EditTileSheet from './EditTileSheet'
@@ -12,10 +12,7 @@ type ButtonSource = {
 }
 
 type ToolbarProps = {
-  children: FC<{
-    styleMap: Map<string, CSSProperties>
-    onSpaceClicked: OnSpaceClickedFn
-  }>
+  children: FC<{ onSpaceClicked: OnSpaceClickedFn }>
   isEditMode: boolean
   editTiles: boolean
   tilemapRendererRef: RefObject<HTMLDivElement>
@@ -33,16 +30,17 @@ export const Toolbar: FC<ToolbarProps> = ({
 }) => {
   const [, forceUpdate] = useReducer((x) => x + 1, 0)
   const [selectedButtonIndex, setSelectedButtonIndex] = useState(0)
-  const classesAndStyles: ReadonlyArray<[string, CSSProperties]> = metadata.customTiles.map(getClassAndStyle)
 
-  const buttonSources: Array<ButtonSource> = classesAndStyles.map(([className, styleProps]) => ({
-    child: React.createElement('div', { style: styleProps }),
-    onSpaceClicked: (offsetX: number, offsetY: number, tileSize: number) => {
-      const [rowKey, cellKey] = ClickAction.prepareTilemap(tilemap, tilemapRendererRef, offsetX, offsetY, tileSize)
-      ClickAction.setElement(tilemap, className, rowKey, cellKey)
-      forceUpdate()
-    }
-  }))
+  const buttonSources: Array<ButtonSource> = metadata.customTiles
+    .map(({ id }) => `custom-tile-${id}`)
+    .map((className) => ({
+      child: React.createElement('div', { className }),
+      onSpaceClicked: (offsetX: number, offsetY: number, tileSize: number) => {
+        const [rowKey, cellKey] = ClickAction.prepareTilemap(tilemap, tilemapRendererRef, offsetX, offsetY, tileSize)
+        ClickAction.setElement(tilemap, className, rowKey, cellKey)
+        forceUpdate()
+      }
+    }))
 
   if (!editTiles) {
     buttonSources.push({
@@ -126,7 +124,19 @@ export const Toolbar: FC<ToolbarProps> = ({
           )}
         </div>
       )}
-      {children({ styleMap: new Map(classesAndStyles), onSpaceClicked })}
+      {children({ onSpaceClicked })}
+      <style>
+        {metadata.customTiles
+          .map((tile) => {
+            const className = `.view-content-tilemap-editor .custom-tile-${tile.id}`
+            const borderRadius = tile.shape == 'circle' ? '\n  border-radius: 50%;' : ''
+            return `${className} {
+  background-color: ${tile.color};
+  box-shadow: inset 0 0 0 1px black;${borderRadius}
+}`
+          })
+          .join('\n')}
+      </style>
     </>
   )
 }
@@ -142,13 +152,3 @@ export const ActionButton: FC<ActionButtonProps> = ({ children, selected, onClic
     {children}
   </button>
 )
-
-function getClassAndStyle(tile: TilemapMetadataCustomTile): [string, CSSProperties] {
-  const className = `custom-tile-${tile.id}`
-  const style = {
-    backgroundColor: tile.color,
-    borderRadius: tile.shape == 'circle' ? '50%' : undefined,
-    boxShadow: 'inset 0 0 0 1px black'
-  }
-  return [className, style]
-}

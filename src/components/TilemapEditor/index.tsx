@@ -22,11 +22,10 @@ export const TilemapEditor: FC<TilemapEditorProps> = ({ tilemap, metadata, isEdi
         tilemap={tilemap}
         metadata={metadata}
       >
-        {({ styleMap, onSpaceClicked }) => (
+        {({ onSpaceClicked }) => (
           <Renderer
             tilemapRendererRef={tilemapRendererRef}
             tilemap={tilemap}
-            styleMap={styleMap}
             isEditMode={isEditMode}
             onSpaceClicked={onSpaceClicked}
           />

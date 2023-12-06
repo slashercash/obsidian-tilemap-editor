@@ -1,56 +1,65 @@
-import type { FC, RefObject, Tilemap, CSSProperties } from 'types'
+import type { FC, RefObject, CSSProperties } from 'types'
 import React from 'react'
 import { ZoomWrapper } from './ZoomWrapper'
 import { SpaceWrapper } from './SpaceWrapper'
 
 type RendererProps = {
   tilemapRendererRef: RefObject<HTMLDivElement>
-  tilemap: Tilemap
+  tilemap: HTMLElement
   styleMap: Map<string, CSSProperties>
   isEditMode: boolean
-  onTilemapClicked: (rowKey: number, cellKey: number, tileSize: number) => void
   onSpaceClicked: (offsetX: number, offsetY: number, tileSize: number) => void
 }
 
-export const Renderer: FC<RendererProps> = ({
-  tilemapRendererRef,
-  tilemap,
-  styleMap,
-  isEditMode,
-  onTilemapClicked,
-  onSpaceClicked
-}) => (
+export const Renderer: FC<RendererProps> = ({ tilemapRendererRef, tilemap, styleMap, isEditMode, onSpaceClicked }) => (
   <ZoomWrapper tilemapRendererRef={tilemapRendererRef} isEditMode={isEditMode}>
     {({ tileSize, tilemapRendererDiv }) => (
       <SpaceWrapper
         tilemapRendererDiv={tilemapRendererDiv}
-        tilesCountVertical={tilemap.rows.length}
-        tilesCountHorizontal={tilemap.rows[0]?.cells.length ?? 0}
+        tilesCountVertical={tilemap.children.length}
+        tilesCountHorizontal={tilemap.children[0]?.children.length ?? 0}
         tileSize={tileSize}
         onSpaceClicked={onSpaceClicked}
       >
-        <div className={'tilemap'}>
-          {tilemap.rows.map((row, rowKey) => (
-            <div key={rowKey} className='tilemap-row'>
-              {row.cells.map((cell, cellKey) => (
-                <div
-                  key={cellKey}
-                  className='tilemap-cell'
-                  style={{ width: tileSize + 'px', height: tileSize + 'px' }}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onTilemapClicked(rowKey, cellKey, tileSize)
-                  }}
-                >
-                  {cell.elements.map((element, elementKey) => (
-                    <div key={elementKey} style={styleMap.get(element.className)}></div>
-                  ))}
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
+        <Tilemap styleMap={styleMap} tileSize={tileSize}>
+          {tilemap.children}
+        </Tilemap>
       </SpaceWrapper>
     )}
   </ZoomWrapper>
+)
+
+type TilemapProps = {
+  children: HTMLCollection
+  styleMap: Map<string, CSSProperties>
+  tileSize: number
+}
+
+const Tilemap: FC<TilemapProps> = ({ children, styleMap, tileSize }) => (
+  <div
+    className={'tilemap'}
+    ref={(ref) =>
+      ref?.replaceChildren(
+        ...Array.from(children).map((row, rowIndex) => {
+          const newCells = Array.from(row.children).map((cell, cellIndex) => {
+            const newElements = Array.from(cell.children).map((element) => {
+              const st = styleMap.get(element.className)
+              if (st) {
+                element.setAttribute(
+                  'style',
+                  `background-color:${st.backgroundColor};border-radius:${st.borderRadius};box-shadow:${st.boxShadow};`
+                )
+              }
+              return element
+            })
+            cell.replaceChildren(...newElements)
+            cell.setAttribute('style', `width:${tileSize}px;height:${tileSize}px;`)
+            return cell
+          })
+          row.replaceChildren(...newCells)
+          return row.cloneNode(true)
+        })
+      )
+    }
+  />
 )

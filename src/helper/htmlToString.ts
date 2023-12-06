@@ -1,8 +1,9 @@
 export function htmlToString(html: HTMLElement): string {
-  return format(html).innerHTML
+  return format(html).outerHTML
 }
 
-function format(node: Element, level: number = 0): Element {
+function format(node: Element, level: number = 1): Element {
+  node.removeAttribute('style')
   var indentBefore = new Array(level++ + 1).join('  '),
     indentAfter = new Array(level - 1).join('  '),
     textNode

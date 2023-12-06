@@ -1,4 +1,4 @@
-import type { Tilemap } from 'types'
+import type { TilemapMetadata } from 'types'
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { TilemapEditor } from 'components/TilemapEditor'
@@ -7,7 +7,8 @@ import { FileParser } from 'app/FileParser'
 
 export class TilemapEditorView extends TilemapEditorBaseView {
   private rootElement?: HTMLElement
-  private tilemap?: Tilemap
+  private tilemap?: HTMLElement
+  private metadata?: TilemapMetadata
   private isEditMode: boolean = false
   private editTiles: boolean = false
 
@@ -20,7 +21,9 @@ export class TilemapEditorView extends TilemapEditorBaseView {
   }
 
   public onFileLoaded(fileContent: string): void {
-    this.tilemap = FileParser.stringToTilemap(fileContent)
+    const [tilemap, metadata] = FileParser.stringToTilemap(fileContent)
+    this.tilemap = tilemap
+    this.metadata = metadata
     this.renderTilemapEditor()
   }
 
@@ -35,18 +38,19 @@ export class TilemapEditorView extends TilemapEditorBaseView {
   }
 
   public getContentToSave(): [success: boolean, content: string] {
-    if (this.tilemap) {
-      return [true, FileParser.tilemapToString(this.tilemap)]
+    if (this.tilemap && this.metadata) {
+      return [true, FileParser.tilemapToString(this.tilemap, this.metadata)]
     }
     return [false, '']
   }
 
   private renderTilemapEditor() {
     const tilemap = this.tilemap
+    const metadata = this.metadata
     const rootElement = this.rootElement
-    if (tilemap && rootElement) {
+    if (tilemap && metadata && rootElement) {
       const tilemapEditor = React.createElement(() =>
-        TilemapEditor({ tilemap, isEditMode: this.isEditMode, editTiles: this.editTiles })
+        TilemapEditor({ tilemap, metadata, isEditMode: this.isEditMode, editTiles: this.editTiles })
       )
       ReactDOM.render(tilemapEditor, rootElement)
     }

@@ -13,13 +13,19 @@ type RendererProps = {
 export const Renderer: FC<RendererProps> = ({ tilemapRendererRef, tilemap, isEditMode, onSpaceClicked }) => (
   <ZoomWrapper tilemapRendererRef={tilemapRendererRef} isEditMode={isEditMode}>
     {({ tileSize, tilemapRendererDiv }) => (
-      <SpaceWrapper
-        tilemap={tilemap}
-        tilemapRendererDiv={tilemapRendererDiv}
-        tilesCountVertical={tilemap.children.length}
-        tilesCountHorizontal={tilemap.children[0]?.children.length ?? 0}
-        tileSize={tileSize}
-        onSpaceClicked={onSpaceClicked}
+      <div
+        ref={(ref) =>
+          ref &&
+          SpaceWrapper(
+            ref,
+            tilemap,
+            tilemapRendererDiv,
+            tilemap.children.length,
+            tilemap.children[0]?.children.length ?? 0,
+            tileSize,
+            onSpaceClicked
+          )
+        }
       />
     )}
   </ZoomWrapper>

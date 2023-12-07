@@ -1,82 +1,62 @@
-import type { FC } from 'types'
-import React, { useLayoutEffect, useEffect, useState } from 'react'
 import { Space } from './Space'
 import { SpaceGrid } from './SpaceGrid'
 
-type SpaceWrapperProps = {
-  tilemap: Element
-  tilemapRendererDiv: HTMLDivElement
-  tilesCountVertical: number
-  tilesCountHorizontal: number
-  tileSize: number
+export function SpaceWrapper(
+  ref: HTMLDivElement,
+  tilemap: Element,
+  tilemapRendererDiv: HTMLDivElement,
+  tilesCountVertical: number,
+  tilesCountHorizontal: number,
+  tileSize: number,
   onSpaceClicked: (offsetX: number, offsetY: number, tileSize: number) => void
-}
+): void {
+  // TODO: Initially scroll to center
+  // tilemapRendererDiv.scrollLeft = (tilemapRendererDiv.scrollWidth - tilemapRendererDiv.clientWidth) / 2
+  // tilemapRendererDiv.scrollTop = (tilemapRendererDiv.scrollHeight - tilemapRendererDiv.clientHeight) / 2
 
-export const SpaceWrapper: FC<SpaceWrapperProps> = ({
-  tilemap,
-  tilemapRendererDiv,
-  tilesCountVertical,
-  tilesCountHorizontal,
-  tileSize,
-  onSpaceClicked
-}) => {
-  const [spaceTilesCount, setSpaceTilesCount] = useState({ horizontal: 0, vertical: 0 })
-  const [overflow, setOverflow] = useState({ horizontal: 0, vertical: 0 })
-  const [doCenter, setDoCenter] = useState<boolean>(true)
+  const width = tilesCountHorizontal * tileSize
+  const height = tilesCountVertical * tileSize
 
-  useLayoutEffect(() => {
-    const obs = new ResizeObserver(([entry]) => {
-      if (entry) {
-        const horizontal = entry.contentRect.width / tileSize
-        const vertical = entry.contentRect.height / tileSize
-
-        setSpaceTilesCount({
-          horizontal: Math.floor(horizontal),
-          vertical: Math.floor(vertical)
-        })
-        setOverflow({
-          horizontal: (horizontal % 1) * tileSize,
-          vertical: (vertical % 1) * tileSize
-        })
-      }
-    })
-    obs.observe(tilemapRendererDiv)
-    return () => {
-      obs.disconnect()
-    }
-  }, [tileSize])
-
-  useEffect(() => {
-    if (doCenter && spaceTilesCount.horizontal != 0 && spaceTilesCount.vertical != 0) {
-      setDoCenter(false)
-      tilemapRendererDiv.scrollLeft = (tilemapRendererDiv.scrollWidth - tilemapRendererDiv.clientWidth) / 2
-      tilemapRendererDiv.scrollTop = (tilemapRendererDiv.scrollHeight - tilemapRendererDiv.clientHeight) / 2
-    }
-  }, [spaceTilesCount])
-
-  const space = Space(
-    (spaceTilesCount.horizontal * 2 + tilesCountHorizontal) * tileSize,
-    (spaceTilesCount.vertical * 2 + tilesCountVertical) * tileSize,
-    overflow.horizontal,
-    overflow.vertical,
-    tileSize,
-    (spaceTileX, spaceTileY) => {
-      const offsetX = spaceTileX - spaceTilesCount.horizontal
-      const offsetY = spaceTileY - spaceTilesCount.vertical
-      onSpaceClicked(offsetX, offsetY, tileSize)
-    }
-  )
-
-  const spaceGrid = SpaceGrid(
-    (spaceTilesCount.horizontal * 2 + tilesCountHorizontal) * tileSize,
-    (spaceTilesCount.vertical * 2 + tilesCountVertical) * tileSize,
-    overflow.horizontal,
-    overflow.vertical,
-    tileSize
-  )
-
-  space.appendChild(spaceGrid)
+  let space = Space(width, height, 0, 0, tileSize, (x, y) => onSpaceClicked(x, y, tileSize))
+  space.appendChild(SpaceGrid(width, height, 0, 0, tileSize))
   space.appendChild(tilemap)
 
-  return <div ref={(ref) => ref?.replaceChildren(space)} />
+  const obs = new ResizeObserver(([entry]) => {
+    if (!entry) return
+
+    const horizontal = entry.contentRect.width / tileSize
+    const vertical = entry.contentRect.height / tileSize
+    const spaceTilesCountHorizontal = Math.floor(horizontal)
+    const spaceTilesCountVertical = Math.floor(vertical)
+    const overflowHorizontal = (horizontal % 1) * tileSize
+    const overflowVertical = (vertical % 1) * tileSize
+
+    space = Space(
+      (spaceTilesCountHorizontal * 2 + tilesCountHorizontal) * tileSize,
+      (spaceTilesCountVertical * 2 + tilesCountVertical) * tileSize,
+      overflowHorizontal,
+      overflowVertical,
+      tileSize,
+      (spaceTileX, spaceTileY) => {
+        const offsetX = spaceTileX - spaceTilesCountHorizontal
+        const offsetY = spaceTileY - spaceTilesCountVertical
+        onSpaceClicked(offsetX, offsetY, tileSize)
+      }
+    )
+
+    const spaceGrid = SpaceGrid(
+      (spaceTilesCountHorizontal * 2 + tilesCountHorizontal) * tileSize,
+      (spaceTilesCountVertical * 2 + tilesCountVertical) * tileSize,
+      overflowHorizontal,
+      overflowVertical,
+      tileSize
+    )
+
+    space.appendChild(spaceGrid)
+    space.appendChild(tilemap)
+    ref.replaceChildren(space)
+  })
+  obs.observe(tilemapRendererDiv)
+
+  ref.replaceChildren(space)
 }

@@ -1,6 +1,6 @@
-import type { TilemapMetadata } from 'types'
+import type { TilemapMetadata } from 'TilemapEditorView'
+import { FileCreator } from 'FileCreator'
 import { htmlToString } from 'helper/htmlToString'
-import { FileCreator } from 'app/FileCreator'
 
 export class FileParser {
   static stringToTilemap(fileContent: string): [Element, TilemapMetadata] {

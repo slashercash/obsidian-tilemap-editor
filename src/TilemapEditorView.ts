@@ -1,9 +1,16 @@
-import type { TilemapMetadata } from 'types'
-import React from 'react'
-import ReactDOM from 'react-dom'
-import { TilemapEditor } from 'components/TilemapEditor'
-import { TilemapEditorBaseView } from 'app/TilemapEditorViewBase'
-import { FileParser } from 'app/FileParser'
+import { TilemapEditor } from 'TilemapEditor'
+import { TilemapEditorBaseView } from 'TilemapEditorViewBase'
+import { FileParser } from 'FileParser'
+
+export type TilemapMetadata = {
+  customTiles: Array<TilemapMetadataCustomTile>
+}
+
+type TilemapMetadataCustomTile = {
+  id: number
+  shape: string
+  color: string
+}
 
 export class TilemapEditorView extends TilemapEditorBaseView {
   private rootElement?: HTMLElement
@@ -17,7 +24,7 @@ export class TilemapEditorView extends TilemapEditorBaseView {
   }
 
   public onUnloaded(): void {
-    this.rootElement && ReactDOM.unmountComponentAtNode(this.rootElement)
+    // this.rootElement && ReactDOM.unmountComponentAtNode(this.rootElement)
   }
 
   public onFileLoaded(fileContent: string): void {
@@ -49,10 +56,13 @@ export class TilemapEditorView extends TilemapEditorBaseView {
     const metadata = this.metadata
     const rootElement = this.rootElement
     if (tilemap && metadata && rootElement) {
-      const tilemapEditor = React.createElement(() =>
-        TilemapEditor({ tilemap, metadata, isEditMode: this.isEditMode, editTiles: this.editTiles })
-      )
-      ReactDOM.render(tilemapEditor, rootElement)
+      const tilemapEditor = TilemapEditor()
+      rootElement.replaceChildren(tilemapEditor)
+
+      // const tilemapEditor = React.createElement(() =>
+      //   TilemapEditor({ tilemap, metadata, isEditMode: this.isEditMode, editTiles: this.editTiles })
+      // )
+      // ReactDOM.render(tilemapEditor, rootElement)
     }
   }
 }

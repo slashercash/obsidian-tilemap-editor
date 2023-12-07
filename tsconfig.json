@@ -9,11 +9,10 @@
     "noImplicitAny": true,
     "moduleResolution": "node",
     "verbatimModuleSyntax": true,
-    "jsx": "react",
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "lib": ["DOM", "ES5", "ES6", "ES7"]
   },
-  "include": ["**/*.ts", "**/*.tsx"]
+  "include": ["**/*.ts"]
 }

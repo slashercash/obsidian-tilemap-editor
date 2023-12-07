@@ -1,7 +1,7 @@
 let newFile: string
 
+import type { TilemapMetadata } from 'TilemapEditorView'
 import { htmlToString } from 'helper/htmlToString'
-import type { TilemapMetadata } from 'types'
 
 export class FileCreator {
   static newFile(): string {

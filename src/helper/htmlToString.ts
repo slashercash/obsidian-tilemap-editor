@@ -1,4 +1,4 @@
-export function htmlToString(html: HTMLElement): string {
+export function htmlToString(html: Element): string {
   return format(html).outerHTML
 }
 

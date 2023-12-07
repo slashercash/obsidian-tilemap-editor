@@ -6,7 +6,7 @@ export default class ClickAction {
   static prepareTilemap = prepareTilemap
 }
 
-function setElement(tilemap: HTMLElement, className: string, rowKey: number, cellKey: number) {
+function setElement(tilemap: Element, className: string, rowKey: number, cellKey: number) {
   const cell = getCell(tilemap, rowKey, cellKey)
   if (cell) {
     const child = document.createElement('div')
@@ -16,7 +16,7 @@ function setElement(tilemap: HTMLElement, className: string, rowKey: number, cel
 }
 
 function deleteElement(
-  tilemap: HTMLElement,
+  tilemap: Element,
   tilemapRendererRef: RefObject<HTMLDivElement>,
   rowKey: number,
   cellKey: number,
@@ -49,7 +49,7 @@ function deleteElement(
   }
 }
 
-function getCell(tilemap: HTMLElement, rowKey: number, cellKey: number): Element | undefined {
+function getCell(tilemap: Element, rowKey: number, cellKey: number): Element | undefined {
   const row = tilemap.children[rowKey]
   if (row) {
     return row.children[cellKey]
@@ -57,7 +57,7 @@ function getCell(tilemap: HTMLElement, rowKey: number, cellKey: number): Element
 }
 
 function prepareTilemap(
-  tilemap: HTMLElement,
+  tilemap: Element,
   tilemapRendererRef: RefObject<HTMLDivElement>,
   offsetX: number,
   offsetY: number,
@@ -117,7 +117,7 @@ function getAddValue(offset: number, distance: number): number {
   return 0
 }
 
-export function trimTilemap(tilemap: HTMLElement): [scrollX: number, scrollY: number] {
+export function trimTilemap(tilemap: Element): [scrollX: number, scrollY: number] {
   const tilesCountVertical = tilemap.children.length
   const tilesCountHorizontal = tilemap.children[0]?.children.length ?? 0
 

@@ -7,7 +7,7 @@ import { FileParser } from 'app/FileParser'
 
 export class TilemapEditorView extends TilemapEditorBaseView {
   private rootElement?: HTMLElement
-  private tilemap?: HTMLElement
+  private tilemap?: Element
   private metadata?: TilemapMetadata
   private isEditMode: boolean = false
   private editTiles: boolean = false

@@ -16,7 +16,7 @@ type ToolbarProps = {
   isEditMode: boolean
   editTiles: boolean
   tilemapRendererRef: RefObject<HTMLDivElement>
-  tilemap: HTMLElement
+  tilemap: Element
   metadata: TilemapMetadata
 }
 

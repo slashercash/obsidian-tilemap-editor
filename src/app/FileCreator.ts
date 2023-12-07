@@ -74,7 +74,7 @@ function createHtmlTilemap(): HTMLElement {
   const doc = new Document()
 
   const divTilemap = doc.createElement('div')
-  divTilemap.setAttribute('id', 'tilemap')
+  divTilemap.className = 'tilemap'
 
   const main = doc.createElement('main')
   main.appendChild(divTilemap)

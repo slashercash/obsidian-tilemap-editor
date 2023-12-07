@@ -4,7 +4,7 @@ import { Renderer } from 'components/Renderer'
 import { Toolbar } from 'components/Toolbar'
 
 type TilemapEditorProps = {
-  tilemap: HTMLElement
+  tilemap: Element
   metadata: TilemapMetadata
   isEditMode: boolean
   editTiles: boolean

@@ -1,11 +1,10 @@
 export class Toolbar {
   private readonly toolbar: HTMLDivElement
 
-  constructor(rootElement: HTMLElement) {
+  constructor() {
     this.toolbar = document.createElement('div')
     this.toolbar.className = 'tilemap-toolbar-overlay'
     this.toolbar.hide()
-    rootElement.appendChild(this.toolbar)
 
     const toolbarButtonContainer = document.createElement('div')
     toolbarButtonContainer.className = 'tilemap-toolbar-button-container'
@@ -18,6 +17,15 @@ export class Toolbar {
     this.toolbar.appendChild(toolbarButtonContainer)
   }
 
-  public show = () => this.toolbar.show()
-  public hide = () => this.toolbar.hide()
+  public asChildOf(parentElement: HTMLElement) {
+    parentElement.appendChild(this.toolbar)
+  }
+
+  public show() {
+    this.toolbar.show()
+  }
+
+  public hide() {
+    this.toolbar.hide()
+  }
 }

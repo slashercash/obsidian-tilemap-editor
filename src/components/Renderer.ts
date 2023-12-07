@@ -1,17 +1,18 @@
 export class Renderer {
-  private readonly renderer: HTMLDivElement
+  public readonly renderer: HTMLDivElement
   private readonly styleElement: HTMLStyleElement
 
-  constructor(rootElement: HTMLElement) {
+  constructor() {
     this.renderer = document.createElement('div')
     this.renderer.className = 'tilemap-renderer'
     addMoveEvents(this.renderer)
 
     this.styleElement = document.createElement('style')
     this.styleElement.innerText = `.view-content-tilemap-editor .tilemap-cell { width:${30}px;height:${30}px; }`
+  }
 
-    rootElement.appendChild(this.renderer)
-    rootElement.appendChild(this.styleElement)
+  public asChildOf(parentElement: HTMLElement) {
+    parentElement.append(...[this.renderer, this.styleElement])
   }
 }
 

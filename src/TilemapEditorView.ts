@@ -13,56 +13,29 @@ type TilemapMetadataCustomTile = {
 }
 
 export class TilemapEditorView extends TilemapEditorBaseView {
-  private rootElement?: HTMLElement
+  private tilemapEditor?: TilemapEditor
   private tilemap?: Element
   private metadata?: TilemapMetadata
-  private isEditMode: boolean = false
-  private editTiles: boolean = false
 
   public onLoaded(rootElement: HTMLElement): void {
-    this.rootElement = rootElement
-  }
-
-  public onUnloaded(): void {
-    // this.rootElement && ReactDOM.unmountComponentAtNode(this.rootElement)
+    this.tilemapEditor = new TilemapEditor(rootElement)
   }
 
   public onFileLoaded(fileContent: string): void {
     const [tilemap, metadata] = FileParser.stringToTilemap(fileContent)
-    this.tilemap = tilemap
-    this.metadata = metadata
-    this.renderTilemapEditor()
+    this.tilemapEditor?.setData(tilemap, metadata)
   }
 
   public onEditModeChanged(isEditMode: boolean): void {
-    this.isEditMode = isEditMode
-    this.renderTilemapEditor()
+    this.tilemapEditor?.setIsEditmode(isEditMode)
   }
 
-  public onEditTiles(): void {
-    this.editTiles = !this.editTiles
-    this.renderTilemapEditor()
-  }
+  public onEditTiles(): void {}
 
   public getContentToSave(): [success: boolean, content: string] {
     if (this.tilemap && this.metadata) {
       return [true, FileParser.tilemapToString(this.tilemap, this.metadata)]
     }
     return [false, '']
-  }
-
-  private renderTilemapEditor() {
-    const tilemap = this.tilemap
-    const metadata = this.metadata
-    const rootElement = this.rootElement
-    if (tilemap && metadata && rootElement) {
-      const tilemapEditor = TilemapEditor()
-      rootElement.replaceChildren(tilemapEditor)
-
-      // const tilemapEditor = React.createElement(() =>
-      //   TilemapEditor({ tilemap, metadata, isEditMode: this.isEditMode, editTiles: this.editTiles })
-      // )
-      // ReactDOM.render(tilemapEditor, rootElement)
-    }
   }
 }

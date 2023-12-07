@@ -16,7 +16,6 @@ export abstract class TilemapEditorBaseView extends FileView {
   }
 
   abstract onLoaded(rootElement: HTMLElement): void
-  abstract onUnloaded(): void
   abstract onFileLoaded(fileContent: string): void
   abstract onEditModeChanged(isEditMode: boolean): void
   abstract onEditTiles(): void
@@ -55,7 +54,6 @@ export abstract class TilemapEditorBaseView extends FileView {
     this.saveAction_Element?.remove()
     this.editTilesAction_Element?.remove()
     this.showMobileNavBar()
-    this.onUnloaded()
   }
 
   public getViewType(): string {

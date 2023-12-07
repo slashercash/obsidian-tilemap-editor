@@ -27,7 +27,7 @@ export class TilemapEditorView extends TilemapEditorBaseView {
   }
 
   public onEditModeChanged(isEditMode: boolean): void {
-    this.tilemapEditor?.setIsEditmode(isEditMode)
+    this.tilemapEditor?.setEditmode(isEditMode)
   }
 
   public onEditTiles(): void {}

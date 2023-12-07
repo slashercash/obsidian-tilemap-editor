@@ -1,0 +1,21 @@
+.view-content-tilemap-editor .tilemap-toolbar-overlay {
+  width: 100%;
+  z-index: 10;
+  position: absolute;
+}
+
+.view-content-tilemap-editor .tilemap-toolbar-button-container {
+  background-color: rgba(40, 40, 40, 0.7);
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+  gap: 10px;
+}
+
+.view-content-tilemap-editor .tilemap-toolbar-button {
+  background-color: rgb(171, 113, 113);
+  height: 45px;
+  width: 45px;
+  padding: 0;
+  box-shadow: unset;
+}

@@ -1,0 +1,5 @@
+@import './components/Toolbar.css';
+
+.view-content-tilemap-editor {
+  padding: 0 !important;
+}

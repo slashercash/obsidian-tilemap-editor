@@ -1,18 +1,20 @@
 import type { TilemapMetadata } from 'TilemapEditorView'
+import { Toolbar } from 'components/Toolbar'
 
 export class TilemapEditor {
-  readonly tilemapEditor: HTMLElement
+  private readonly tilemapEditor: HTMLElement
+  private readonly toolbar: Toolbar
 
   constructor(rootElement: HTMLElement) {
     this.tilemapEditor = document.createElement('div')
     this.tilemapEditor.className = 'tilemap-editor'
-    this.tilemapEditor.innerText = 'Hello World\nEdit mode is off'
+    this.toolbar = new Toolbar(this.tilemapEditor)
     rootElement.appendChild(this.tilemapEditor)
   }
 
   public setData(tilemap: Element, metadata: TilemapMetadata) {}
 
-  public setIsEditmode(isEditMode: boolean) {
-    this.tilemapEditor.innerText = 'Hello World\nEdit mode is ' + (isEditMode ? 'on' : 'off')
+  public setEditmode(isEditMode: boolean) {
+    isEditMode ? this.toolbar.show() : this.toolbar.hide()
   }
 }

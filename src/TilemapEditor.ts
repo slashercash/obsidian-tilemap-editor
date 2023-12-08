@@ -1,17 +1,19 @@
 import type { TilemapMetadata } from 'TilemapEditorView'
 import { Renderer } from 'components/Renderer'
 import { SpaceWrapper } from 'components/SpaceWrapper'
-import { Toolbar } from 'components/Toolbar'
 
 export class TilemapEditor {
   private readonly tilemapEditor: HTMLElement
-  private readonly toolbar = new Toolbar()
+  private readonly toolbar: HTMLElement
   private readonly renderer = new Renderer()
 
   constructor() {
-    this.tilemapEditor = document.createElement('div')
-    this.tilemapEditor.className = 'tilemap-editor'
-    this.toolbar.asChildOf(this.tilemapEditor)
+    this.tilemapEditor = createElement('div', 'tilemap-editor')
+
+    this.toolbar = createToolbar()
+
+    this.tilemapEditor.appendChild(this.toolbar)
+
     this.renderer.asChildOf(this.tilemapEditor)
   }
 
@@ -34,4 +36,21 @@ export class TilemapEditor {
   public setEditmode(isEditMode: boolean) {
     isEditMode ? this.toolbar.show() : this.toolbar.hide()
   }
+}
+
+function createToolbar(): HTMLElement {
+  const toolbar = createElement('div', 'tilemap-toolbar-overlay')
+  toolbar.hide()
+  const toolbarButtonContainer = createElement('div', 'tilemap-toolbar-button-container')
+  const toolbarButton = createElement('button', 'tilemap-toolbar-button')
+  toolbarButton.innerText = 'Button'
+  toolbarButtonContainer.appendChild(toolbarButton)
+  toolbar.appendChild(toolbarButtonContainer)
+  return toolbar
+}
+
+function createElement(tagName: keyof HTMLElementTagNameMap, className: string): HTMLElement {
+  const element = document.createElement(tagName)
+  element.className = className
+  return element
 }

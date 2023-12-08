@@ -1,6 +1,6 @@
 import { TilemapEditor } from 'TilemapEditor'
 import { TilemapEditorBaseView } from 'TilemapEditorViewBase'
-import { FileParser } from 'FileParser'
+import { FileParser } from 'file/FileParser'
 
 export type TilemapMetadata = {
   customTiles: Array<TilemapMetadataCustomTile>

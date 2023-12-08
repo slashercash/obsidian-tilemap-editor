@@ -29,6 +29,11 @@
   cursor: pointer;
 }
 
+.view-content-tilemap-editor .tilemap-space {
+  position: relative;
+}
+
+
 .view-content-tilemap-editor .tilemap-row {
   display: flex;
 }

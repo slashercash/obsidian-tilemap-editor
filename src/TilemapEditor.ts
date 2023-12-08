@@ -15,8 +15,8 @@ export class TilemapEditor {
     this.renderer = createElement('div', 'tilemap-renderer')
     addDragEvents(this.renderer)
 
-    const styleElement = document.createElement('style')
-    styleElement.innerText = `.view-content-tilemap-editor .tilemap-cell { width:${30}px;height:${30}px; }`
+    const styleElement1 = document.createElement('style')
+    styleElement1.innerText = `.view-content-tilemap-editor .tilemap-cell { width:${30}px;height:${30}px; }`
 
     const styleElement2 = document.createElement('style')
     styleElement2.innerText = metadata.customTiles
@@ -30,8 +30,9 @@ box-shadow: inset 0 0 0 1px black;${borderRadius}
       })
       .join('\n')
 
-    this.space = document.createElement('div')
-    this.space.style.position = 'relative'
+    const styleElement3 = document.createElement('style')
+
+    this.space = createElement('div', 'tilemap-space')
     const obs = new ResizeObserver(([entry]) => {
       if (!entry) return
       const rendererRect = entry.contentRect
@@ -39,8 +40,7 @@ box-shadow: inset 0 0 0 1px black;${borderRadius}
       const tilesCountVertical = tilemap.children.length
       const tileSize = 30
       const [width, height] = spaceStyle(rendererRect, tilesCountHorizontal, tilesCountVertical, tileSize)
-      this.space.style.width = width + 'px'
-      this.space.style.height = height + 'px'
+      styleElement3.innerText = `.view-content-tilemap-editor .tilemap-space { width:${width}px;height:${height}px; }`
     })
     obs.observe(this.renderer)
     this.space.appendChild(tilemap)
@@ -48,8 +48,9 @@ box-shadow: inset 0 0 0 1px black;${borderRadius}
 
     this.tilemapEditor.appendChild(this.toolbar)
     this.tilemapEditor.appendChild(this.renderer)
-    this.tilemapEditor.appendChild(styleElement)
+    this.tilemapEditor.appendChild(styleElement1)
     this.tilemapEditor.appendChild(styleElement2)
+    this.tilemapEditor.appendChild(styleElement3)
   }
 
   public root() {

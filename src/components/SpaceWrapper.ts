@@ -4,15 +4,17 @@ import { Space } from './Space'
 export class SpaceWrapper {
   private readonly space: HTMLDivElement
 
-  constructor(tilesCountVertical: number, tilesCountHorizontal: number, tileSize: number) {
-    const width = tilesCountHorizontal * tileSize
-    const height = tilesCountVertical * tileSize
-    this.space = Space(width, height, 0, 0, tileSize, (x, y) => {})
-    // space.appendChild(SpaceGrid(width, height, 0, 0, tileSize))
-  }
+  constructor(renderer: HTMLDivElement, tilesCountVertical: number, tilesCountHorizontal: number, tileSize: number) {
+    const horizontal = renderer.getBoundingClientRect().width / tileSize
+    const vertical = renderer.getBoundingClientRect().height / tileSize
 
-  public asChildOf(parentElement: HTMLElement) {
-    parentElement.appendChild(this.space)
+    const overflowHorizontal = (horizontal % 1) * tileSize
+    const overflowVertical = (vertical % 1) * tileSize
+
+    const width = (Math.floor(horizontal) * 2 + tilesCountHorizontal) * tileSize
+    const height = (Math.floor(vertical) * 2 + tilesCountVertical) * tileSize
+    this.space = Space(width, height, overflowHorizontal, overflowVertical, tileSize, (x, y) => {})
+    renderer.appendChild(this.space)
   }
 
   public setData(tilemap: Element, metadata: TilemapMetadata) {

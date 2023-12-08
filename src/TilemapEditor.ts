@@ -7,14 +7,12 @@ export class TilemapEditor {
   private readonly tilemapEditor: HTMLElement
   private readonly toolbar = new Toolbar()
   private readonly renderer = new Renderer()
-  private readonly space = new SpaceWrapper(30, 30, 30)
 
   constructor() {
     this.tilemapEditor = document.createElement('div')
     this.tilemapEditor.className = 'tilemap-editor'
     this.toolbar.asChildOf(this.tilemapEditor)
     this.renderer.asChildOf(this.tilemapEditor)
-    this.space.asChildOf(this.renderer.renderer)
   }
 
   public asChildOf(parentElement: HTMLElement) {
@@ -22,7 +20,15 @@ export class TilemapEditor {
   }
 
   public setData(tilemap: Element, metadata: TilemapMetadata) {
-    this.space.setData(tilemap, metadata)
+    const tileSize = 30
+
+    const space = new SpaceWrapper(
+      this.renderer.renderer,
+      tilemap.children.length,
+      tilemap.children[0]?.children.length ?? 0,
+      tileSize
+    )
+    space.setData(tilemap, metadata)
   }
 
   public setEditmode(isEditMode: boolean) {

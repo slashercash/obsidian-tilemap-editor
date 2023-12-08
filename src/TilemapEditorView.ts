@@ -13,21 +13,27 @@ type TilemapMetadataCustomTile = {
 }
 
 export class TilemapEditorView extends TilemapEditorBaseView {
-  private tilemapEditor = new TilemapEditor()
+  private rootElement?: HTMLElement
+  private tilemapEditor?: TilemapEditor
   private tilemap?: Element
   private metadata?: TilemapMetadata
 
   public onLoaded(rootElement: HTMLElement): void {
-    this.tilemapEditor.asChildOf(rootElement)
+    this.rootElement = rootElement
   }
 
   public onFileLoaded(fileContent: string): void {
+    if (!this.rootElement) {
+      // failed to load
+      return
+    }
     const [tilemap, metadata] = FileParser.stringToTilemap(fileContent)
-    this.tilemapEditor.setData(tilemap, metadata)
+    this.tilemapEditor = new TilemapEditor(tilemap, metadata)
+    this.rootElement?.appendChild(this.tilemapEditor.root())
   }
 
   public onEditModeChanged(isEditMode: boolean): void {
-    this.tilemapEditor.setEditmode(isEditMode)
+    this.tilemapEditor?.setEditmode(isEditMode)
   }
 
   public onEditTiles(): void {}

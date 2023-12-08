@@ -1,5 +1,6 @@
 import type { TilemapMetadata } from 'TilemapEditorView'
 import { addDragEvents } from 'events/dragEvents'
+import { addZoomEvents } from 'events/zoomEvents'
 
 export class TilemapEditor {
   private readonly tilemapEditor: HTMLElement
@@ -12,14 +13,22 @@ export class TilemapEditor {
 
     this.toolbar = createToolbar()
 
+    const zoomStyle = document.createElement('style')
+    const setZoomStyle = (tileSize: number) => {
+      const rendererRect = this.renderer.getBoundingClientRect()
+      const tilesCountHorizontal = tilemap.children[0]?.children.length ?? 0
+      const tilesCountVertical = tilemap.children.length
+      const [width, height] = spaceStyle(rendererRect, tilesCountHorizontal, tilesCountVertical, tileSize)
+      zoomStyle.innerText = `.view-content-tilemap-editor .tilemap-cell { width:${tileSize}px;height:${tileSize}px; }
+.view-content-tilemap-editor .tilemap-space { width:${width}px;height:${height}px; }`
+    }
+
     this.renderer = createElement('div', 'tilemap-renderer')
     addDragEvents(this.renderer)
+    addZoomEvents(this.renderer, (newTileSize) => setZoomStyle(newTileSize))
 
-    const styleElement1 = document.createElement('style')
-    styleElement1.innerText = `.view-content-tilemap-editor .tilemap-cell { width:${30}px;height:${30}px; }`
-
-    const styleElement2 = document.createElement('style')
-    styleElement2.innerText = metadata.customTiles
+    const tileStyle = document.createElement('style')
+    tileStyle.innerText = metadata.customTiles
       .map((tile) => {
         const className = `.view-content-tilemap-editor .custom-tile-${tile.id}`
         const borderRadius = tile.shape == 'circle' ? '\n  border-radius: 50%;' : ''
@@ -30,27 +39,16 @@ box-shadow: inset 0 0 0 1px black;${borderRadius}
       })
       .join('\n')
 
-    const styleElement3 = document.createElement('style')
-
     this.space = createElement('div', 'tilemap-space')
-    const obs = new ResizeObserver(([entry]) => {
-      if (!entry) return
-      const rendererRect = entry.contentRect
-      const tilesCountHorizontal = tilemap.children[0]?.children.length ?? 0
-      const tilesCountVertical = tilemap.children.length
-      const tileSize = 30
-      const [width, height] = spaceStyle(rendererRect, tilesCountHorizontal, tilesCountVertical, tileSize)
-      styleElement3.innerText = `.view-content-tilemap-editor .tilemap-space { width:${width}px;height:${height}px; }`
-    })
+    const obs = new ResizeObserver(() => setZoomStyle(30))
     obs.observe(this.renderer)
     this.space.appendChild(tilemap)
     this.renderer.appendChild(this.space)
 
     this.tilemapEditor.appendChild(this.toolbar)
     this.tilemapEditor.appendChild(this.renderer)
-    this.tilemapEditor.appendChild(styleElement1)
-    this.tilemapEditor.appendChild(styleElement2)
-    this.tilemapEditor.appendChild(styleElement3)
+    this.tilemapEditor.appendChild(zoomStyle)
+    this.tilemapEditor.appendChild(tileStyle)
   }
 
   public root() {

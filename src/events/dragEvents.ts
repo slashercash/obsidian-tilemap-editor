@@ -1,8 +1,4 @@
-export function addDragEvents(tilemapRendererDiv: HTMLElement) {
-  if (!tilemapRendererDiv) {
-    return
-  }
-
+export function addDragEvents(renderer: HTMLElement) {
   let dragging = false
   let moving = false
   let startX: number
@@ -12,10 +8,10 @@ export function addDragEvents(tilemapRendererDiv: HTMLElement) {
 
   const startDragging = (e: MouseEvent) => {
     dragging = true
-    startX = e.pageX - tilemapRendererDiv.offsetLeft
-    startY = e.pageY - tilemapRendererDiv.offsetTop
-    scrollLeft = tilemapRendererDiv.scrollLeft
-    scrollTop = tilemapRendererDiv.scrollTop
+    startX = e.pageX - renderer.offsetLeft
+    startY = e.pageY - renderer.offsetTop
+    scrollLeft = renderer.scrollLeft
+    scrollTop = renderer.scrollTop
   }
 
   const stopDragging = (e: MouseEvent) => {
@@ -32,17 +28,17 @@ export function addDragEvents(tilemapRendererDiv: HTMLElement) {
       return
     }
 
-    const moveDistanceX = e.pageX - tilemapRendererDiv.offsetLeft - startX
-    const moveDistanceY = e.pageY - tilemapRendererDiv.offsetTop - startY
+    const moveDistanceX = e.pageX - renderer.offsetLeft - startX
+    const moveDistanceY = e.pageY - renderer.offsetTop - startY
 
-    tilemapRendererDiv.scrollLeft = scrollLeft - moveDistanceX
-    tilemapRendererDiv.scrollTop = scrollTop - moveDistanceY
+    renderer.scrollLeft = scrollLeft - moveDistanceX
+    renderer.scrollTop = scrollTop - moveDistanceY
 
     moving = moving || Math.abs(moveDistanceX) > 5 || Math.abs(moveDistanceY) > 5
   }
 
-  tilemapRendererDiv.addEventListener('mousedown', (e) => e.button == 0 && startDragging(e))
-  tilemapRendererDiv.addEventListener('click', stopDragging)
-  tilemapRendererDiv.addEventListener('mouseleave', stopDragging)
-  tilemapRendererDiv.addEventListener('mousemove', mouseMove)
+  renderer.addEventListener('mousedown', (e) => e.button == 0 && startDragging(e))
+  renderer.addEventListener('click', stopDragging)
+  renderer.addEventListener('mouseleave', stopDragging)
+  renderer.addEventListener('mousemove', mouseMove)
 }

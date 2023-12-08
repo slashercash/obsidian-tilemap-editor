@@ -1,20 +1,26 @@
 import type { TilemapMetadata } from 'TilemapEditorView'
-import { Renderer } from 'components/Renderer'
 import { SpaceWrapper } from 'components/SpaceWrapper'
+import { addDragEvents } from 'events/dragEvents'
 
 export class TilemapEditor {
   private readonly tilemapEditor: HTMLElement
   private readonly toolbar: HTMLElement
-  private readonly renderer = new Renderer()
+  private readonly renderer: HTMLElement
 
   constructor() {
     this.tilemapEditor = createElement('div', 'tilemap-editor')
 
     this.toolbar = createToolbar()
 
-    this.tilemapEditor.appendChild(this.toolbar)
+    this.renderer = createElement('div', 'tilemap-renderer')
+    addDragEvents(this.renderer)
 
-    this.renderer.asChildOf(this.tilemapEditor)
+    const styleElement = document.createElement('style')
+    styleElement.innerText = `.view-content-tilemap-editor .tilemap-cell { width:${30}px;height:${30}px; }`
+
+    this.tilemapEditor.appendChild(this.toolbar)
+    this.tilemapEditor.appendChild(this.renderer)
+    this.tilemapEditor.appendChild(styleElement)
   }
 
   public asChildOf(parentElement: HTMLElement) {
@@ -25,7 +31,7 @@ export class TilemapEditor {
     const tileSize = 30
 
     const space = new SpaceWrapper(
-      this.renderer.renderer,
+      this.renderer,
       tilemap.children.length,
       tilemap.children[0]?.children.length ?? 0,
       tileSize

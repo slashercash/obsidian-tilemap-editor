@@ -4,7 +4,7 @@ import { Space } from './Space'
 export class SpaceWrapper {
   private readonly space: Space
 
-  constructor(renderer: HTMLDivElement, tilesCountVertical: number, tilesCountHorizontal: number, tileSize: number) {
+  constructor(renderer: HTMLElement, tilesCountVertical: number, tilesCountHorizontal: number, tileSize: number) {
     const horizontal = renderer.getBoundingClientRect().width / tileSize
     const vertical = renderer.getBoundingClientRect().height / tileSize
 

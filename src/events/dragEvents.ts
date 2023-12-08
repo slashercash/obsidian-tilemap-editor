@@ -1,22 +1,4 @@
-export class Renderer {
-  public readonly renderer: HTMLDivElement
-  private readonly styleElement: HTMLStyleElement
-
-  constructor() {
-    this.renderer = document.createElement('div')
-    this.renderer.className = 'tilemap-renderer'
-    addMoveEvents(this.renderer)
-
-    this.styleElement = document.createElement('style')
-    this.styleElement.innerText = `.view-content-tilemap-editor .tilemap-cell { width:${30}px;height:${30}px; }`
-  }
-
-  public asChildOf(parentElement: HTMLElement) {
-    parentElement.append(...[this.renderer, this.styleElement])
-  }
-}
-
-function addMoveEvents(tilemapRendererDiv: HTMLDivElement | null) {
+export function addDragEvents(tilemapRendererDiv: HTMLElement) {
   if (!tilemapRendererDiv) {
     return
   }

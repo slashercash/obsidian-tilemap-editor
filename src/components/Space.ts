@@ -1,7 +1,7 @@
 export class Space {
   private readonly root: HTMLDivElement
 
-  constructor(parent: HTMLDivElement) {
+  constructor(parent: HTMLElement) {
     this.root = document.createElement('div')
     this.root.style.position = 'relative'
     parent.appendChild(this.root)

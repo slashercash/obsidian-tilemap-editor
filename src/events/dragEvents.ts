@@ -1,4 +1,4 @@
-export function addDragEvents(renderer: HTMLElement) {
+export function addDragEvents(renderer: HTMLElement, onClick: (e: MouseEvent) => void) {
   let dragging = false
   let moving = false
   let startX: number
@@ -12,6 +12,13 @@ export function addDragEvents(renderer: HTMLElement) {
     startY = e.pageY - renderer.offsetTop
     scrollLeft = renderer.scrollLeft
     scrollTop = renderer.scrollTop
+  }
+
+  const click = (e: MouseEvent) => {
+    if (!moving) {
+      onClick(e)
+    }
+    stopDragging(e)
   }
 
   const stopDragging = (e: MouseEvent) => {
@@ -37,8 +44,8 @@ export function addDragEvents(renderer: HTMLElement) {
     moving = moving || Math.abs(moveDistanceX) > 5 || Math.abs(moveDistanceY) > 5
   }
 
-  renderer.addEventListener('mousedown', (e) => e.button == 0 && startDragging(e))
-  renderer.addEventListener('click', stopDragging)
-  renderer.addEventListener('mouseleave', stopDragging)
-  renderer.addEventListener('mousemove', mouseMove)
+  renderer.onmousedown = (e) => e.button == 0 && startDragging(e)
+  renderer.onclick = click
+  renderer.onmouseleave = stopDragging
+  renderer.onmousemove = mouseMove
 }

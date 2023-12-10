@@ -25,7 +25,7 @@ export class TilemapEditor {
     }
 
     this.renderer = createElement('div', 'tilemap-renderer')
-    addDragEvents(this.renderer)
+    addDragEvents(this.renderer, () => console.log('---'))
     addZoomEvents(this.renderer, (newTileSize) => setZoomStyle(newTileSize))
 
     const tileStyle = document.createElement('style')
@@ -74,47 +74,48 @@ box-shadow: inset 0 0 0 1px black;${borderRadius}
     tilemap: Element,
     customTiles: ReadonlyArray<TilemapMetadataCustomTile>
   ): ReadonlyArray<HTMLElement> {
-    const buttonSources = customTiles
+    const buttons = customTiles
       .map(({ id }) => `custom-tile-${id}`)
-      .map((className) => ({
-        child: createElement('div', className),
-        onSpaceClicked: (offsetX: number, offsetY: number, tileSize: number) => {
-          const [rowKey, cellKey] = ClickAction.prepareTilemap(tilemap, this.renderer, offsetX, offsetY, tileSize)
-          ClickAction.setElement(tilemap, className, rowKey, cellKey)
-        }
-      }))
-    const deleteElement = document.createElement('span')
-    deleteElement.innerText = 'Delete'
-    buttonSources.push({
-      child: deleteElement,
-      onSpaceClicked: (offsetX: number, offsetY: number, tileSize: number) => {
-        const [rowKey, cellKey] = ClickAction.prepareTilemap(tilemap, this.renderer, offsetX, offsetY, tileSize)
-        ClickAction.deleteElement(tilemap, this.renderer, rowKey, cellKey, tileSize)
-      }
-    })
-    const [onSpaceClicked, buttons] = buttonSources.reduce<[OnSpaceClickedFn, Array<HTMLElement>]>(
-      ([onSpaceClicked, buttons], buttonSource, i) => {
+      .map((className) => {
         const button = createElement('button', 'tilemap-toolbar-button')
-        button.onclick = () => {}
-        button.appendChild(buttonSource.child)
-        buttons.push(button)
-        return [onSpaceClicked, buttons]
-      },
-      [() => {}, []]
-    )
-    buttons[0]?.addClass('tilemap-toolbar-button--selected')
+        button.appendChild(createElement('div', className))
+        return button
+      })
+
     buttons.forEach(
       (button) =>
         (button.onclick = () => {
           buttons.forEach((b) => (b.className = 'tilemap-toolbar-button'))
           button.addClass('tilemap-toolbar-button--selected')
+          // TODO: Optimize this
+          addDragEvents(this.renderer, (e) => {
+            const tileSize = 30
+            const horizontal = this.renderer.getBoundingClientRect().width / tileSize
+            const vertical = this.renderer.getBoundingClientRect().height / tileSize
+            const overflowHorizontal = (horizontal % 1) * tileSize
+            const overflowVertical = (vertical % 1) * tileSize
+            const overflowHorizontalInverted = tileSize - overflowHorizontal
+            const overflowVerticalInverted = tileSize - overflowVertical
+            const spaceTilesCountHorizontal = Math.floor(horizontal)
+            const spaceTilesCountVertical = Math.floor(vertical)
+
+            const boundingClientRect = this.renderer.getBoundingClientRect()
+            const spaceTileX = Math.floor(
+              (e.clientX - boundingClientRect.left + overflowHorizontalInverted + this.renderer.scrollLeft) / tileSize
+            )
+            const spaceTileY = Math.floor(
+              (e.clientY - boundingClientRect.top + overflowVerticalInverted + this.renderer.scrollTop) / tileSize
+            )
+            const offsetX = spaceTileX - spaceTilesCountHorizontal
+            const offsetY = spaceTileY - spaceTilesCountVertical
+            const [rowKey, cellKey] = ClickAction.prepareTilemap(tilemap, this.renderer, offsetX, offsetY, tileSize)
+            ClickAction.setElement(tilemap, button.firstElementChild?.className ?? '', rowKey, cellKey)
+          })
         })
     )
     return buttons
   }
 }
-
-type OnSpaceClickedFn = (offsetX: number, offsetY: number, tileSize: number) => void
 
 function spaceStyle(
   rendererRect: DOMRect,

@@ -19,7 +19,7 @@ export class TilemapEditorView extends TilemapEditorBaseView {
     }
     const [tilemap, customTiles] = FileParser.stringToTilemap(fileContent)
     this.tilemapEditor = new TilemapEditor(tilemap, customTiles)
-    this.rootElement?.appendChild(this.tilemapEditor.root())
+    this.rootElement?.appendChild(this.tilemapEditor.root)
   }
 
   public onEditModeChanged(isEditMode: boolean): void {

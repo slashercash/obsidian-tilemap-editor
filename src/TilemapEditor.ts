@@ -4,66 +4,46 @@ import { addZoomEvents } from 'events/zoomEvents'
 import ClickAction from 'clickActions/clickAction'
 
 export class TilemapEditor {
-  private readonly tilemapEditor: HTMLElement
-  private readonly toolbar: HTMLElement
-  private readonly renderer: HTMLElement
-  private readonly space: HTMLElement
+  public readonly root = createElement('div', 'tilemap-editor')
+  private readonly renderer = createElement('div', 'tilemap-renderer')
+  private readonly zoomStyle = document.createElement('style')
+  private readonly tileStyle = document.createElement('style')
+  private readonly toolbar = createElement('div', 'tilemap-toolbar-overlay')
+  private readonly space = createElement('div', 'tilemap-space')
 
   private tileSize = 30
-  private readonly zoomStyle = document.createElement('style')
+
   private readonly tilemap: Element
 
   constructor(tilemap: Element, customTiles: ReadonlyArray<TilemapMetadataCustomTile>) {
     this.tilemap = tilemap
+    this.toolbar.hide()
 
-    this.tilemapEditor = createElement('div', 'tilemap-editor')
-
-    this.toolbar = this.createToolbar(customTiles)
-
-    this.renderer = createElement('div', 'tilemap-renderer')
-    addDragEvents(this.renderer, () => console.log('---'))
-    addZoomEvents(this.renderer, this.updateTileSize)
-
-    const tileStyle = document.createElement('style')
-    tileStyle.innerText = customTiles
-      .map((tile) => {
-        const className = `.view-content-tilemap-editor .custom-tile-${tile.id}`
-        const borderRadius = tile.shape == 'circle' ? '\n  border-radius: 50%;' : ''
-        return `${className} {
-background-color: ${tile.color};
-box-shadow: inset 0 0 0 1px black;${borderRadius}
-}`
-      })
-      .join('\n')
-
-    this.space = createElement('div', 'tilemap-space')
-    const obs = new ResizeObserver(([entry]) => entry && this.updateZoomStyle(entry.contentRect))
-    obs.observe(this.renderer)
     this.space.appendChild(tilemap)
     this.renderer.appendChild(this.space)
+    this.root.appendChild(this.toolbar)
+    this.root.appendChild(this.renderer)
+    this.root.appendChild(this.zoomStyle)
+    this.root.appendChild(this.tileStyle)
 
-    this.tilemapEditor.appendChild(this.toolbar)
-    this.tilemapEditor.appendChild(this.renderer)
-    this.tilemapEditor.appendChild(this.zoomStyle)
-    this.tilemapEditor.appendChild(tileStyle)
-  }
+    this.updateToolbar(customTiles)
+    this.updateTileStyle(customTiles)
 
-  public root() {
-    return this.tilemapEditor
+    // TODO: Remove events and observer
+    addDragEvents(this.renderer, () => console.log('---'))
+    addZoomEvents(this.renderer, (s) => this.updateTileSize(s))
+    addResizeObserver(this.renderer, (r) => this.updateZoomStyle(r))
   }
 
   public setEditmode(isEditMode: boolean) {
     isEditMode ? this.toolbar.show() : this.toolbar.hide()
   }
 
-  private createToolbar(customTiles: ReadonlyArray<TilemapMetadataCustomTile>): HTMLElement {
-    const toolbar = createElement('div', 'tilemap-toolbar-overlay')
-    toolbar.hide()
+  private updateToolbar(customTiles: ReadonlyArray<TilemapMetadataCustomTile>) {
     const toolbarButtonContainer = createElement('div', 'tilemap-toolbar-button-container')
     const toolbarButtons = this.createToolbarButtons(customTiles)
     toolbarButtonContainer.append(...toolbarButtons)
-    toolbar.appendChild(toolbarButtonContainer)
-    return toolbar
+    this.toolbar.appendChild(toolbarButtonContainer)
   }
 
   private createToolbarButtons(customTiles: ReadonlyArray<TilemapMetadataCustomTile>): ReadonlyArray<HTMLElement> {
@@ -129,6 +109,19 @@ box-shadow: inset 0 0 0 1px black;${borderRadius}
     this.zoomStyle.innerText = `.view-content-tilemap-editor .tilemap-cell { width:${this.tileSize}px;height:${this.tileSize}px; }
 .view-content-tilemap-editor .tilemap-space { width:${width}px;height:${height}px; }`
   }
+
+  private updateTileStyle(customTiles: ReadonlyArray<TilemapMetadataCustomTile>) {
+    this.tileStyle.innerText = customTiles
+      .map((tile) => {
+        const className = `.view-content-tilemap-editor .custom-tile-${tile.id}`
+        const borderRadius = tile.shape == 'circle' ? '\n  border-radius: 50%;' : ''
+        return `${className} {
+background-color: ${tile.color};
+box-shadow: inset 0 0 0 1px black;${borderRadius}
+}`
+      })
+      .join('\n')
+  }
 }
 
 function spaceStyle(
@@ -156,4 +149,9 @@ function createElement(tagName: keyof HTMLElementTagNameMap, className: string):
   const element = document.createElement(tagName)
   element.className = className
   return element
+}
+
+function addResizeObserver(renderer: HTMLElement, onResize: (rendererRect: DOMRect) => void) {
+  const obs = new ResizeObserver(([entry]) => entry && onResize(entry.contentRect))
+  obs.observe(renderer)
 }

@@ -1,6 +1,7 @@
-import type { TilemapMetadata } from 'TilemapEditorView'
+import type { TilemapMetadataCustomTile } from 'file/FileParser'
 import { addDragEvents } from 'events/dragEvents'
 import { addZoomEvents } from 'events/zoomEvents'
+import ClickAction from 'clickActions/clickAction'
 
 export class TilemapEditor {
   private readonly tilemapEditor: HTMLElement
@@ -8,10 +9,10 @@ export class TilemapEditor {
   private readonly renderer: HTMLElement
   private readonly space: HTMLElement
 
-  constructor(tilemap: Element, metadata: TilemapMetadata) {
+  constructor(tilemap: Element, customTiles: ReadonlyArray<TilemapMetadataCustomTile>) {
     this.tilemapEditor = createElement('div', 'tilemap-editor')
 
-    this.toolbar = createToolbar()
+    this.toolbar = this.createToolbar(tilemap, customTiles)
 
     const zoomStyle = document.createElement('style')
     const setZoomStyle = (tileSize: number) => {
@@ -28,7 +29,7 @@ export class TilemapEditor {
     addZoomEvents(this.renderer, (newTileSize) => setZoomStyle(newTileSize))
 
     const tileStyle = document.createElement('style')
-    tileStyle.innerText = metadata.customTiles
+    tileStyle.innerText = customTiles
       .map((tile) => {
         const className = `.view-content-tilemap-editor .custom-tile-${tile.id}`
         const borderRadius = tile.shape == 'circle' ? '\n  border-radius: 50%;' : ''
@@ -58,18 +59,63 @@ box-shadow: inset 0 0 0 1px black;${borderRadius}
   public setEditmode(isEditMode: boolean) {
     isEditMode ? this.toolbar.show() : this.toolbar.hide()
   }
+
+  private createToolbar(tilemap: Element, customTiles: ReadonlyArray<TilemapMetadataCustomTile>): HTMLElement {
+    const toolbar = createElement('div', 'tilemap-toolbar-overlay')
+    toolbar.hide()
+    const toolbarButtonContainer = createElement('div', 'tilemap-toolbar-button-container')
+    const toolbarButtons = this.createToolbarButtons(tilemap, customTiles)
+    toolbarButtonContainer.append(...toolbarButtons)
+    toolbar.appendChild(toolbarButtonContainer)
+    return toolbar
+  }
+
+  private createToolbarButtons(
+    tilemap: Element,
+    customTiles: ReadonlyArray<TilemapMetadataCustomTile>
+  ): ReadonlyArray<HTMLElement> {
+    const buttonSources = customTiles
+      .map(({ id }) => `custom-tile-${id}`)
+      .map((className) => ({
+        child: createElement('div', className),
+        onSpaceClicked: (offsetX: number, offsetY: number, tileSize: number) => {
+          const [rowKey, cellKey] = ClickAction.prepareTilemap(tilemap, this.renderer, offsetX, offsetY, tileSize)
+          ClickAction.setElement(tilemap, className, rowKey, cellKey)
+        }
+      }))
+    const deleteElement = document.createElement('span')
+    deleteElement.innerText = 'Delete'
+    buttonSources.push({
+      child: deleteElement,
+      onSpaceClicked: (offsetX: number, offsetY: number, tileSize: number) => {
+        const [rowKey, cellKey] = ClickAction.prepareTilemap(tilemap, this.renderer, offsetX, offsetY, tileSize)
+        ClickAction.deleteElement(tilemap, this.renderer, rowKey, cellKey, tileSize)
+      }
+    })
+    const [onSpaceClicked, buttons] = buttonSources.reduce<[OnSpaceClickedFn, Array<HTMLElement>]>(
+      ([onSpaceClicked, buttons], buttonSource, i) => {
+        const selectedButtonIndex = 0
+        const isSelected = i === selectedButtonIndex
+        // if (isEditMode && !editTiles && i === selectedButtonIndex) {
+        //   onSpaceClicked = buttonSource.onSpaceClicked
+        // }
+        const button = createElement(
+          'button',
+          `tilemap-toolbar-button${isSelected ? ' tilemap-toolbar-button--selected' : ''}`
+        )
+        // TODO: setSelectedButtonIndex(i)
+        button.onclick = () => {}
+        button.appendChild(buttonSource.child)
+        buttons.push(button)
+        return [onSpaceClicked, buttons]
+      },
+      [() => {}, []]
+    )
+    return buttons
+  }
 }
 
-function createToolbar(): HTMLElement {
-  const toolbar = createElement('div', 'tilemap-toolbar-overlay')
-  toolbar.hide()
-  const toolbarButtonContainer = createElement('div', 'tilemap-toolbar-button-container')
-  const toolbarButton = createElement('button', 'tilemap-toolbar-button')
-  toolbarButton.innerText = 'Button'
-  toolbarButtonContainer.appendChild(toolbarButton)
-  toolbar.appendChild(toolbarButtonContainer)
-  return toolbar
-}
+type OnSpaceClickedFn = (offsetX: number, offsetY: number, tileSize: number) => void
 
 function spaceStyle(
   rendererRect: DOMRect,

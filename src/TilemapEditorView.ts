@@ -1,16 +1,6 @@
+import { FileParser, type TilemapMetadata } from 'file/FileParser'
 import { TilemapEditor } from 'TilemapEditor'
 import { TilemapEditorBaseView } from 'TilemapEditorViewBase'
-import { FileParser } from 'file/FileParser'
-
-export type TilemapMetadata = {
-  customTiles: Array<TilemapMetadataCustomTile>
-}
-
-type TilemapMetadataCustomTile = {
-  id: number
-  shape: string
-  color: string
-}
 
 export class TilemapEditorView extends TilemapEditorBaseView {
   private rootElement?: HTMLElement
@@ -27,8 +17,8 @@ export class TilemapEditorView extends TilemapEditorBaseView {
       // failed to load
       return
     }
-    const [tilemap, metadata] = FileParser.stringToTilemap(fileContent)
-    this.tilemapEditor = new TilemapEditor(tilemap, metadata)
+    const [tilemap, customTiles] = FileParser.stringToTilemap(fileContent)
+    this.tilemapEditor = new TilemapEditor(tilemap, customTiles)
     this.rootElement?.appendChild(this.tilemapEditor.root())
   }
 

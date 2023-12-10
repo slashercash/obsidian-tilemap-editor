@@ -1,9 +1,19 @@
-import type { TilemapMetadata } from 'TilemapEditorView'
 import { FileCreator } from 'file/FileCreator'
 import { htmlToString } from 'file/htmlToString'
 
+export type TilemapMetadata = {
+  customTiles: Array<TilemapMetadataCustomTile>
+}
+
+// TODO: Rename to TileDefinitions or similar
+export type TilemapMetadataCustomTile = {
+  id: number
+  shape: string
+  color: string
+}
+
 export class FileParser {
-  static stringToTilemap(fileContent: string): [Element, TilemapMetadata] {
+  static stringToTilemap(fileContent: string): [Element, ReadonlyArray<TilemapMetadataCustomTile>] {
     const metadataString = fileContent.substring(
       fileContent.indexOf('<metadata>') + 10,
       fileContent.indexOf('</metadata>')
@@ -17,7 +27,7 @@ export class FileParser {
       throw new Error('could not read tilemap')
     }
 
-    return [tilemapElement, metadata]
+    return [tilemapElement, metadata.customTiles]
   }
 
   static tilemapToString(tilemap: Element, metadata: TilemapMetadata): string {

@@ -94,22 +94,21 @@ box-shadow: inset 0 0 0 1px black;${borderRadius}
     })
     const [onSpaceClicked, buttons] = buttonSources.reduce<[OnSpaceClickedFn, Array<HTMLElement>]>(
       ([onSpaceClicked, buttons], buttonSource, i) => {
-        const selectedButtonIndex = 0
-        const isSelected = i === selectedButtonIndex
-        // if (isEditMode && !editTiles && i === selectedButtonIndex) {
-        //   onSpaceClicked = buttonSource.onSpaceClicked
-        // }
-        const button = createElement(
-          'button',
-          `tilemap-toolbar-button${isSelected ? ' tilemap-toolbar-button--selected' : ''}`
-        )
-        // TODO: setSelectedButtonIndex(i)
+        const button = createElement('button', 'tilemap-toolbar-button')
         button.onclick = () => {}
         button.appendChild(buttonSource.child)
         buttons.push(button)
         return [onSpaceClicked, buttons]
       },
       [() => {}, []]
+    )
+    buttons[0]?.addClass('tilemap-toolbar-button--selected')
+    buttons.forEach(
+      (button) =>
+        (button.onclick = () => {
+          buttons.forEach((b) => (b.className = 'tilemap-toolbar-button'))
+          button.addClass('tilemap-toolbar-button--selected')
+        })
     )
     return buttons
   }

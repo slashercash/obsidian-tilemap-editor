@@ -73,8 +73,14 @@ function prepareTilemap(
 
   if (addVertically != 0) {
     const newRows: ReadonlyArray<Element> = [...Array(Math.abs(addVertically))].map(() => newRow(tilemapWidth))
-    const existingRows = Array.from(tilemap.children)
-    tilemap.replaceChildren(...(addVertically < 0 ? [...newRows, ...existingRows] : [...existingRows, ...newRows]))
+    const prefScrollTop = renderer.scrollTop
+    if (addVertically < 0) {
+      tilemap.prepend(...newRows)
+      renderer.scrollTop = prefScrollTop - offsetY * tileSize
+    } else {
+      tilemap.append(...newRows)
+      renderer.scrollTop = prefScrollTop
+    }
   }
 
   if (addHorizontally != 0) {
@@ -90,9 +96,6 @@ function prepareTilemap(
 
   if (offsetX < 0) {
     renderer.scrollLeft += offsetX * -tileSize
-  }
-  if (offsetY < 0) {
-    renderer.scrollTop += offsetY * -tileSize
   }
 
   return [Math.max(offsetY, 0), Math.max(offsetX, 0)]

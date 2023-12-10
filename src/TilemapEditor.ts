@@ -10,31 +10,19 @@ export class TilemapEditor {
   private readonly space: HTMLElement
 
   private tileSize = 30
+  private readonly zoomStyle = document.createElement('style')
+  private readonly tilemap: Element
 
   constructor(tilemap: Element, customTiles: ReadonlyArray<TilemapMetadataCustomTile>) {
-    const updateTileSize = (newTileSize: number) => {
-      this.tileSize = newTileSize
-      updateZoomStyle()
-    }
-
-    const updateZoomStyle = () => {
-      const rendererRect = this.renderer.getBoundingClientRect()
-      const tilesCountHorizontal = tilemap.children[0]?.children.length ?? 0
-      const tilesCountVertical = tilemap.children.length
-      const [width, height] = spaceStyle(rendererRect, tilesCountHorizontal, tilesCountVertical, this.tileSize)
-      zoomStyle.innerText = `.view-content-tilemap-editor .tilemap-cell { width:${this.tileSize}px;height:${this.tileSize}px; }
-.view-content-tilemap-editor .tilemap-space { width:${width}px;height:${height}px; }`
-    }
+    this.tilemap = tilemap
 
     this.tilemapEditor = createElement('div', 'tilemap-editor')
 
-    this.toolbar = this.createToolbar(tilemap, customTiles, updateZoomStyle)
-
-    const zoomStyle = document.createElement('style')
+    this.toolbar = this.createToolbar(customTiles)
 
     this.renderer = createElement('div', 'tilemap-renderer')
     addDragEvents(this.renderer, () => console.log('---'))
-    addZoomEvents(this.renderer, updateTileSize)
+    addZoomEvents(this.renderer, this.updateTileSize)
 
     const tileStyle = document.createElement('style')
     tileStyle.innerText = customTiles
@@ -49,14 +37,14 @@ box-shadow: inset 0 0 0 1px black;${borderRadius}
       .join('\n')
 
     this.space = createElement('div', 'tilemap-space')
-    const obs = new ResizeObserver(updateZoomStyle)
+    const obs = new ResizeObserver(([entry]) => entry && this.updateZoomStyle(entry.contentRect))
     obs.observe(this.renderer)
     this.space.appendChild(tilemap)
     this.renderer.appendChild(this.space)
 
     this.tilemapEditor.appendChild(this.toolbar)
     this.tilemapEditor.appendChild(this.renderer)
-    this.tilemapEditor.appendChild(zoomStyle)
+    this.tilemapEditor.appendChild(this.zoomStyle)
     this.tilemapEditor.appendChild(tileStyle)
   }
 
@@ -68,25 +56,17 @@ box-shadow: inset 0 0 0 1px black;${borderRadius}
     isEditMode ? this.toolbar.show() : this.toolbar.hide()
   }
 
-  private createToolbar(
-    tilemap: Element,
-    customTiles: ReadonlyArray<TilemapMetadataCustomTile>,
-    updateZoomStyle: () => void
-  ): HTMLElement {
+  private createToolbar(customTiles: ReadonlyArray<TilemapMetadataCustomTile>): HTMLElement {
     const toolbar = createElement('div', 'tilemap-toolbar-overlay')
     toolbar.hide()
     const toolbarButtonContainer = createElement('div', 'tilemap-toolbar-button-container')
-    const toolbarButtons = this.createToolbarButtons(tilemap, customTiles, updateZoomStyle)
+    const toolbarButtons = this.createToolbarButtons(customTiles)
     toolbarButtonContainer.append(...toolbarButtons)
     toolbar.appendChild(toolbarButtonContainer)
     return toolbar
   }
 
-  private createToolbarButtons(
-    tilemap: Element,
-    customTiles: ReadonlyArray<TilemapMetadataCustomTile>,
-    updateZoomStyle: () => void
-  ): ReadonlyArray<HTMLElement> {
+  private createToolbarButtons(customTiles: ReadonlyArray<TilemapMetadataCustomTile>): ReadonlyArray<HTMLElement> {
     const buttons = customTiles
       .map(({ id }) => `custom-tile-${id}`)
       .map((className) => {
@@ -121,14 +101,33 @@ box-shadow: inset 0 0 0 1px black;${borderRadius}
             )
             const offsetX = spaceTileX - spaceTilesCountHorizontal
             const offsetY = spaceTileY - spaceTilesCountVertical
-            const [rowKey, cellKey] = ClickAction.prepareTilemap(tilemap, this.renderer, offsetX, offsetY, tileSize)
-            ClickAction.setElement(tilemap, button.firstElementChild?.className ?? '', rowKey, cellKey)
+            const [rowKey, cellKey] = ClickAction.prepareTilemap(
+              this.tilemap,
+              this.renderer,
+              offsetX,
+              offsetY,
+              tileSize
+            )
+            ClickAction.setElement(this.tilemap, button.firstElementChild?.className ?? '', rowKey, cellKey)
             // TODO: only needed if tilemap was expanded
-            updateZoomStyle()
+            this.updateZoomStyle(this.renderer.getBoundingClientRect())
           })
         })
     )
     return buttons
+  }
+
+  private updateTileSize(tileSize: number) {
+    this.tileSize = tileSize
+    this.updateZoomStyle(this.renderer.getBoundingClientRect())
+  }
+
+  private updateZoomStyle(rendererRect: DOMRect) {
+    const tilesCountHorizontal = this.tilemap.children[0]?.children.length ?? 0
+    const tilesCountVertical = this.tilemap.children.length
+    const [width, height] = spaceStyle(rendererRect, tilesCountHorizontal, tilesCountVertical, this.tileSize)
+    this.zoomStyle.innerText = `.view-content-tilemap-editor .tilemap-cell { width:${this.tileSize}px;height:${this.tileSize}px; }
+.view-content-tilemap-editor .tilemap-space { width:${width}px;height:${height}px; }`
   }
 }
 

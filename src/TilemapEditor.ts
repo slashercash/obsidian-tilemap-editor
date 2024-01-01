@@ -41,7 +41,7 @@ export class TilemapEditor {
 
     // TODO: Remove events and observer
     addZoomEvents(this.renderer, (s) => this.updateTileSize(s))
-    addResizeObserver(this.renderer, (r) => this.updateZoomStyle(r))
+    addResizeObserver(this.renderer, (r) => this.updateZoomStyle(spaceProps(r, this.tileSize)))
   }
 
   public setEditmode(isEditMode: boolean) {
@@ -69,52 +69,50 @@ export class TilemapEditor {
         (button.onclick = () => {
           buttons.forEach((b) => (b.className = 'tilemap-toolbar-button'))
           button.addClass('tilemap-toolbar-button--selected')
-          // TODO: Optimize this
           this.onClick = (e) => {
-            const tileSize = this.tileSize
-            const horizontal = this.renderer.getBoundingClientRect().width / tileSize
-            const vertical = this.renderer.getBoundingClientRect().height / tileSize
-            const overflowHorizontal = (horizontal % 1) * tileSize
-            const overflowVertical = (vertical % 1) * tileSize
-            const overflowHorizontalInverted = tileSize - overflowHorizontal
-            const overflowVerticalInverted = tileSize - overflowVertical
-            const spaceTilesCountHorizontal = Math.floor(horizontal)
-            const spaceTilesCountVertical = Math.floor(vertical)
-
-            const boundingClientRect = this.renderer.getBoundingClientRect()
-            const spaceTileX = Math.floor(
-              (e.clientX - boundingClientRect.left + overflowHorizontalInverted + this.renderer.scrollLeft) / tileSize
-            )
-            const spaceTileY = Math.floor(
-              (e.clientY - boundingClientRect.top + overflowVerticalInverted + this.renderer.scrollTop) / tileSize
-            )
-            const offsetX = spaceTileX - spaceTilesCountHorizontal
-            const offsetY = spaceTileY - spaceTilesCountVertical
-            const [rowKey, cellKey] = ClickAction.prepareTilemap(
-              this.tilemap,
-              this.renderer,
-              offsetX,
-              offsetY,
-              tileSize
-            )
-            ClickAction.setElement(this.tilemap, button.firstElementChild?.className ?? '', rowKey, cellKey)
-            // TODO: only needed if tilemap was expanded
-            this.updateZoomStyle(this.renderer.getBoundingClientRect())
+            const [rowIndex, cellIndex] = this.tileIndexFromClick(e)
+            ClickAction.setElement(this.tilemap, button.firstElementChild?.className ?? '', rowIndex, cellIndex)
           }
         })
     )
     return buttons
   }
 
-  private updateTileSize(tileSize: number) {
-    this.tileSize = tileSize
-    this.updateZoomStyle(this.renderer.getBoundingClientRect())
+  private tileIndexFromClick(e: MouseEvent) {
+    const rendererRectangle = this.renderer.getBoundingClientRect()
+    const sp = spaceProps(rendererRectangle, this.tileSize)
+
+    const clickPosX = e.clientX - rendererRectangle.left + sp.setbackHorizontal + this.renderer.scrollLeft
+    const clickPosY = e.clientY - rendererRectangle.top + sp.setbackVertical + this.renderer.scrollTop
+
+    const tileX = Math.floor(clickPosX / this.tileSize)
+    const tileY = Math.floor(clickPosY / this.tileSize)
+
+    const offsetX = tileX - sp.tilesCountHorizontal
+    const offsetY = tileY - sp.spaceTilesCountVertical
+    return ClickAction.prepareTilemap(this.tilemap, this.renderer, offsetX, offsetY, this.tileSize, () =>
+      this.updateZoomStyle(sp)
+    )
   }
 
-  private updateZoomStyle(rendererRect: DOMRect) {
+  private updateTileSize(tileSize: number) {
+    this.tileSize = tileSize
+    const sp = spaceProps(this.renderer.getBoundingClientRect(), this.tileSize)
+    this.updateZoomStyle(sp)
+  }
+
+  private updateZoomStyle(sp: {
+    tilesCountHorizontal: number
+    spaceTilesCountVertical: number
+    setbackHorizontal: number
+    setbackVertical: number
+  }) {
     const tilesCountHorizontal = this.tilemap.children[0]?.children.length ?? 0
     const tilesCountVertical = this.tilemap.children.length
-    const [width, height] = spaceStyle(rendererRect, tilesCountHorizontal, tilesCountVertical, this.tileSize)
+
+    const width = (tilesCountHorizontal + sp.tilesCountHorizontal * 2) * this.tileSize - 2 * sp.setbackHorizontal
+    const height = (tilesCountVertical + sp.spaceTilesCountVertical * 2) * this.tileSize - 2 * sp.setbackVertical
+
     this.zoomStyle.innerText = `.view-content-tilemap-editor .tilemap-cell { width:${this.tileSize}px;height:${this.tileSize}px; }
 .view-content-tilemap-editor .tilemap-space { width:${width}px;height:${height}px; }`
   }
@@ -133,25 +131,13 @@ box-shadow: inset 0 0 0 1px black;${borderRadius}
   }
 }
 
-function spaceStyle(
-  rendererRect: DOMRect,
-  tilesCountHorizontal: number,
-  tilesCountVertical: number,
-  tileSize: number
-): [number, number] {
-  const horizontal = rendererRect.width / tileSize
-  const vertical = rendererRect.height / tileSize
-
-  const overflowHorizontal = (horizontal % 1) * tileSize
-  const overflowVertical = (vertical % 1) * tileSize
-
-  const width = (Math.floor(horizontal) * 2 + tilesCountHorizontal) * tileSize
-  const height = (Math.floor(vertical) * 2 + tilesCountVertical) * tileSize
-
-  const w = width - 2 * (tileSize - overflowHorizontal)
-  const h = height - 2 * (tileSize - overflowVertical)
-
-  return [w, h]
+function spaceProps(rendererRectangle: DOMRect, tileSize: number) {
+  return {
+    tilesCountHorizontal: Math.floor(rendererRectangle.width / tileSize),
+    spaceTilesCountVertical: Math.floor(rendererRectangle.height / tileSize),
+    setbackHorizontal: tileSize - (rendererRectangle.width % tileSize),
+    setbackVertical: tileSize - (rendererRectangle.height % tileSize)
+  }
 }
 
 function createElement(tagName: keyof HTMLElementTagNameMap, className: string): HTMLElement {

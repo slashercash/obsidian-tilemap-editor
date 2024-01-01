@@ -4,8 +4,8 @@ export default class ClickAction {
   static prepareTilemap = prepareTilemap
 }
 
-function setElement(tilemap: Element, className: string, rowKey: number, cellKey: number) {
-  const cell = getCell(tilemap, rowKey, cellKey)
+function setElement(tilemap: Element, className: string, rowIndex: number, cellIndex: number) {
+  const cell = getCell(tilemap, rowIndex, cellIndex)
   if (cell) {
     const child = document.createElement('div')
     child.className = className
@@ -16,11 +16,11 @@ function setElement(tilemap: Element, className: string, rowKey: number, cellKey
 function deleteElement(
   tilemap: Element,
   renderer: HTMLElement,
-  rowKey: number,
-  cellKey: number,
+  rowIndex: number,
+  cellIndex: number,
   tileSize: number
 ): void {
-  const cell = getCell(tilemap, rowKey, cellKey)
+  const cell = getCell(tilemap, rowIndex, cellIndex)
   if (!cell) {
     return
   }
@@ -28,10 +28,10 @@ function deleteElement(
   cell.replaceChildren()
 
   const isOnEdge =
-    rowKey === 0 ||
-    cellKey === 0 ||
-    rowKey === tilemap.children.length - 1 ||
-    cellKey === (tilemap.children[0]?.children.length ?? 0) - 1
+    rowIndex === 0 ||
+    cellIndex === 0 ||
+    rowIndex === tilemap.children.length - 1 ||
+    cellIndex === (tilemap.children[0]?.children.length ?? 0) - 1
 
   if (isOnEdge) {
     const [scrollX, scrollY] = trimTilemap(tilemap)
@@ -44,10 +44,10 @@ function deleteElement(
   }
 }
 
-function getCell(tilemap: Element, rowKey: number, cellKey: number): Element | undefined {
-  const row = tilemap.children[rowKey]
+function getCell(tilemap: Element, rowIndex: number, cellIndex: number): Element | undefined {
+  const row = tilemap.children[rowIndex]
   if (row) {
-    return row.children[cellKey]
+    return row.children[cellIndex]
   }
 }
 
@@ -56,7 +56,8 @@ function prepareTilemap(
   renderer: HTMLElement,
   offsetX: number,
   offsetY: number,
-  tileSize: number
+  tileSize: number,
+  updateZoomStyle: () => void
 ): [rowKey: number, cellKey: number] {
   const tilemapWidth = tilemap.children[0]?.children.length ?? 0
   const tilemapHeight = tilemap.children.length
@@ -65,6 +66,7 @@ function prepareTilemap(
     tilemap.replaceChildren(newRow(1))
     renderer.scrollLeft += offsetX * -tileSize
     renderer.scrollTop += offsetY * -tileSize
+    updateZoomStyle()
     return [0, 0]
   }
 
@@ -81,6 +83,7 @@ function prepareTilemap(
       tilemap.append(...newRows)
       renderer.scrollTop = prefScrollTop
     }
+    updateZoomStyle()
   }
 
   if (addHorizontally != 0) {
@@ -92,6 +95,7 @@ function prepareTilemap(
       return row
     })
     tilemap.replaceChildren(...newRows)
+    updateZoomStyle()
   }
 
   if (offsetX < 0) {

@@ -1,5 +1,5 @@
 import type { TilemapMetadataCustomTile } from 'file/FileParser'
-import { addDragEvents } from 'events/dragEvents'
+import DragEvents from 'events/DragEvents'
 import { addZoomEvents } from 'events/zoomEvents'
 import ClickAction from 'clickActions/clickAction'
 
@@ -10,6 +10,8 @@ export class TilemapEditor {
   private readonly tileStyle = document.createElement('style')
   private readonly toolbar = createElement('div', 'tilemap-toolbar-overlay')
   private readonly space = createElement('div', 'tilemap-space')
+
+  private onClick?: (e: MouseEvent) => void = undefined
 
   private tileSize = 30
 
@@ -29,8 +31,15 @@ export class TilemapEditor {
     this.updateToolbar(customTiles)
     this.updateTileStyle(customTiles)
 
+    this.renderer.addEventListener('mousedown', DragEvents.startDragging(this.renderer))
+    this.renderer.addEventListener(
+      'click',
+      DragEvents.click((e) => this.onClick && this.onClick(e))
+    )
+    this.renderer.addEventListener('mouseleave', DragEvents.stopDragging)
+    this.renderer.addEventListener('mousemove', DragEvents.mouseMove(this.renderer))
+
     // TODO: Remove events and observer
-    addDragEvents(this.renderer, () => console.log('---'))
     addZoomEvents(this.renderer, (s) => this.updateTileSize(s))
     addResizeObserver(this.renderer, (r) => this.updateZoomStyle(r))
   }
@@ -61,7 +70,7 @@ export class TilemapEditor {
           buttons.forEach((b) => (b.className = 'tilemap-toolbar-button'))
           button.addClass('tilemap-toolbar-button--selected')
           // TODO: Optimize this
-          addDragEvents(this.renderer, (e) => {
+          this.onClick = (e) => {
             const tileSize = this.tileSize
             const horizontal = this.renderer.getBoundingClientRect().width / tileSize
             const vertical = this.renderer.getBoundingClientRect().height / tileSize
@@ -91,7 +100,7 @@ export class TilemapEditor {
             ClickAction.setElement(this.tilemap, button.firstElementChild?.className ?? '', rowKey, cellKey)
             // TODO: only needed if tilemap was expanded
             this.updateZoomStyle(this.renderer.getBoundingClientRect())
-          })
+          }
         })
     )
     return buttons

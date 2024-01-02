@@ -6,7 +6,6 @@ export default class Style {
     const spaceTilesCountY = Math.floor(rendererRectangle.height / tileSize)
     const setbackX = tileSize - (rendererRectangle.width % tileSize)
     const setbackY = tileSize - (rendererRectangle.height % tileSize)
-
     const width = (tilesCountX + spaceTilesCountX * 2) * tileSize - 2 * setbackX
     const height = (tilesCountY + spaceTilesCountY * 2) * tileSize - 2 * setbackY
 

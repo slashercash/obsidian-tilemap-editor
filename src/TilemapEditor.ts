@@ -1,7 +1,7 @@
 import type { TilemapMetadataCustomTile } from 'file/FileParser'
-import DragEvents from 'events/DragEvents'
-import ZoomEvents from 'events/ZoomEvents'
-import ClickAction from 'clickActions/clickAction'
+import ClickAction from 'handlers/ClickHandler'
+import DragHandler from 'handlers/DragHandler'
+import ZoomEvents from 'handlers/ZoomHandler'
 
 export class TilemapEditor {
   public readonly root = createElement('div', 'tilemap-editor')
@@ -10,15 +10,10 @@ export class TilemapEditor {
   private readonly tileStyle = document.createElement('style')
   private readonly toolbar = createElement('div', 'tilemap-toolbar-overlay')
   private readonly space = createElement('div', 'tilemap-space')
-
+  private tileSize = 30
   private onClick?: (e: MouseEvent) => void = undefined
 
-  private tileSize = 30
-
-  private readonly tilemap: Element
-
-  constructor(tilemap: Element, customTiles: ReadonlyArray<TilemapMetadataCustomTile>) {
-    this.tilemap = tilemap
+  constructor(private readonly tilemap: Element, customTiles: ReadonlyArray<TilemapMetadataCustomTile>) {
     this.toolbar.hide()
 
     this.space.appendChild(tilemap)
@@ -34,18 +29,18 @@ export class TilemapEditor {
     const onClick = (e: MouseEvent) => this.onClick && this.onClick(e)
     const updateTileSize = (zoomFactor: number) => this.updateTileSize(zoomFactor)
 
-    this.renderer.addEventListener('mousedown', DragEvents.startDragging(this.renderer))
-    this.renderer.addEventListener('click', DragEvents.click(onClick))
-    this.renderer.addEventListener('mouseleave', DragEvents.stopDragging)
-    this.renderer.addEventListener('mousemove', DragEvents.mouseMove(this.renderer))
-
+    this.renderer.addEventListener('mousedown', DragHandler.startDragging(this.renderer))
+    this.renderer.addEventListener('click', DragHandler.click(onClick))
+    this.renderer.addEventListener('mouseleave', DragHandler.stopDragging)
+    this.renderer.addEventListener('mousemove', DragHandler.mouseMove(this.renderer))
     this.renderer.addEventListener('touchstart', ZoomEvents.handleTouch(updateTileSize), { passive: true })
     this.renderer.addEventListener('touchmove', ZoomEvents.handleTouch(updateTileSize), { passive: true })
     this.renderer.addEventListener('touchend', ZoomEvents.handleTouch(updateTileSize), { passive: true })
     this.renderer.addEventListener('touchcancel', ZoomEvents.handleTouch(updateTileSize), { passive: true })
     this.renderer.addEventListener('wheel', ZoomEvents.handleWheel(updateTileSize), { passive: true })
 
-    addResizeObserver(this.renderer, (r) => this.updateZoomStyle(spaceProps(r, this.tileSize)))
+    const obs = new ResizeObserver(([e]) => e && this.updateZoomStyle(spaceProps(e.contentRect, this.tileSize)))
+    obs.observe(this.renderer)
   }
 
   public setEditmode(isEditMode: boolean) {
@@ -148,9 +143,4 @@ function createElement(tagName: keyof HTMLElementTagNameMap, className: string):
   const element = document.createElement(tagName)
   element.className = className
   return element
-}
-
-function addResizeObserver(renderer: HTMLElement, onResize: (rendererRect: DOMRect) => void) {
-  const obs = new ResizeObserver(([entry]) => entry && onResize(entry.contentRect))
-  obs.observe(renderer)
 }

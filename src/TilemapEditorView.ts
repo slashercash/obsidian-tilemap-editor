@@ -26,6 +26,10 @@ export class TilemapEditorView extends TilemapEditorBaseView {
     this.tilemapEditor?.setEditmode(isEditMode)
   }
 
+  public onDeleteTiles(): void {
+    this.tilemapEditor?.setDeleteMode()
+  }
+
   public onEditTiles(): void {}
 
   public getContentToSave(): [success: boolean, content: string] {

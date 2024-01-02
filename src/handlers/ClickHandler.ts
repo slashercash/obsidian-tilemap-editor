@@ -15,10 +15,9 @@ function setElement(tilemap: Element, className: string, rowIndex: number, cellI
 
 function deleteElement(
   tilemap: Element,
-  renderer: HTMLElement,
   rowIndex: number,
   cellIndex: number,
-  tileSize: number
+  updateTilemapSize: (scrollDeltaTop: number, scrollDeltaLeft: number, newRows: ReadonlyArray<Element>) => void
 ): void {
   const cell = getCell(tilemap, rowIndex, cellIndex)
   if (!cell) {
@@ -34,13 +33,8 @@ function deleteElement(
     cellIndex === (tilemap.children[0]?.children.length ?? 0) - 1
 
   if (isOnEdge) {
-    const [scrollX, scrollY] = trimTilemap(tilemap)
-    if (scrollX > 0) {
-      renderer.scrollLeft += scrollX * -tileSize
-    }
-    if (scrollY > 0) {
-      renderer.scrollTop += scrollY * -tileSize
-    }
+    const [scrollDeltaLeft, scrollDeltaTop, newRows] = trimTilemap(tilemap)
+    updateTilemapSize(scrollDeltaTop, scrollDeltaLeft, newRows)
   }
 }
 
@@ -55,14 +49,13 @@ function prepareTilemap(
   tilemap: Element,
   offsetX: number,
   offsetY: number,
-  tileSize: number,
-  expandTilemap: (scrollDeltaTop: number, scrollDeltaLeft: number, newRows: ReadonlyArray<Element>) => void
+  updateTilemapSize: (scrollDeltaTop: number, scrollDeltaLeft: number, newRows: ReadonlyArray<Element>) => void
 ): [rowKey: number, cellKey: number] {
   const tilemapWidth = tilemap.children[0]?.children.length ?? 0
   const tilemapHeight = tilemap.children.length
 
   if (tilemapWidth === 0 && tilemapHeight === 0) {
-    expandTilemap(offsetY * -tileSize, offsetX * -tileSize, [newRow(1)])
+    updateTilemapSize(-offsetY, -offsetX, [newRow(1)])
     return [0, 0]
   }
 
@@ -73,9 +66,9 @@ function prepareTilemap(
     const newRows: ReadonlyArray<Element> = [...Array(Math.abs(addVertically))].map(() => newRow(tilemapWidth))
     const existingRows = Array.from(tilemap.children)
     if (addVertically < 0) {
-      expandTilemap(-(offsetY * tileSize), 0, [...newRows, ...existingRows])
+      updateTilemapSize(-offsetY, 0, [...newRows, ...existingRows])
     } else {
-      expandTilemap(0, 0, [...existingRows, ...newRows])
+      updateTilemapSize(0, 0, [...existingRows, ...newRows])
     }
   }
 
@@ -87,7 +80,7 @@ function prepareTilemap(
       row.replaceChildren(...(addHorizontally < 0 ? [...newCells, ...existingCells] : [...existingCells, ...newCells]))
       return row
     })
-    expandTilemap(0, addHorizontally < 0 ? offsetX * -tileSize : 0, newRows)
+    updateTilemapSize(0, addHorizontally < 0 ? -offsetX : 0, newRows)
   }
 
   return [Math.max(offsetY, 0), Math.max(offsetX, 0)]
@@ -103,7 +96,9 @@ function getAddValue(offset: number, distance: number): number {
   return 0
 }
 
-export function trimTilemap(tilemap: Element): [scrollX: number, scrollY: number] {
+export function trimTilemap(
+  tilemap: Element
+): [scrollDeltaLeft: number, scrollDeltaTop: number, newRows: ReadonlyArray<Element>] {
   const tilesCountVertical = tilemap.children.length
   const tilesCountHorizontal = tilemap.children[0]?.children.length ?? 0
 
@@ -144,8 +139,7 @@ export function trimTilemap(tilemap: Element): [scrollX: number, scrollY: number
     return acc
   }, [])
 
-  tilemap.replaceChildren(...newRows)
-  return [trim.left, trim.top]
+  return [-trim.left, -trim.top, newRows]
 }
 
 function newRow(cellsCount = 0): HTMLDivElement {

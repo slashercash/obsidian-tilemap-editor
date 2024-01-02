@@ -19,6 +19,7 @@ export abstract class TilemapEditorBaseView extends FileView {
   abstract onFileLoaded(fileContent: string): void
   abstract onEditModeChanged(isEditMode: boolean): void
   abstract onEditTiles(): void
+  abstract onDeleteTiles(): void
   abstract getContentToSave(): [success: boolean, content: string]
 
   public async onload(): Promise<void> {
@@ -29,8 +30,11 @@ export abstract class TilemapEditorBaseView extends FileView {
       this.setIsEditMode(false)
     )
     this.saveAction_Element = this.addAction('checkmark', 'Save', () => this.save())
-
     this.editTilesAction_Element = this.addAction('edit', 'Edit Tiles', () => this.onEditTiles())
+    this.addAction('trash', 'Delete Tiles', () => {
+      this.setIsEditMode(false)
+      this.onDeleteTiles()
+    })
 
     this.readAction_Element.hide()
     this.saveAction_Element.hide()

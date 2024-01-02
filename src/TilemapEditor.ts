@@ -52,6 +52,13 @@ export class TilemapEditor {
     isEditMode ? this.toolbar.show() : this.toolbar.hide()
   }
 
+  public setDeleteMode() {
+    this.onClick = (e) => {
+      const [rowIndex, cellIndex] = this.tileIndexFromClick(e)
+      ClickAction.deleteElement(this.tilemap, rowIndex, cellIndex, this.updateTilemapSize)
+    }
+  }
+
   private updateToolbar(customTiles: ReadonlyArray<TilemapMetadataCustomTile>) {
     const toolbarButtonContainer = createElement('div', 'tilemap-toolbar-button-container')
     const toolbarButtons = this.createToolbarButtons(customTiles)
@@ -93,23 +100,23 @@ export class TilemapEditor {
 
     const tileX = Math.floor(clickPosX / this.tileSize)
     const tileY = Math.floor(clickPosY / this.tileSize)
-    // TODO: Merge?
+
     const offsetX = tileX - Math.floor(rendererRectangle.width / this.tileSize)
     const offsetY = tileY - Math.floor(rendererRectangle.height / this.tileSize)
 
-    const expandTilemap = (scrollDeltaTop: number, scrollDeltaLeft: number, newRows: ReadonlyArray<Element>): void => {
-      const scrollTop = this.renderer.scrollTop + scrollDeltaTop
-      const scrollLeft = this.renderer.scrollLeft + scrollDeltaLeft
+    return ClickAction.prepareTilemap(this.tilemap, offsetX, offsetY, this.updateTilemapSize)
+  }
 
-      this.tilemap.replaceChildren(...newRows)
+  private updateTilemapSize = (scrollDeltaTop: number, scrollDeltaLeft: number, newRows: ReadonlyArray<Element>) => {
+    const scrollTop = this.renderer.scrollTop + scrollDeltaTop * this.tileSize
+    const scrollLeft = this.renderer.scrollLeft + scrollDeltaLeft * this.tileSize
 
-      this.renderer.scrollTop = scrollTop
-      this.renderer.scrollLeft = scrollLeft
+    this.tilemap.replaceChildren(...newRows)
 
-      this.updateZoomStyle()
-    }
+    this.renderer.scrollTop = scrollTop
+    this.renderer.scrollLeft = scrollLeft
 
-    return ClickAction.prepareTilemap(this.tilemap, offsetX, offsetY, this.tileSize, expandTilemap)
+    this.updateZoomStyle()
   }
 
   private updateZoomStyle() {

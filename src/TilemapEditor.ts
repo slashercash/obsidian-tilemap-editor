@@ -1,6 +1,6 @@
 import type { TilemapMetadataCustomTile } from 'file/FileParser'
 import DragEvents from 'events/DragEvents'
-import { addZoomEvents } from 'events/zoomEvents'
+import ZoomEvents from 'events/ZoomEvents'
 import ClickAction from 'clickActions/clickAction'
 
 export class TilemapEditor {
@@ -31,16 +31,20 @@ export class TilemapEditor {
     this.updateToolbar(customTiles)
     this.updateTileStyle(customTiles)
 
+    const onClick = (e: MouseEvent) => this.onClick && this.onClick(e)
+    const updateTileSize = (zoomFactor: number) => this.updateTileSize(zoomFactor)
+
     this.renderer.addEventListener('mousedown', DragEvents.startDragging(this.renderer))
-    this.renderer.addEventListener(
-      'click',
-      DragEvents.click((e) => this.onClick && this.onClick(e))
-    )
+    this.renderer.addEventListener('click', DragEvents.click(onClick))
     this.renderer.addEventListener('mouseleave', DragEvents.stopDragging)
     this.renderer.addEventListener('mousemove', DragEvents.mouseMove(this.renderer))
 
-    // TODO: Remove events and observer
-    addZoomEvents(this.renderer, (s) => this.updateTileSize(s))
+    this.renderer.addEventListener('touchstart', ZoomEvents.handleTouch(updateTileSize), { passive: true })
+    this.renderer.addEventListener('touchmove', ZoomEvents.handleTouch(updateTileSize), { passive: true })
+    this.renderer.addEventListener('touchend', ZoomEvents.handleTouch(updateTileSize), { passive: true })
+    this.renderer.addEventListener('touchcancel', ZoomEvents.handleTouch(updateTileSize), { passive: true })
+    this.renderer.addEventListener('wheel', ZoomEvents.handleWheel(updateTileSize), { passive: true })
+
     addResizeObserver(this.renderer, (r) => this.updateZoomStyle(spaceProps(r, this.tileSize)))
   }
 
@@ -95,8 +99,8 @@ export class TilemapEditor {
     )
   }
 
-  private updateTileSize(tileSize: number) {
-    this.tileSize = tileSize
+  private updateTileSize(zoomFactor: number) {
+    this.tileSize *= zoomFactor
     const sp = spaceProps(this.renderer.getBoundingClientRect(), this.tileSize)
     this.updateZoomStyle(sp)
   }

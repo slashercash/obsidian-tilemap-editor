@@ -113,27 +113,13 @@ export class TilemapEditor {
   }
 
   private updateZoomStyle() {
-    const tilesCountX = this.tilemap.children[0]?.children.length ?? 0
-    const tilesCountY = this.tilemap.children.length
-    this.zoomStyle.innerText = Style.zoomStyle(
-      tilesCountX,
-      tilesCountY,
-      this.tileSize,
-      this.renderer.getBoundingClientRect()
-    )
+    const x = this.tilemap.children[0]?.children.length ?? 0
+    const y = this.tilemap.children.length
+    this.zoomStyle.innerText = Style.zoomStyle(x, y, this.tileSize, this.renderer.getBoundingClientRect())
   }
 
   private updateTileStyle(customTiles: ReadonlyArray<TilemapMetadataCustomTile>) {
-    this.tileStyle.innerText = customTiles
-      .map((tile) => {
-        const className = `.view-content-tilemap-editor .custom-tile-${tile.id}`
-        const borderRadius = tile.shape == 'circle' ? '\n  border-radius: 50%;' : ''
-        return `${className} {
-background-color: ${tile.color};
-box-shadow: inset 0 0 0 1px black;${borderRadius}
-}`
-      })
-      .join('\n')
+    this.tileStyle.innerText = Style.tileStyle(customTiles)
   }
 }
 

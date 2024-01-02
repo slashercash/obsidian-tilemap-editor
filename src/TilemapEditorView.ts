@@ -1,6 +1,6 @@
 import { FileParser, type TilemapMetadata } from 'file/FileParser'
+import { TilemapEditorBaseView, type Mode } from 'TilemapEditorViewBase'
 import { TilemapEditor } from 'TilemapEditor'
-import { TilemapEditorBaseView } from 'TilemapEditorViewBase'
 
 export class TilemapEditorView extends TilemapEditorBaseView {
   private rootElement?: HTMLElement
@@ -22,15 +22,9 @@ export class TilemapEditorView extends TilemapEditorBaseView {
     this.rootElement?.appendChild(this.tilemapEditor.root)
   }
 
-  public onEditModeChanged(isEditMode: boolean): void {
-    this.tilemapEditor?.setEditmode(isEditMode)
+  public onModeChanged(mode: Mode) {
+    this.tilemapEditor?.onModeChanged(mode)
   }
-
-  public onDeleteTiles(): void {
-    this.tilemapEditor?.setDeleteMode()
-  }
-
-  public onEditTiles(): void {}
 
   public getContentToSave(): [success: boolean, content: string] {
     if (this.tilemap && this.metadata) {

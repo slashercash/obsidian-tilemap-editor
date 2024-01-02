@@ -1,4 +1,5 @@
 import type { TilemapMetadataCustomTile } from 'file/FileParser'
+import type { Mode } from 'TilemapEditorViewBase'
 import ClickAction from 'handlers/ClickHandler'
 import DragHandler from 'handlers/DragHandler'
 import ZoomEvents from 'handlers/ZoomHandler'
@@ -33,7 +34,7 @@ export class TilemapEditor {
 
     const onClick = (e: MouseEvent) => {
       if (this.onClick) {
-        console.log('TODO: Save')
+        console.log('TODO: Save tilemap')
         this.onClick(e)
       }
     }
@@ -56,20 +57,23 @@ export class TilemapEditor {
     new ResizeObserver(() => this.updateZoomStyle()).observe(this.renderer)
   }
 
-  public setEditmode(isEditMode: boolean) {
-    if (isEditMode) {
-      this.toolbar.show()
-      this.onClick = this.toolBarAction
-    } else {
-      this.toolbar.hide()
-      this.onClick = undefined
-    }
-  }
-
-  public setDeleteMode() {
-    this.onClick = (e) => {
-      const [rowIndex, cellIndex] = this.tileIndexFromClick(e)
-      ClickAction.deleteElement(this.tilemap, rowIndex, cellIndex, this.updateTilemapSize)
+  public onModeChanged(mode: Mode): void {
+    switch (mode) {
+      case 'navigate':
+        this.toolbar.hide()
+        this.onClick = undefined
+        break
+      case 'addTile':
+        this.toolbar.show()
+        this.onClick = this.toolBarAction
+        break
+      case 'removeTile':
+        this.toolbar.hide()
+        this.onClick = (e) => {
+          const [rowIndex, cellIndex] = this.tileIndexFromClick(e)
+          ClickAction.deleteElement(this.tilemap, rowIndex, cellIndex, this.updateTilemapSize)
+        }
+        break
     }
   }
 

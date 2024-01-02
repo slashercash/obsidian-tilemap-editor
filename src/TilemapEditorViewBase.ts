@@ -3,43 +3,27 @@ import { FileView, WorkspaceLeaf, Notice } from 'obsidian'
 export const TILE_FILE_EXTENSION = 'tile'
 export const VIEW_TYPE_TILE = 'tile-view'
 
+export type Mode = 'navigate' | 'addTile' | 'removeTile'
+
 export abstract class TilemapEditorBaseView extends FileView {
   public allowNoFile = false
 
-  private editAction_Element?: HTMLElement
-  private readAction_Element?: HTMLElement
-  private saveAction_Element?: HTMLElement
-  private editTilesAction_Element?: HTMLElement
+  // ICONS: https://lucide.dev/icons/
+  private remButton = this.addAction('trash', 'Remove Tiles', () => this.changeMode('removeTile', this.remButton))
+  private addButton = this.addAction('plus-square', 'Add Tiles', () => this.changeMode('addTile', this.addButton))
+  private navButton = this.addAction('mouse-pointer-2', 'Navigate', () => this.changeMode('navigate', this.navButton))
 
   constructor(leaf: WorkspaceLeaf) {
     super(leaf)
+    this.navButton.addClass('is-active')
   }
 
   abstract onLoaded(rootElement: HTMLElement): void
   abstract onFileLoaded(fileContent: string): void
-  abstract onEditModeChanged(isEditMode: boolean): void
-  abstract onEditTiles(): void
-  abstract onDeleteTiles(): void
+  abstract onModeChanged(mode: Mode): void
   abstract getContentToSave(): [success: boolean, content: string]
 
   public async onload(): Promise<void> {
-    this.editAction_Element = this.addAction('pencil', 'Current view: reading\nClick to edit', () =>
-      this.setIsEditMode(true)
-    )
-    this.readAction_Element = this.addAction('cross', 'Current view: editing\nClick to read', () =>
-      this.setIsEditMode(false)
-    )
-    this.saveAction_Element = this.addAction('checkmark', 'Save', () => this.save())
-    this.editTilesAction_Element = this.addAction('edit', 'Edit Tiles', () => this.onEditTiles())
-    this.addAction('trash', 'Delete Tiles', () => {
-      this.setIsEditMode(false)
-      this.onDeleteTiles()
-    })
-
-    this.readAction_Element.hide()
-    this.saveAction_Element.hide()
-    this.editTilesAction_Element.hide()
-
     const rootElement = this.containerEl.children[1] as HTMLElement
     rootElement.addClass('view-content-tilemap-editor')
 
@@ -53,10 +37,9 @@ export abstract class TilemapEditorBaseView extends FileView {
   }
 
   public async onunload(): Promise<void> {
-    this.editAction_Element?.remove()
-    this.readAction_Element?.remove()
-    this.saveAction_Element?.remove()
-    this.editTilesAction_Element?.remove()
+    this.navButton.remove()
+    this.addButton.remove()
+    this.remButton.remove()
     this.showMobileNavBar()
   }
 
@@ -68,22 +51,15 @@ export abstract class TilemapEditorBaseView extends FileView {
     return 'dice'
   }
 
-  private setIsEditMode = (isEditMode: boolean): void => {
-    if (isEditMode) {
-      this.editAction_Element?.hide()
-      this.saveAction_Element?.show()
-      this.readAction_Element?.show()
-      this.editTilesAction_Element?.show()
-    } else {
-      this.saveAction_Element?.hide()
-      this.readAction_Element?.hide()
-      this.editAction_Element?.show()
-      this.editTilesAction_Element?.hide()
-    }
-    this.onEditModeChanged(isEditMode)
+  private changeMode(mode: Mode, actionButton: HTMLElement) {
+    this.remButton.removeClass('is-active')
+    this.addButton.removeClass('is-active')
+    this.navButton.removeClass('is-active')
+    actionButton.addClass('is-active')
+    this.onModeChanged(mode)
   }
 
-  private save = (): void => {
+  private save(): void {
     const [success, content] = this.getContentToSave()
     if (success) {
       this.app.vault.modify(this.file, content)

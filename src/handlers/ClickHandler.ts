@@ -53,20 +53,16 @@ function getCell(tilemap: Element, rowIndex: number, cellIndex: number): Element
 
 function prepareTilemap(
   tilemap: Element,
-  renderer: HTMLElement,
   offsetX: number,
   offsetY: number,
   tileSize: number,
-  updateZoomStyle: () => void
+  expandTilemap: (scrollDeltaTop: number, scrollDeltaLeft: number, newRows: ReadonlyArray<Element>) => void
 ): [rowKey: number, cellKey: number] {
   const tilemapWidth = tilemap.children[0]?.children.length ?? 0
   const tilemapHeight = tilemap.children.length
 
   if (tilemapWidth === 0 && tilemapHeight === 0) {
-    tilemap.replaceChildren(newRow(1))
-    renderer.scrollLeft += offsetX * -tileSize
-    renderer.scrollTop += offsetY * -tileSize
-    updateZoomStyle()
+    expandTilemap(offsetY * -tileSize, offsetX * -tileSize, [newRow(1)])
     return [0, 0]
   }
 
@@ -75,31 +71,23 @@ function prepareTilemap(
 
   if (addVertically != 0) {
     const newRows: ReadonlyArray<Element> = [...Array(Math.abs(addVertically))].map(() => newRow(tilemapWidth))
-    const prefScrollTop = renderer.scrollTop
+    const existingRows = Array.from(tilemap.children)
     if (addVertically < 0) {
-      tilemap.prepend(...newRows)
-      renderer.scrollTop = prefScrollTop - offsetY * tileSize
+      expandTilemap(-(offsetY * tileSize), 0, [...newRows, ...existingRows])
     } else {
-      tilemap.append(...newRows)
-      renderer.scrollTop = prefScrollTop
+      expandTilemap(0, 0, [...existingRows, ...newRows])
     }
-    updateZoomStyle()
   }
 
   if (addHorizontally != 0) {
     const newRows = Array.from(tilemap.children).map((existingRow) => {
       const newCells = [...Array(Math.abs(addHorizontally))].map(newCell)
-      const existingCells = Array.from(existingRow.children)
+      const existingCells = Array.from(existingRow.cloneNode(true).childNodes)
       const row = newRow()
       row.replaceChildren(...(addHorizontally < 0 ? [...newCells, ...existingCells] : [...existingCells, ...newCells]))
       return row
     })
-    tilemap.replaceChildren(...newRows)
-    updateZoomStyle()
-  }
-
-  if (offsetX < 0) {
-    renderer.scrollLeft += offsetX * -tileSize
+    expandTilemap(0, addHorizontally < 0 ? offsetX * -tileSize : 0, newRows)
   }
 
   return [Math.max(offsetY, 0), Math.max(offsetX, 0)]

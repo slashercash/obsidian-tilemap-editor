@@ -2,6 +2,7 @@ import type { TilemapMetadataCustomTile } from 'file/FileParser'
 import ClickAction from 'handlers/ClickHandler'
 import DragHandler from 'handlers/DragHandler'
 import ZoomEvents from 'handlers/ZoomHandler'
+import Style from 'Style'
 
 export class TilemapEditor {
   public readonly root = createElement('div', 'tilemap-editor')
@@ -26,8 +27,13 @@ export class TilemapEditor {
     this.updateToolbar(customTiles)
     this.updateTileStyle(customTiles)
 
+    // TODO: Look for better solution
     const onClick = (e: MouseEvent) => this.onClick && this.onClick(e)
-    const updateTileSize = (zoomFactor: number) => this.updateTileSize(zoomFactor)
+
+    const updateTileSize = (zoomFactor: number) => {
+      this.tileSize *= zoomFactor
+      this.updateZoomStyle()
+    }
 
     this.renderer.addEventListener('mousedown', DragHandler.startDragging(this.renderer))
     this.renderer.addEventListener('click', DragHandler.click(onClick))
@@ -39,8 +45,7 @@ export class TilemapEditor {
     this.renderer.addEventListener('touchcancel', ZoomEvents.handleTouch(updateTileSize), { passive: true })
     this.renderer.addEventListener('wheel', ZoomEvents.handleWheel(updateTileSize), { passive: true })
 
-    const obs = new ResizeObserver(([e]) => e && this.updateZoomStyle(spaceProps(e.contentRect, this.tileSize)))
-    obs.observe(this.renderer)
+    new ResizeObserver(() => this.updateZoomStyle()).observe(this.renderer)
   }
 
   public setEditmode(isEditMode: boolean) {
@@ -79,41 +84,43 @@ export class TilemapEditor {
 
   private tileIndexFromClick(e: MouseEvent) {
     const rendererRectangle = this.renderer.getBoundingClientRect()
-    const sp = spaceProps(rendererRectangle, this.tileSize)
 
-    const clickPosX = e.clientX - rendererRectangle.left + sp.setbackHorizontal + this.renderer.scrollLeft
-    const clickPosY = e.clientY - rendererRectangle.top + sp.setbackVertical + this.renderer.scrollTop
+    const setbackX = this.tileSize - (rendererRectangle.width % this.tileSize)
+    const setbackY = this.tileSize - (rendererRectangle.height % this.tileSize)
+
+    const clickPosX = e.clientX - rendererRectangle.left + setbackX + this.renderer.scrollLeft
+    const clickPosY = e.clientY - rendererRectangle.top + setbackY + this.renderer.scrollTop
 
     const tileX = Math.floor(clickPosX / this.tileSize)
     const tileY = Math.floor(clickPosY / this.tileSize)
+    // TODO: Merge?
+    const offsetX = tileX - Math.floor(rendererRectangle.width / this.tileSize)
+    const offsetY = tileY - Math.floor(rendererRectangle.height / this.tileSize)
 
-    const offsetX = tileX - sp.tilesCountHorizontal
-    const offsetY = tileY - sp.spaceTilesCountVertical
-    return ClickAction.prepareTilemap(this.tilemap, this.renderer, offsetX, offsetY, this.tileSize, () =>
-      this.updateZoomStyle(sp)
+    const expandTilemap = (scrollDeltaTop: number, scrollDeltaLeft: number, newRows: ReadonlyArray<Element>): void => {
+      const scrollTop = this.renderer.scrollTop + scrollDeltaTop
+      const scrollLeft = this.renderer.scrollLeft + scrollDeltaLeft
+
+      this.tilemap.replaceChildren(...newRows)
+
+      this.renderer.scrollTop = scrollTop
+      this.renderer.scrollLeft = scrollLeft
+
+      this.updateZoomStyle()
+    }
+
+    return ClickAction.prepareTilemap(this.tilemap, offsetX, offsetY, this.tileSize, expandTilemap)
+  }
+
+  private updateZoomStyle() {
+    const tilesCountX = this.tilemap.children[0]?.children.length ?? 0
+    const tilesCountY = this.tilemap.children.length
+    this.zoomStyle.innerText = Style.zoomStyle(
+      tilesCountX,
+      tilesCountY,
+      this.tileSize,
+      this.renderer.getBoundingClientRect()
     )
-  }
-
-  private updateTileSize(zoomFactor: number) {
-    this.tileSize *= zoomFactor
-    const sp = spaceProps(this.renderer.getBoundingClientRect(), this.tileSize)
-    this.updateZoomStyle(sp)
-  }
-
-  private updateZoomStyle(sp: {
-    tilesCountHorizontal: number
-    spaceTilesCountVertical: number
-    setbackHorizontal: number
-    setbackVertical: number
-  }) {
-    const tilesCountHorizontal = this.tilemap.children[0]?.children.length ?? 0
-    const tilesCountVertical = this.tilemap.children.length
-
-    const width = (tilesCountHorizontal + sp.tilesCountHorizontal * 2) * this.tileSize - 2 * sp.setbackHorizontal
-    const height = (tilesCountVertical + sp.spaceTilesCountVertical * 2) * this.tileSize - 2 * sp.setbackVertical
-
-    this.zoomStyle.innerText = `.view-content-tilemap-editor .tilemap-cell { width:${this.tileSize}px;height:${this.tileSize}px; }
-.view-content-tilemap-editor .tilemap-space { width:${width}px;height:${height}px; }`
   }
 
   private updateTileStyle(customTiles: ReadonlyArray<TilemapMetadataCustomTile>) {
@@ -127,15 +134,6 @@ box-shadow: inset 0 0 0 1px black;${borderRadius}
 }`
       })
       .join('\n')
-  }
-}
-
-function spaceProps(rendererRectangle: DOMRect, tileSize: number) {
-  return {
-    tilesCountHorizontal: Math.floor(rendererRectangle.width / tileSize),
-    spaceTilesCountVertical: Math.floor(rendererRectangle.height / tileSize),
-    setbackHorizontal: tileSize - (rendererRectangle.width % tileSize),
-    setbackVertical: tileSize - (rendererRectangle.height % tileSize)
   }
 }
 

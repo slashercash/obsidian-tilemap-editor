@@ -11,12 +11,14 @@ export class TilemapEditor {
   private readonly zoomStyle = document.createElement('style')
   private readonly tileStyle = document.createElement('style')
   private readonly toolbar = createElement('div', 'tilemap-toolbar')
+  private readonly editTiles = createElement('div', 'tilemap-toolbar-edit-tile')
   private readonly space = createElement('div', 'tilemap-space')
   private tileSize = 30
   private onClick?: (e: MouseEvent) => void = undefined
   private toolBarAction: (e: MouseEvent) => void
 
   constructor(private readonly tilemap: Element, customTiles: ReadonlyArray<TilemapMetadataCustomTile>) {
+    this.editTiles.hide()
     this.toolbar.hide()
 
     this.space.appendChild(tilemap)
@@ -26,8 +28,9 @@ export class TilemapEditor {
     this.root.appendChild(this.zoomStyle)
     this.root.appendChild(this.tileStyle)
 
-    const [initialAction, toolbarButtonContainer] = this.createToolbar(customTiles)
-    this.toolbar.appendChild(toolbarButtonContainer)
+    const [initialAction, toolbarButtonContainer] = this.createToolbarButtonContainer(customTiles)
+    this.editTiles.append(...createEditTilesContent())
+    this.toolbar.append(toolbarButtonContainer, this.editTiles)
     this.toolBarAction = initialAction
 
     this.updateTileStyle(customTiles)
@@ -60,21 +63,25 @@ export class TilemapEditor {
   public onModeChanged(mode: Mode): void {
     switch (mode) {
       case 'navigate':
+        this.editTiles.hide()
         this.toolbar.hide()
         this.toolbar.style.height = 'unset'
         this.onClick = undefined
         break
       case 'addTile':
+        this.editTiles.hide()
         this.toolbar.show()
         this.toolbar.style.height = 'unset'
         this.onClick = this.toolBarAction
         break
       case 'editTile':
+        this.editTiles.show()
         this.toolbar.show()
         this.toolbar.style.height = '100%'
         this.onClick = undefined
         break
       case 'removeTile':
+        this.editTiles.hide()
         this.toolbar.hide()
         this.toolbar.style.height = 'unset'
         this.onClick = (e) => {
@@ -85,7 +92,9 @@ export class TilemapEditor {
     }
   }
 
-  private createToolbar(customTiles: ReadonlyArray<TilemapMetadataCustomTile>): [(e: MouseEvent) => void, HTMLElement] {
+  private createToolbarButtonContainer(
+    customTiles: ReadonlyArray<TilemapMetadataCustomTile>
+  ): [(e: MouseEvent) => void, HTMLElement] {
     const toolbarButtonContainer = createElement('div', 'tilemap-toolbar-button-container')
     const [initialAction, toolbarButtons] = this.createToolbarButtons(customTiles)
     toolbarButtonContainer.append(...toolbarButtons)
@@ -172,4 +181,40 @@ function createElement(tagName: keyof HTMLElementTagNameMap, className: string):
   const element = document.createElement(tagName)
   element.className = className
   return element
+}
+
+function createEditTilesContent(): ReadonlyArray<HTMLDivElement> {
+  const labelShape = document.createElement('label')
+  labelShape.innerText = 'Shape:'
+  const labelColor = document.createElement('label')
+  labelColor.innerText = 'Color:'
+
+  const optionSquare = document.createElement('option')
+  optionSquare.value = 'square'
+  optionSquare.innerText = 'square'
+  const optionCircle = document.createElement('option')
+  optionCircle.value = 'circle'
+  optionCircle.innerText = 'circle'
+  const optionRed = document.createElement('option')
+  optionRed.value = 'red'
+  optionRed.innerText = 'red'
+  const optionBlue = document.createElement('option')
+  optionBlue.value = 'blue'
+  optionBlue.innerText = 'blue'
+
+  const selectShape = document.createElement('select')
+  selectShape.value = 'square'
+  selectShape.onchange = ({ target }) => target instanceof HTMLSelectElement && console.log(target.value)
+  selectShape.append(optionSquare, optionCircle)
+  const selectColor = document.createElement('select')
+  selectColor.value = 'red'
+  selectColor.onchange = ({ target }) => target instanceof HTMLSelectElement && console.log(target.value)
+  selectColor.append(optionRed, optionBlue)
+
+  const div1 = document.createElement('div')
+  div1.append(labelShape, selectShape)
+  const div2 = document.createElement('div')
+  div2.append(labelColor, selectColor)
+
+  return [div1, div2]
 }

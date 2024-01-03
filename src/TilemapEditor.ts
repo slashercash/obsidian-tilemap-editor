@@ -10,7 +10,7 @@ export class TilemapEditor {
   private readonly renderer = createElement('div', 'tilemap-renderer')
   private readonly zoomStyle = document.createElement('style')
   private readonly tileStyle = document.createElement('style')
-  private readonly toolbar = createElement('div', 'tilemap-toolbar-overlay')
+  private readonly toolbar = createElement('div', 'tilemap-toolbar')
   private readonly space = createElement('div', 'tilemap-space')
   private tileSize = 30
   private onClick?: (e: MouseEvent) => void = undefined
@@ -61,14 +61,22 @@ export class TilemapEditor {
     switch (mode) {
       case 'navigate':
         this.toolbar.hide()
+        this.toolbar.style.height = 'unset'
         this.onClick = undefined
         break
       case 'addTile':
         this.toolbar.show()
+        this.toolbar.style.height = 'unset'
         this.onClick = this.toolBarAction
+        break
+      case 'editTile':
+        this.toolbar.show()
+        this.toolbar.style.height = '100%'
+        this.onClick = undefined
         break
       case 'removeTile':
         this.toolbar.hide()
+        this.toolbar.style.height = 'unset'
         this.onClick = (e) => {
           const [rowIndex, cellIndex] = this.tileIndexFromClick(e)
           ClickAction.deleteElement(this.tilemap, rowIndex, cellIndex, this.updateTilemapSize)

@@ -48,14 +48,14 @@
   grid-column-start: 1;
 } */
 
-.view-content-tilemap-editor .tilemap-toolbar-overlay {
+.view-content-tilemap-editor .tilemap-toolbar {
+  background-color: rgba(40, 40, 40, 0.9);
   width: 100%;
   z-index: 10;
   position: absolute;
 }
 
 .view-content-tilemap-editor .tilemap-toolbar-button-container {
-  background-color: rgba(40, 40, 40, 0.7);
   display: flex;
   justify-content: center;
   padding: 10px;

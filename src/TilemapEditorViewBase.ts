@@ -3,14 +3,15 @@ import { FileView, WorkspaceLeaf, Notice } from 'obsidian'
 export const TILE_FILE_EXTENSION = 'tile'
 export const VIEW_TYPE_TILE = 'tile-view'
 
-export type Mode = 'navigate' | 'addTile' | 'removeTile'
+export type Mode = 'navigate' | 'addTile' | 'removeTile' | 'editTile'
 
 export abstract class TilemapEditorBaseView extends FileView {
   public allowNoFile = false
 
   // ICONS: https://lucide.dev/icons/
-  private remButton = this.addAction('trash', 'Remove Tiles', () => this.changeMode('removeTile', this.remButton))
-  private addButton = this.addAction('plus-square', 'Add Tiles', () => this.changeMode('addTile', this.addButton))
+  private rmvButton = this.addAction('x-square', 'Remove Tiles', () => this.changeMode('removeTile', this.rmvButton))
+  private edtButton = this.addAction('pen-square', 'Edit Tiles', () => this.changeMode('editTile', this.edtButton))
+  private addButton = this.addAction('square', 'Add Tiles', () => this.changeMode('addTile', this.addButton))
   private navButton = this.addAction('mouse-pointer-2', 'Navigate', () => this.changeMode('navigate', this.navButton))
 
   constructor(leaf: WorkspaceLeaf) {
@@ -37,9 +38,10 @@ export abstract class TilemapEditorBaseView extends FileView {
   }
 
   public async onunload(): Promise<void> {
-    this.navButton.remove()
+    this.rmvButton.remove()
+    this.edtButton.remove()
     this.addButton.remove()
-    this.remButton.remove()
+    this.navButton.remove()
     this.showMobileNavBar()
   }
 
@@ -52,7 +54,8 @@ export abstract class TilemapEditorBaseView extends FileView {
   }
 
   private changeMode(mode: Mode, actionButton: HTMLElement) {
-    this.remButton.removeClass('is-active')
+    this.rmvButton.removeClass('is-active')
+    this.edtButton.removeClass('is-active')
     this.addButton.removeClass('is-active')
     this.navButton.removeClass('is-active')
     actionButton.addClass('is-active')

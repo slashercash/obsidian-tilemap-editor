@@ -3,6 +3,7 @@ import type { Mode } from 'TilemapEditorViewBase'
 import ClickAction from 'handlers/ClickHandler'
 import DragHandler from 'handlers/DragHandler'
 import ZoomEvents from 'handlers/ZoomHandler'
+import EditTile from 'components/EditTile'
 import Style from 'Style'
 
 export class TilemapEditor {
@@ -11,14 +12,14 @@ export class TilemapEditor {
   private readonly zoomStyle = document.createElement('style')
   private readonly tileStyle = document.createElement('style')
   private readonly toolbar = createElement('div', 'tilemap-toolbar')
-  private readonly editTiles = createElement('div', 'tilemap-toolbar-edit-tile')
+  private readonly editTile = new EditTile()
   private readonly space = createElement('div', 'tilemap-space')
   private tileSize = 30
   private onClick?: (e: MouseEvent) => void = undefined
   private toolBarAction: (e: MouseEvent) => void
 
   constructor(private readonly tilemap: Element, customTiles: ReadonlyArray<Tile>) {
-    this.editTiles.hide()
+    this.editTile.hide()
     this.toolbar.hide()
 
     this.space.appendChild(tilemap)
@@ -29,8 +30,7 @@ export class TilemapEditor {
     this.root.appendChild(this.tileStyle)
 
     const [initialAction, toolbarButtonContainer] = this.createToolbarButtonContainer(customTiles)
-    this.editTiles.append(...createEditTilesContent())
-    this.toolbar.append(toolbarButtonContainer, this.editTiles)
+    this.toolbar.append(toolbarButtonContainer, this.editTile.root)
     this.toolBarAction = initialAction
 
     this.updateTileStyle(customTiles)
@@ -63,25 +63,25 @@ export class TilemapEditor {
   public onModeChanged(mode: Mode): void {
     switch (mode) {
       case 'navigate':
-        this.editTiles.hide()
+        this.editTile.hide()
         this.toolbar.hide()
         this.toolbar.style.height = 'unset'
         this.onClick = undefined
         break
       case 'addTile':
-        this.editTiles.hide()
+        this.editTile.hide()
         this.toolbar.show()
         this.toolbar.style.height = 'unset'
         this.onClick = this.toolBarAction
         break
       case 'editTile':
-        this.editTiles.show()
+        this.editTile.show()
         this.toolbar.show()
         this.toolbar.style.height = '100%'
         this.onClick = undefined
         break
       case 'removeTile':
-        this.editTiles.hide()
+        this.editTile.hide()
         this.toolbar.hide()
         this.toolbar.style.height = 'unset'
         this.onClick = (e) => {
@@ -179,34 +179,4 @@ function createElement(tagName: keyof HTMLElementTagNameMap, className: string):
   const element = document.createElement(tagName)
   element.className = className
   return element
-}
-
-function createEditTilesContent(): ReadonlyArray<HTMLElement> {
-  const labelShape = document.createElement('label')
-  labelShape.innerText = 'Shape:'
-  const labelColor = document.createElement('label')
-  labelColor.innerText = 'Color:'
-
-  const selectShape = createSelectElement('square', ['square', 'circle'])
-  const selectColor = createSelectElement('red', ['red', 'blue'])
-
-  const deleteButton = document.createElement('button')
-  deleteButton.onclick = () => console.log('DELETE')
-  deleteButton.innerText = 'Delete Tile'
-
-  return [labelShape, selectShape, labelColor, selectColor, deleteButton]
-}
-
-function createSelectElement(value: string, options: ReadonlyArray<string>): HTMLSelectElement {
-  const optionElements = options.map((option) => {
-    const optionElement = document.createElement('option')
-    optionElement.value = option
-    optionElement.innerText = option
-    return optionElement
-  })
-  const selectElement = document.createElement('select')
-  selectElement.value = value
-  selectElement.onchange = ({ target }) => target instanceof HTMLSelectElement && console.log(target.value)
-  selectElement.append(...optionElements)
-  return selectElement
 }

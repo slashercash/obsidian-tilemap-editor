@@ -102,36 +102,37 @@ export class TilemapEditor {
   private createToolbarButtons(
     customTiles: ReadonlyArray<Tile>
   ): [(e: MouseEvent) => void, ReadonlyArray<HTMLElement>] {
-    const buttons = customTiles
-      .map(({ id }) => `custom-tile-${id}`)
-      .map((className) => {
-        const button = createElement('button', 'tilemap-toolbar-button')
-        button.appendChild(createElement('div', className))
-        return button
-      })
+    const buttonData = customTiles.map((customTile) => {
+      const className = `custom-tile-${customTile.id}`
+      const button = createElement('button', 'tilemap-toolbar-button')
+      button.appendChild(createElement('div', className))
+      return { button, customTile }
+    })
 
     let initialAction: ((e: MouseEvent) => void) | undefined = undefined
 
-    buttons.forEach((button, i) => {
+    buttonData.forEach(({ button, customTile }, i) => {
       const action = (e: MouseEvent) => {
         const [rowIndex, cellIndex] = this.tileIndexFromClick(e)
         ClickAction.setElement(this.tilemap, button.firstElementChild?.className ?? '', rowIndex, cellIndex)
       }
 
       button.onclick = () => {
-        buttons.forEach((b) => (b.className = 'tilemap-toolbar-button'))
+        buttonData.forEach((b) => b.button.removeClass('tilemap-toolbar-button--selected'))
         button.addClass('tilemap-toolbar-button--selected')
         this.toolBarAction = action
         this.onClick = this.toolBarAction
+        this.editTile.set(customTile)
       }
 
       if (i === 0) {
         button.addClass('tilemap-toolbar-button--selected')
         initialAction = action
+        this.editTile.set(customTile)
       }
     })
 
-    return [initialAction ?? (() => void {}), buttons]
+    return [initialAction ?? (() => void {}), buttonData.map((b) => b.button)]
   }
 
   private tileIndexFromClick(e: MouseEvent) {

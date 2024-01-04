@@ -1,28 +1,31 @@
+import type { Tile } from 'file/FileParser'
+
 export default class EditTile {
-  public readonly root = createElement('div', 'tilemap-toolbar-edit-tile')
+  public readonly root = document.createElement('div')
+
+  private readonly selectShape = createSelectElement('square', ['square', 'circle'])
+  private readonly selectColor = createSelectElement('red', ['red', 'blue'])
 
   constructor() {
-    this.root.append(...createEditTilesContent())
+    this.root.className = 'tilemap-toolbar-edit-tile'
+    const labelShape = document.createElement('label')
+    labelShape.innerText = 'Shape:'
+    const labelColor = document.createElement('label')
+    labelColor.innerText = 'Color:'
+    const deleteButton = document.createElement('button')
+    deleteButton.onclick = () => console.log('DELETE')
+    deleteButton.innerText = 'Delete Tile'
+
+    this.root.append(labelShape, this.selectShape, labelColor, this.selectColor, deleteButton)
   }
 
   public show = () => this.root.show()
   public hide = () => this.root.hide()
-}
 
-function createEditTilesContent(): ReadonlyArray<HTMLElement> {
-  const labelShape = document.createElement('label')
-  labelShape.innerText = 'Shape:'
-  const labelColor = document.createElement('label')
-  labelColor.innerText = 'Color:'
-
-  const selectShape = createSelectElement('square', ['square', 'circle'])
-  const selectColor = createSelectElement('red', ['red', 'blue'])
-
-  const deleteButton = document.createElement('button')
-  deleteButton.onclick = () => console.log('DELETE')
-  deleteButton.innerText = 'Delete Tile'
-
-  return [labelShape, selectShape, labelColor, selectColor, deleteButton]
+  public set(tile: Tile) {
+    this.selectShape.value = tile.shape
+    this.selectColor.value = tile.color
+  }
 }
 
 function createSelectElement(value: string, options: ReadonlyArray<string>): HTMLSelectElement {
@@ -37,10 +40,4 @@ function createSelectElement(value: string, options: ReadonlyArray<string>): HTM
   selectElement.onchange = ({ target }) => target instanceof HTMLSelectElement && console.log(target.value)
   selectElement.append(...optionElements)
   return selectElement
-}
-
-function createElement(tagName: keyof HTMLElementTagNameMap, className: string): HTMLElement {
-  const element = document.createElement(tagName)
-  element.className = className
-  return element
 }

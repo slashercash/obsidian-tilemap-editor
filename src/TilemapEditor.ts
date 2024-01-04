@@ -1,4 +1,4 @@
-import type { TilemapMetadataCustomTile } from 'file/FileParser'
+import type { Tile } from 'file/FileParser'
 import type { Mode } from 'TilemapEditorViewBase'
 import ClickAction from 'handlers/ClickHandler'
 import DragHandler from 'handlers/DragHandler'
@@ -17,7 +17,7 @@ export class TilemapEditor {
   private onClick?: (e: MouseEvent) => void = undefined
   private toolBarAction: (e: MouseEvent) => void
 
-  constructor(private readonly tilemap: Element, customTiles: ReadonlyArray<TilemapMetadataCustomTile>) {
+  constructor(private readonly tilemap: Element, customTiles: ReadonlyArray<Tile>) {
     this.editTiles.hide()
     this.toolbar.hide()
 
@@ -92,9 +92,7 @@ export class TilemapEditor {
     }
   }
 
-  private createToolbarButtonContainer(
-    customTiles: ReadonlyArray<TilemapMetadataCustomTile>
-  ): [(e: MouseEvent) => void, HTMLElement] {
+  private createToolbarButtonContainer(customTiles: ReadonlyArray<Tile>): [(e: MouseEvent) => void, HTMLElement] {
     const toolbarButtonContainer = createElement('div', 'tilemap-toolbar-button-container')
     const [initialAction, toolbarButtons] = this.createToolbarButtons(customTiles)
     toolbarButtonContainer.append(...toolbarButtons)
@@ -102,7 +100,7 @@ export class TilemapEditor {
   }
 
   private createToolbarButtons(
-    customTiles: ReadonlyArray<TilemapMetadataCustomTile>
+    customTiles: ReadonlyArray<Tile>
   ): [(e: MouseEvent) => void, ReadonlyArray<HTMLElement>] {
     const buttons = customTiles
       .map(({ id }) => `custom-tile-${id}`)
@@ -172,7 +170,7 @@ export class TilemapEditor {
     this.zoomStyle.innerText = Style.zoomStyle(x, y, this.tileSize, this.renderer.getBoundingClientRect())
   }
 
-  private updateTileStyle(customTiles: ReadonlyArray<TilemapMetadataCustomTile>) {
+  private updateTileStyle(customTiles: ReadonlyArray<Tile>) {
     this.tileStyle.innerText = Style.tileStyle(customTiles)
   }
 }
@@ -189,31 +187,26 @@ function createEditTilesContent(): ReadonlyArray<HTMLElement> {
   const labelColor = document.createElement('label')
   labelColor.innerText = 'Color:'
 
-  const optionSquare = document.createElement('option')
-  optionSquare.value = 'square'
-  optionSquare.innerText = 'square'
-  const optionCircle = document.createElement('option')
-  optionCircle.value = 'circle'
-  optionCircle.innerText = 'circle'
-  const optionRed = document.createElement('option')
-  optionRed.value = 'red'
-  optionRed.innerText = 'red'
-  const optionBlue = document.createElement('option')
-  optionBlue.value = 'blue'
-  optionBlue.innerText = 'blue'
-
-  const selectShape = document.createElement('select')
-  selectShape.value = 'square'
-  selectShape.onchange = ({ target }) => target instanceof HTMLSelectElement && console.log(target.value)
-  selectShape.append(optionSquare, optionCircle)
-  const selectColor = document.createElement('select')
-  selectColor.value = 'red'
-  selectColor.onchange = ({ target }) => target instanceof HTMLSelectElement && console.log(target.value)
-  selectColor.append(optionRed, optionBlue)
+  const selectShape = createSelectElement('square', ['square', 'circle'])
+  const selectColor = createSelectElement('red', ['red', 'blue'])
 
   const deleteButton = document.createElement('button')
   deleteButton.onclick = () => console.log('DELETE')
   deleteButton.innerText = 'Delete Tile'
 
   return [labelShape, selectShape, labelColor, selectColor, deleteButton]
+}
+
+function createSelectElement(value: string, options: ReadonlyArray<string>): HTMLSelectElement {
+  const optionElements = options.map((option) => {
+    const optionElement = document.createElement('option')
+    optionElement.value = option
+    optionElement.innerText = option
+    return optionElement
+  })
+  const selectElement = document.createElement('select')
+  selectElement.value = value
+  selectElement.onchange = ({ target }) => target instanceof HTMLSelectElement && console.log(target.value)
+  selectElement.append(...optionElements)
+  return selectElement
 }

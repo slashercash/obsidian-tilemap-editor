@@ -1,4 +1,4 @@
-import type { TilemapMetadataCustomTile } from 'file/FileParser'
+import type { Tile } from 'file/FileParser'
 
 export default class Style {
   static zoomStyle(tilesCountX: number, tilesCountY: number, tileSize: number, rendererRectangle: DOMRect): string {
@@ -13,7 +13,7 @@ export default class Style {
   .view-content-tilemap-editor .tilemap-space { width:${width}px;height:${height}px; }`
   }
 
-  static tileStyle(customTiles: ReadonlyArray<TilemapMetadataCustomTile>): string {
+  static tileStyle(customTiles: ReadonlyArray<Tile>): string {
     return customTiles
       .map((tile) => {
         const className = `.view-content-tilemap-editor .custom-tile-${tile.id}`

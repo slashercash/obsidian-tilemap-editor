@@ -2,18 +2,17 @@ import { FileCreator } from 'file/FileCreator'
 import { htmlToString } from 'file/htmlToString'
 
 export type TilemapMetadata = {
-  customTiles: Array<TilemapMetadataCustomTile>
+  customTiles: Array<Tile>
 }
 
-// TODO: Rename to TileDefinitions or similar
-export type TilemapMetadataCustomTile = {
+export type Tile = {
   id: number
   shape: string
   color: string
 }
 
 export class FileParser {
-  static stringToTilemap(fileContent: string): [Element, ReadonlyArray<TilemapMetadataCustomTile>] {
+  static stringToTilemap(fileContent: string): [Element, ReadonlyArray<Tile>] {
     const metadataString = fileContent.substring(
       fileContent.indexOf('<metadata>') + 10,
       fileContent.indexOf('</metadata>')

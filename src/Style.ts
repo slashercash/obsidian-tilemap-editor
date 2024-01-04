@@ -1,5 +1,6 @@
 import type { Tile } from 'file/FileParser'
 
+// TODO: Outsource as Component
 export default class Style {
   static zoomStyle(tilesCountX: number, tilesCountY: number, tileSize: number, rendererRectangle: DOMRect): string {
     const spaceTilesCountX = Math.floor(rendererRectangle.width / tileSize)

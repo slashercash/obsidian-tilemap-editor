@@ -3,6 +3,7 @@ import type { Mode } from 'TilemapEditorViewBase'
 import ClickAction from 'handlers/ClickHandler'
 import DragHandler from 'handlers/DragHandler'
 import ZoomEvents from 'handlers/ZoomHandler'
+import Toolbar from 'components/Toolbar'
 import EditTile from 'components/EditTile'
 import Style from 'Style'
 
@@ -11,27 +12,31 @@ export class TilemapEditor {
   private readonly renderer = createElement('div', 'tilemap-renderer')
   private readonly zoomStyle = document.createElement('style')
   private readonly tileStyle = document.createElement('style')
-  private readonly toolbar = createElement('div', 'tilemap-toolbar')
+  private readonly toolbar: Toolbar
   private readonly editTile = new EditTile()
   private readonly space = createElement('div', 'tilemap-space')
   private tileSize = 30
   private onClick?: (e: MouseEvent) => void = undefined
-  private toolBarAction: (e: MouseEvent) => void
+  private toolBarAction?: (e: MouseEvent) => void = undefined
 
   constructor(private readonly tilemap: Element, customTiles: ReadonlyArray<Tile>) {
+    this.toolbar = new Toolbar(customTiles, (tile) => {
+      this.toolBarAction = this.createToolbarAction(tile)
+      this.editTile.set(tile)
+    })
+
     this.editTile.hide()
     this.toolbar.hide()
 
     this.space.appendChild(tilemap)
     this.renderer.appendChild(this.space)
-    this.root.appendChild(this.toolbar)
+    this.root.appendChild(this.toolbar.root)
     this.root.appendChild(this.renderer)
     this.root.appendChild(this.zoomStyle)
     this.root.appendChild(this.tileStyle)
+    this.toolbar.appendChild(this.editTile.root)
 
-    const [initialAction, toolbarButtonContainer] = this.createToolbarButtonContainer(customTiles)
-    this.toolbar.append(toolbarButtonContainer, this.editTile.root)
-    this.toolBarAction = initialAction
+    this.toolbar.initialTile && (this.toolBarAction = this.createToolbarAction(this.toolbar.initialTile))
 
     this.updateTileStyle(customTiles)
 
@@ -63,27 +68,27 @@ export class TilemapEditor {
   public onModeChanged(mode: Mode): void {
     switch (mode) {
       case 'navigate':
-        this.editTile.hide()
+        this.editTile.hide() ///////////// this belongs together \
+        this.toolbar.setHeight('unset') // this belongs together /
         this.toolbar.hide()
-        this.toolbar.style.height = 'unset'
         this.onClick = undefined
         break
       case 'addTile':
         this.editTile.hide()
+        this.toolbar.setHeight('unset')
         this.toolbar.show()
-        this.toolbar.style.height = 'unset'
         this.onClick = this.toolBarAction
         break
       case 'editTile':
         this.editTile.show()
+        this.toolbar.setHeight('100%')
         this.toolbar.show()
-        this.toolbar.style.height = '100%'
         this.onClick = undefined
         break
       case 'removeTile':
         this.editTile.hide()
+        this.toolbar.setHeight('unset')
         this.toolbar.hide()
-        this.toolbar.style.height = 'unset'
         this.onClick = (e) => {
           const [rowIndex, cellIndex] = this.tileIndexFromClick(e)
           ClickAction.deleteElement(this.tilemap, rowIndex, cellIndex, this.updateTilemapSize)
@@ -92,47 +97,13 @@ export class TilemapEditor {
     }
   }
 
-  private createToolbarButtonContainer(customTiles: ReadonlyArray<Tile>): [(e: MouseEvent) => void, HTMLElement] {
-    const toolbarButtonContainer = createElement('div', 'tilemap-toolbar-button-container')
-    const [initialAction, toolbarButtons] = this.createToolbarButtons(customTiles)
-    toolbarButtonContainer.append(...toolbarButtons)
-    return [initialAction, toolbarButtonContainer]
-  }
-
-  private createToolbarButtons(
-    customTiles: ReadonlyArray<Tile>
-  ): [(e: MouseEvent) => void, ReadonlyArray<HTMLElement>] {
-    const buttonData = customTiles.map((customTile) => {
-      const className = `custom-tile-${customTile.id}`
-      const button = createElement('button', 'tilemap-toolbar-button')
-      button.appendChild(createElement('div', className))
-      return { button, customTile }
-    })
-
-    let initialAction: ((e: MouseEvent) => void) | undefined = undefined
-
-    buttonData.forEach(({ button, customTile }, i) => {
-      const action = (e: MouseEvent) => {
-        const [rowIndex, cellIndex] = this.tileIndexFromClick(e)
-        ClickAction.setElement(this.tilemap, button.firstElementChild?.className ?? '', rowIndex, cellIndex)
-      }
-
-      button.onclick = () => {
-        buttonData.forEach((b) => b.button.removeClass('tilemap-toolbar-button--selected'))
-        button.addClass('tilemap-toolbar-button--selected')
-        this.toolBarAction = action
-        this.onClick = this.toolBarAction
-        this.editTile.set(customTile)
-      }
-
-      if (i === 0) {
-        button.addClass('tilemap-toolbar-button--selected')
-        initialAction = action
-        this.editTile.set(customTile)
-      }
-    })
-
-    return [initialAction ?? (() => void {}), buttonData.map((b) => b.button)]
+  private createToolbarAction(tile: Tile): (e: MouseEvent) => void {
+    const className = `custom-tile-${tile.id}`
+    // TODO: Only create clickAction?
+    return (e: MouseEvent) => {
+      const [rowIndex, cellIndex] = this.tileIndexFromClick(e)
+      ClickAction.setElement(this.tilemap, className, rowIndex, cellIndex)
+    }
   }
 
   private tileIndexFromClick(e: MouseEvent) {

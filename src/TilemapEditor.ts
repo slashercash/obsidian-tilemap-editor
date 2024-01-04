@@ -183,7 +183,7 @@ function createElement(tagName: keyof HTMLElementTagNameMap, className: string):
   return element
 }
 
-function createEditTilesContent(): ReadonlyArray<HTMLDivElement> {
+function createEditTilesContent(): ReadonlyArray<HTMLElement> {
   const labelShape = document.createElement('label')
   labelShape.innerText = 'Shape:'
   const labelColor = document.createElement('label')
@@ -211,10 +211,9 @@ function createEditTilesContent(): ReadonlyArray<HTMLDivElement> {
   selectColor.onchange = ({ target }) => target instanceof HTMLSelectElement && console.log(target.value)
   selectColor.append(optionRed, optionBlue)
 
-  const div1 = document.createElement('div')
-  div1.append(labelShape, selectShape)
-  const div2 = document.createElement('div')
-  div2.append(labelColor, selectColor)
+  const deleteButton = document.createElement('button')
+  deleteButton.onclick = () => console.log('DELETE')
+  deleteButton.innerText = 'Delete Tile'
 
-  return [div1, div2]
+  return [labelShape, selectShape, labelColor, selectColor, deleteButton]
 }

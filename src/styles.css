@@ -83,3 +83,22 @@
   height: 30px;
   width: 30px;
 }
+
+.view-content-tilemap-editor .tilemap-toolbar-edit-tile {
+  display: grid;
+  grid-template-columns: min-content min-content;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+
+  padding-top: 10px;
+}
+
+.view-content-tilemap-editor .tilemap-toolbar-edit-tile button {
+  grid-column: span 2;
+}
+
+.view-content-tilemap-editor .tilemap-toolbar-edit-tile button:hover {
+  cursor: pointer;
+  background-color: red;
+}

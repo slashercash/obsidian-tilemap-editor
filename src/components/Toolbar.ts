@@ -5,7 +5,10 @@ export default class Toolbar {
   public readonly root = createElement('div', { className: 'tilemap-toolbar' })
   public readonly initialTile?: Tile
 
+  private readonly onClick: (tile: Tile) => void
+
   constructor(tiles: ReadonlyArray<Tile>, onClick: (tile: Tile) => void) {
+    this.onClick = onClick
     const { initialTile, buttons } = createToolbarButtons(tiles, onClick)
     this.initialTile = initialTile
     this.root.appendChild(
@@ -14,6 +17,22 @@ export default class Toolbar {
         childrenToAppend: buttons
       })
     )
+  }
+
+  // TODO: Create function to add and remove single tiles
+  public updateToolbarTiles(tiles: ReadonlyArray<Tile>): Tile | undefined {
+    const { initialTile, buttons } = createToolbarButtons(tiles, this.onClick)
+    const oldButtons = Array.from(this.root.children)[0]
+    if (oldButtons) {
+      this.root.removeChild(oldButtons)
+      this.root.prepend(
+        createElement('div', {
+          className: 'tilemap-toolbar-button-container', // TODO: Is this button-container needed?
+          childrenToAppend: buttons
+        })
+      )
+    }
+    return initialTile
   }
 
   public show = () => this.root.show()
@@ -47,5 +66,6 @@ function createToolbarButtons(tiles: ReadonlyArray<Tile>, onClick: (tile: Tile) 
     return button
   })
 
-  return { initialTile, buttons }
+  // TODO: Typescript is stupid here
+  return { initialTile: initialTile as Tile | undefined, buttons }
 }

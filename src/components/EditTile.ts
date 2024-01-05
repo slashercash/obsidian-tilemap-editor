@@ -1,22 +1,20 @@
 import type { Tile } from 'file/FileParser'
+import { createElement } from 'utils'
 
 export default class EditTile {
-  public readonly root = document.createElement('div')
+  public readonly root = createElement('div', { className: 'tilemap-toolbar-edit-tile' })
 
   private readonly selectShape = createSelectElement('square', ['square', 'circle'])
   private readonly selectColor = createSelectElement('red', ['red', 'blue'])
 
   constructor() {
-    this.root.className = 'tilemap-toolbar-edit-tile'
-    const labelShape = document.createElement('label')
-    labelShape.innerText = 'Shape:'
-    const labelColor = document.createElement('label')
-    labelColor.innerText = 'Color:'
-    const deleteButton = document.createElement('button')
-    deleteButton.onclick = () => console.log('DELETE')
-    deleteButton.innerText = 'Delete Tile'
-
-    this.root.append(labelShape, this.selectShape, labelColor, this.selectColor, deleteButton)
+    this.root.append(
+      createElement('label', { innerText: 'Shape:' }),
+      this.selectShape,
+      createElement('label', { innerText: 'Color:' }),
+      this.selectColor,
+      createElement('button', { innerText: 'Delete Tile', onclick: () => console.log('DELETE') })
+    )
   }
 
   public show = () => this.root.show()
@@ -29,15 +27,9 @@ export default class EditTile {
 }
 
 function createSelectElement(value: string, options: ReadonlyArray<string>): HTMLSelectElement {
-  const optionElements = options.map((option) => {
-    const optionElement = document.createElement('option')
-    optionElement.value = option
-    optionElement.innerText = option
-    return optionElement
+  return createElement('select', {
+    onchange: ({ target }) => target instanceof HTMLSelectElement && console.log(target.value),
+    childrenToAppend: options.map((option) => createElement('option', { innerText: option, value: option })),
+    value
   })
-  const selectElement = document.createElement('select')
-  selectElement.value = value
-  selectElement.onchange = ({ target }) => target instanceof HTMLSelectElement && console.log(target.value)
-  selectElement.append(...optionElements)
-  return selectElement
 }

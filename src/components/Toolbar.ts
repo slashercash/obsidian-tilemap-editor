@@ -1,16 +1,19 @@
 import type { Tile } from 'file/FileParser'
+import { createElement } from 'utils'
 
 export default class Toolbar {
-  public readonly root = createElement('div', 'tilemap-toolbar')
+  public readonly root = createElement('div', { className: 'tilemap-toolbar' })
   public readonly initialTile?: Tile
 
   constructor(tiles: ReadonlyArray<Tile>, onClick: (tile: Tile) => void) {
-    // TODO: Is this needed?
-    const toolbarButtonContainer = createElement('div', 'tilemap-toolbar-button-container')
     const { initialTile, buttons } = createToolbarButtons(tiles, onClick)
-    toolbarButtonContainer.append(...buttons)
-    this.root.appendChild(toolbarButtonContainer)
     this.initialTile = initialTile
+    this.root.appendChild(
+      createElement('div', {
+        className: 'tilemap-toolbar-button-container', // TODO: Is this button-container needed?
+        childrenToAppend: buttons
+      })
+    )
   }
 
   public show = () => this.root.show()
@@ -23,10 +26,13 @@ export default class Toolbar {
 function createToolbarButtons(tiles: ReadonlyArray<Tile>, onClick: (tile: Tile) => void) {
   let initialTile: Tile | undefined = undefined
 
-  const tileButtons = tiles.map((tile) => ({ tile, button: createElement('button', 'tilemap-toolbar-button') }))
+  const tileButtons = tiles.map((tile) => ({
+    tile,
+    button: createElement('button', { className: 'tilemap-toolbar-button' })
+  }))
 
   const buttons = tileButtons.map(({ tile, button }, i) => {
-    button.appendChild(createElement('div', `custom-tile-${tile.id}`))
+    button.appendChild(createElement('div', { className: `custom-tile-${tile.id}` }))
     button.onclick = () => {
       tileButtons.forEach(({ button }) => button.removeClass('tilemap-toolbar-button--selected'))
       button.addClass('tilemap-toolbar-button--selected')
@@ -42,11 +48,4 @@ function createToolbarButtons(tiles: ReadonlyArray<Tile>, onClick: (tile: Tile) 
   })
 
   return { initialTile, buttons }
-}
-
-// TODO: Outsource
-function createElement(tagName: keyof HTMLElementTagNameMap, className: string): HTMLElement {
-  const element = document.createElement(tagName)
-  element.className = className
-  return element
 }

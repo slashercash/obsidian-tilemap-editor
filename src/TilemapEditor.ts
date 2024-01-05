@@ -1,5 +1,6 @@
 import type { Tile } from 'file/FileParser'
 import type { Mode } from 'TilemapEditorViewBase'
+import { createElement } from 'utils'
 import ClickAction from 'handlers/ClickHandler'
 import DragHandler from 'handlers/DragHandler'
 import ZoomEvents from 'handlers/ZoomHandler'
@@ -8,13 +9,13 @@ import EditTile from 'components/EditTile'
 import Style from 'Style'
 
 export class TilemapEditor {
-  public readonly root = createElement('div', 'tilemap-editor')
-  private readonly renderer = createElement('div', 'tilemap-renderer')
-  private readonly zoomStyle = document.createElement('style')
-  private readonly tileStyle = document.createElement('style')
+  public readonly root = createElement('div', { className: 'tilemap-editor' })
+  private readonly renderer = createElement('div', { className: 'tilemap-renderer' })
+  private readonly zoomStyle = createElement('style')
+  private readonly tileStyle = createElement('style')
   private readonly toolbar: Toolbar
   private readonly editTile = new EditTile()
-  private readonly space = createElement('div', 'tilemap-space')
+  private readonly space = createElement('div', { className: 'tilemap-space' })
   private tileSize = 30
   private onClick?: (e: MouseEvent) => void = undefined
   private toolBarAction?: (e: MouseEvent) => void = undefined
@@ -27,16 +28,15 @@ export class TilemapEditor {
 
     this.editTile.hide()
     this.toolbar.hide()
-
     this.space.appendChild(tilemap)
     this.renderer.appendChild(this.space)
-    this.root.appendChild(this.toolbar.root)
-    this.root.appendChild(this.renderer)
-    this.root.appendChild(this.zoomStyle)
-    this.root.appendChild(this.tileStyle)
+    this.root.append(this.toolbar.root, this.renderer, this.zoomStyle, this.tileStyle)
     this.toolbar.appendChild(this.editTile.root)
 
-    this.toolbar.initialTile && (this.toolBarAction = this.createToolbarAction(this.toolbar.initialTile))
+    if (this.toolbar.initialTile) {
+      this.toolBarAction = this.createToolbarAction(this.toolbar.initialTile)
+      this.editTile.set(this.toolbar.initialTile)
+    }
 
     this.updateTileStyle(customTiles)
 
@@ -145,10 +145,4 @@ export class TilemapEditor {
   private updateTileStyle(customTiles: ReadonlyArray<Tile>) {
     this.tileStyle.innerText = Style.tileStyle(customTiles)
   }
-}
-
-function createElement(tagName: keyof HTMLElementTagNameMap, className: string): HTMLElement {
-  const element = document.createElement(tagName)
-  element.className = className
-  return element
 }

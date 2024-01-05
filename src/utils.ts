@@ -14,7 +14,6 @@ export function createElement<K extends keyof HTMLElementTagNameMap>(
   }
   options.className && (element.className = options.className)
   options.innerText && (element.innerText = options.innerText)
-  'value' in options && 'value' in element && (element.value = options.value)
   options.childrenToAppend && element.append(...options.childrenToAppend)
   'onclick' in options && (element.onclick = options.onclick as (e: MouseEvent) => any)
   'onchange' in options && (element.onchange = options.onchange as (e: Event) => any)

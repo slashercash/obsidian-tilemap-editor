@@ -12,7 +12,7 @@ export type Tile = {
 }
 
 export class FileParser {
-  static stringToTilemap(fileContent: string): [Element, ReadonlyArray<Tile>] {
+  static stringToTilemap(fileContent: string): [Element, Array<Tile>] {
     const metadataString = fileContent.substring(
       fileContent.indexOf('<metadata>') + 10,
       fileContent.indexOf('</metadata>')

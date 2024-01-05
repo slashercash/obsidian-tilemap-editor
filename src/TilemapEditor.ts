@@ -14,18 +14,24 @@ export class TilemapEditor {
   private readonly zoomStyle = createElement('style')
   private readonly tileStyle = createElement('style')
   private readonly toolbar: Toolbar
-  private readonly editTile = new EditTile()
+  private readonly editTile: EditTile
   private readonly space = createElement('div', { className: 'tilemap-space' })
   private tileSize = 30
   private onClick?: (e: MouseEvent) => void = undefined
   private toolBarAction?: (e: MouseEvent) => void = undefined
 
-  constructor(private readonly tilemap: Element, customTiles: ReadonlyArray<Tile>) {
+  constructor(private tilemap: Element, customTiles: Array<Tile>) {
     this.toolbar = new Toolbar(customTiles, (tile) => {
       this.toolBarAction = this.createToolbarAction(tile)
       this.editTile.set(tile)
     })
 
+    this.editTile = new EditTile((tile) => {
+      const i = customTiles.findIndex((t) => t.id === tile.id)
+      i >= 0 ? (customTiles[i] = tile) : customTiles.push(tile)
+      this.updateTileStyle(customTiles)
+      console.log('TODO: Save customTiles')
+    })
     this.editTile.hide()
     this.toolbar.hide()
     this.space.appendChild(tilemap)
@@ -42,8 +48,8 @@ export class TilemapEditor {
 
     const onClick = (e: MouseEvent) => {
       if (this.onClick) {
-        console.log('TODO: Save tilemap')
         this.onClick(e)
+        console.log('TODO: Save tilemap')
       }
     }
 

@@ -14,6 +14,7 @@ export default class Style {
   .view-content-tilemap-editor .tilemap-space { width:${width}px;height:${height}px; }`
   }
 
+  // TODO: Maybe use Array everywhere
   static tileStyle(customTiles: ReadonlyArray<Tile>): string {
     return customTiles
       .map((tile) => {

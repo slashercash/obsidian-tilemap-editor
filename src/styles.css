@@ -96,9 +96,13 @@
 
 .view-content-tilemap-editor .tilemap-toolbar-edit-tile button {
   grid-column: span 2;
+  cursor: pointer;
 }
 
-.view-content-tilemap-editor .tilemap-toolbar-edit-tile button:hover {
-  cursor: pointer;
+.view-content-tilemap-editor .tilemap-toolbar-edit-tile button.red:hover {
   background-color: red;
+}
+
+.view-content-tilemap-editor .tilemap-toolbar-edit-tile button.green:hover {
+  background-color: green;
 }

@@ -3,36 +3,58 @@ import { createElement } from 'utils'
 
 export default class Toolbar {
   public readonly root = createElement('div', { className: 'tilemap-toolbar' })
+  public readonly buttonContainer: HTMLDivElement
+  public idButtons: Array<{ id: number; button: HTMLButtonElement }>
   public readonly initialTile?: Tile
 
   private readonly onClick: (tile: Tile) => void
 
   constructor(tiles: ReadonlyArray<Tile>, onClick: (tile: Tile) => void) {
     this.onClick = onClick
-    const { initialTile, buttons } = createToolbarButtons(tiles, onClick)
+    const { initialTile, idButtons } = createToolbarButtons(tiles, onClick)
     this.initialTile = initialTile
-    this.root.appendChild(
-      createElement('div', {
-        className: 'tilemap-toolbar-button-container', // TODO: Is this button-container needed?
-        childrenToAppend: buttons
-      })
-    )
+    this.idButtons = idButtons
+    this.buttonContainer = createElement('div', {
+      className: 'tilemap-toolbar-button-container', // TODO: Is this button-container needed?
+      childrenToAppend: idButtons.map((x) => x.button)
+    })
+    this.root.appendChild(this.buttonContainer)
   }
 
-  // TODO: Create function to add and remove single tiles
-  public updateToolbarTiles(tiles: ReadonlyArray<Tile>): Tile | undefined {
-    const { initialTile, buttons } = createToolbarButtons(tiles, this.onClick)
-    const oldButtons = Array.from(this.root.children)[0]
-    if (oldButtons) {
-      this.root.removeChild(oldButtons)
-      this.root.prepend(
-        createElement('div', {
-          className: 'tilemap-toolbar-button-container', // TODO: Is this button-container needed?
-          childrenToAppend: buttons
-        })
-      )
+  public updateTile(tile: Tile) {
+    this.idButtons.find(({ id, button }) => {
+      if (id === tile.id) {
+        button.onclick = () => {
+          this.idButtons.forEach((x) => x.button.removeClass('tilemap-toolbar-button--selected'))
+          button.addClass('tilemap-toolbar-button--selected')
+          this.onClick(tile)
+        }
+        return true
+      }
+    })
+  }
+
+  public addTile(tile: Tile) {
+    this.onClick(tile)
+    this.idButtons.forEach((x) => x.button.removeClass('tilemap-toolbar-button--selected'))
+    const newButton = createElement('button', { className: 'tilemap-toolbar-button tilemap-toolbar-button--selected' })
+    newButton.replaceChildren(createElement('div', { className: `custom-tile-${tile.id}` }))
+    newButton.onclick = () => {
+      this.idButtons.forEach((x) => x.button.removeClass('tilemap-toolbar-button--selected'))
+      newButton.addClass('tilemap-toolbar-button--selected')
+      this.onClick(tile)
     }
-    return initialTile
+    this.idButtons.push({ id: tile.id, button: newButton })
+    this.buttonContainer.replaceChildren(...this.idButtons.map((x) => x.button))
+  }
+
+  // TODO: Delete by classname instead id?
+  public removeTile(id: number): number | undefined {
+    this.idButtons = this.idButtons.filter((x) => x.id != id)
+    this.buttonContainer.replaceChildren(...this.idButtons.map((x) => x.button))
+    const btn = this.idButtons[0]
+    btn && btn.button.addClass('tilemap-toolbar-button--selected')
+    return btn?.id
   }
 
   public show = () => this.root.show()
@@ -50,7 +72,7 @@ function createToolbarButtons(tiles: ReadonlyArray<Tile>, onClick: (tile: Tile) 
     button: createElement('button', { className: 'tilemap-toolbar-button' })
   }))
 
-  const buttons = tileButtons.map(({ tile, button }, i) => {
+  const idButtons = tileButtons.map(({ tile, button }, i) => {
     button.appendChild(createElement('div', { className: `custom-tile-${tile.id}` }))
     button.onclick = () => {
       tileButtons.forEach(({ button }) => button.removeClass('tilemap-toolbar-button--selected'))
@@ -63,9 +85,9 @@ function createToolbarButtons(tiles: ReadonlyArray<Tile>, onClick: (tile: Tile) 
       initialTile = tile
     }
 
-    return button
+    return { id: tile.id, button }
   })
 
   // TODO: Typescript is stupid here
-  return { initialTile: initialTile as Tile | undefined, buttons }
+  return { initialTile: initialTile as Tile | undefined, idButtons }
 }

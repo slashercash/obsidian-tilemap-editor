@@ -21,45 +21,18 @@ export class TilemapEditor {
   private toolBarAction?: (e: MouseEvent) => void = undefined
 
   // TODO: Maybe tilemap can be private like customTiles with some tweaking
-  constructor(private tilemap: Element, customTiles: Array<Tile>) {
+  constructor(private tilemap: Element, private customTiles: Array<Tile>) {
     this.toolbar = new Toolbar(customTiles, (tile) => {
       this.toolBarAction = this.createToolbarAction(tile)
       this.onClick = this.toolBarAction
       this.editTile.set(tile)
     })
 
-    const onEditTile = (tile: Tile) => {
-      const i = customTiles.findIndex((t) => t.id === tile.id)
-      if (i >= 0) {
-        customTiles[i] = tile
-        this.updateTileStyle(customTiles)
-        const selectedTile = this.toolbar.updateToolbarTiles(customTiles)
-        this.toolBarAction = selectedTile && this.createToolbarAction(selectedTile)
-        this.onClick = this.toolBarAction
-        console.log('TODO: Save customTiles')
-      }
-    }
-
-    const onCreateTile = (tile: Tile) => {
-      tile.id = Math.max(...customTiles.map((t) => t.id)) + 1
-      customTiles.push(tile)
-      this.updateTileStyle(customTiles)
-      const selectedTile = this.toolbar.updateToolbarTiles(customTiles)
-      this.toolBarAction = selectedTile && this.createToolbarAction(selectedTile)
-      this.onClick = this.toolBarAction
-      console.log('TODO: Save customTiles')
-    }
-
-    const onDeleteTile = (id: number) => {
-      customTiles = customTiles.filter((t) => t.id != id)
-      const selectedTile = this.toolbar.updateToolbarTiles(customTiles)
-      this.toolBarAction = selectedTile && this.createToolbarAction(selectedTile)
-      this.onClick = this.toolBarAction
-      console.log('TODO: Save customTiles')
-      // TODO: On delete, all affected tiles have to be removed from tilemap (tilemap has also to be trimmed)
-    }
-
-    this.editTile = new EditTile(onEditTile, onCreateTile, onDeleteTile)
+    this.editTile = new EditTile(
+      (x) => this.onEditTile(x),
+      (x) => this.onCreateTile(x),
+      (x) => this.onDeleteTile(x)
+    )
     this.editTile.hide()
     this.toolbar.hide()
     this.space.appendChild(tilemap)
@@ -97,6 +70,38 @@ export class TilemapEditor {
     this.renderer.addEventListener('wheel', ZoomEvents.handleWheel(updateTileSize), { passive: true })
 
     new ResizeObserver(() => this.updateZoomStyle()).observe(this.renderer)
+  }
+
+  private onEditTile(tile: Tile) {
+    const i = this.customTiles.findIndex((t) => t.id === tile.id)
+    if (i >= 0) {
+      this.customTiles[i] = tile
+      this.updateTileStyle(this.customTiles)
+      this.toolbar.updateTile(tile)
+      this.toolBarAction = this.createToolbarAction(tile)
+      this.onClick = this.toolBarAction
+      console.log('TODO: Save customTiles')
+    }
+  }
+
+  private onCreateTile(tile: Tile) {
+    tile.id = Math.max(...this.customTiles.map((t) => t.id)) + 1
+    this.customTiles.push(tile)
+    this.updateTileStyle(this.customTiles)
+    this.toolbar.addTile(tile)
+    this.toolBarAction = this.createToolbarAction(tile)
+    this.onClick = this.toolBarAction
+    console.log('TODO: Save customTiles')
+  }
+
+  private onDeleteTile(id: number) {
+    this.customTiles = this.customTiles.filter((t) => t.id != id)
+    const selectedId = this.toolbar.removeTile(id)
+    const selectedTile = this.customTiles.find((t) => t.id === selectedId)
+    this.toolBarAction = selectedTile && this.createToolbarAction(selectedTile)
+    this.onClick = this.toolBarAction
+    console.log('TODO: Save customTiles')
+    // TODO: On delete, all affected tiles have to be removed from tilemap (tilemap has also to be trimmed)
   }
 
   public onModeChanged(mode: Mode): void {

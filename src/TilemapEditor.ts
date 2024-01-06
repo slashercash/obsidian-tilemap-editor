@@ -96,8 +96,7 @@ export class TilemapEditor {
 
   private onDeleteTile(id: number) {
     this.customTiles = this.customTiles.filter((t) => t.id != id)
-    const selectedId = this.toolbar.removeTile(id)
-    const selectedTile = this.customTiles.find((t) => t.id === selectedId)
+    const selectedTile = this.toolbar.removeTile(id)
     this.toolBarAction = selectedTile && this.createToolbarAction(selectedTile)
     this.onClick = this.toolBarAction
     console.log('TODO: Save customTiles')

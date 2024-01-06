@@ -45,8 +45,9 @@ export default class EditTile {
 }
 
 function createSelectElement(options: ReadonlyArray<string>, onSelect: (value: string) => void): HTMLSelectElement {
-  return createElement('select', {
-    onchange: ({ target }) => target instanceof HTMLSelectElement && onSelect(target.value),
-    childrenToAppend: options.map((option) => createElement('option', { innerText: option, value: option }))
-  })
+  return createElement(
+    'select',
+    { onchange: ({ target }) => target instanceof HTMLSelectElement && onSelect(target.value) },
+    options.map((option) => createElement('option', { innerText: option, value: option }))
+  )
 }

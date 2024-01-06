@@ -13,10 +13,11 @@ export default class Toolbar {
     this.onClick = onClick
     this.tileButtons = createToolbarButtons(tiles, onClick)
     this.initialTile = this.tileButtons[0]?.tile
-    this.buttonContainer = createElement('div', {
-      className: 'tilemap-toolbar-button-container', // TODO: Is this button-container needed?
-      childrenToAppend: this.tileButtons.map((x) => x.button)
-    })
+    this.buttonContainer = createElement(
+      'div',
+      { className: 'tilemap-toolbar-button-container' }, // TODO: Is this button-container needed?
+      this.tileButtons.map((x) => x.button)
+    )
     this.root.appendChild(this.buttonContainer)
   }
 

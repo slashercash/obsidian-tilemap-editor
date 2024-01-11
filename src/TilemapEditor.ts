@@ -1,7 +1,7 @@
 import type { Tile } from 'file/FileParser'
 import type { Mode } from 'TilemapEditorViewBase'
 import { createElement } from 'utils'
-import ClickAction from 'handlers/ClickHandler'
+import ClickAction, { trimTilemap } from 'handlers/ClickHandler'
 import DragHandler from 'handlers/DragHandler'
 import ZoomEvents from 'handlers/ZoomHandler'
 import Toolbar from 'components/Toolbar'
@@ -94,13 +94,23 @@ export class TilemapEditor {
     console.log('TODO: Save customTiles')
   }
 
-  private onDeleteTile(id: number) {
-    this.customTiles = this.customTiles.filter((t) => t.id != id)
-    const selectedTile = this.toolbar.removeTile(id)
+  private onDeleteTile(tile: Tile) {
+    this.customTiles = this.customTiles.filter((t) => t.id != tile.id)
+    const selectedTile = this.toolbar.removeTile(tile.id)
     this.toolBarAction = selectedTile && this.createToolbarAction(selectedTile)
     this.onClick = this.toolBarAction
-    console.log('TODO: Save customTiles')
-    // TODO: On delete, all affected tiles have to be removed from tilemap (tilemap has also to be trimmed)
+
+    Array.from(this.tilemap.children).forEach((row, rowIndex) => {
+      Array.from(row.children).forEach((cell, cellIndex) => {
+        const newElements = Array.from(cell.children).filter((element) => element.className != `custom-tile-${tile.id}`)
+        this.tilemap.children[rowIndex]?.children[cellIndex]?.replaceChildren(...newElements)
+      })
+    })
+
+    const [scrollDeltaLeft, scrollDeltaTop, newRows] = trimTilemap(this.tilemap)
+    this.updateTilemapSize(scrollDeltaTop, scrollDeltaLeft, newRows)
+
+    console.log('TODO: Save customTiles and tilemap')
   }
 
   public onModeChanged(mode: Mode): void {

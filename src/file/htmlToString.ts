@@ -1,5 +1,5 @@
 export function htmlToString(html: Element): string {
-  return format(html).outerHTML
+  return format(html.cloneNode(true) as Element).outerHTML
 }
 
 function format(node: Element, level: number = 1): Element {

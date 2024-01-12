@@ -1,4 +1,4 @@
-import { FileView, WorkspaceLeaf, Notice } from 'obsidian'
+import { FileView, WorkspaceLeaf } from 'obsidian'
 
 export const TILE_FILE_EXTENSION = 'tile'
 export const VIEW_TYPE_TILE = 'tile-view'
@@ -22,7 +22,6 @@ export abstract class TilemapEditorBaseView extends FileView {
   abstract onLoaded(rootElement: HTMLElement): void
   abstract onFileLoaded(fileContent: string): void
   abstract onModeChanged(mode: Mode): void
-  abstract getContentToSave(): [success: boolean, content: string]
 
   public async onload(): Promise<void> {
     const rootElement = this.containerEl.children[1] as HTMLElement
@@ -60,16 +59,6 @@ export abstract class TilemapEditorBaseView extends FileView {
     this.navButton.removeClass('is-active')
     actionButton.addClass('is-active')
     this.onModeChanged(mode)
-  }
-
-  private save(): void {
-    const [success, content] = this.getContentToSave()
-    if (success) {
-      this.app.vault.modify(this.file, content)
-      new Notice('File saved')
-    } else {
-      new Notice('Error while saving')
-    }
   }
 
   private hideMobileNavBar() {

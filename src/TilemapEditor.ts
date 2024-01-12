@@ -20,8 +20,12 @@ export class TilemapEditor {
   private onClick?: (e: MouseEvent) => void = undefined
   private toolBarAction?: (e: MouseEvent) => void = undefined
 
-  // TODO: Maybe tilemap can be private like customTiles with some tweaking
-  constructor(private tilemap: Element, private customTiles: Array<Tile>) {
+  constructor(
+    private tilemap: Element,
+    private customTiles: Array<Tile>,
+    onTilemapChange: (t: Element) => void,
+    onCustomTilesChange: (c: Array<Tile>) => void
+  ) {
     this.toolbar = new Toolbar(customTiles, (tile) => {
       this.toolBarAction = this.createToolbarAction(tile)
       this.onClick = this.toolBarAction
@@ -29,9 +33,19 @@ export class TilemapEditor {
     })
 
     this.editTile = new EditTile(
-      (x) => this.onEditTile(x),
-      (x) => this.onCreateTile(x),
-      (x) => this.onDeleteTile(x)
+      (x) => {
+        this.onEditTile(x)
+        onCustomTilesChange(this.customTiles)
+      },
+      (x) => {
+        this.onCreateTile(x)
+        onCustomTilesChange(this.customTiles)
+      },
+      (x) => {
+        this.onDeleteTile(x)
+        onTilemapChange(this.tilemap)
+        onCustomTilesChange(this.customTiles)
+      }
     )
     this.editTile.hide()
     this.toolbar.hide()
@@ -50,7 +64,7 @@ export class TilemapEditor {
     const onClick = (e: MouseEvent) => {
       if (this.onClick) {
         this.onClick(e)
-        console.log('TODO: Save tilemap')
+        onTilemapChange(this.tilemap)
       }
     }
 
@@ -80,7 +94,6 @@ export class TilemapEditor {
       this.toolbar.updateTile(tile)
       this.toolBarAction = this.createToolbarAction(tile)
       this.onClick = this.toolBarAction
-      console.log('TODO: Save customTiles')
     }
   }
 
@@ -91,7 +104,6 @@ export class TilemapEditor {
     this.toolbar.addTile(tile)
     this.toolBarAction = this.createToolbarAction(tile)
     this.onClick = this.toolBarAction
-    console.log('TODO: Save customTiles')
   }
 
   private onDeleteTile(tile: Tile) {
@@ -109,8 +121,6 @@ export class TilemapEditor {
 
     const [scrollDeltaLeft, scrollDeltaTop, newRows] = trimTilemap(this.tilemap)
     this.updateTilemapSize(scrollDeltaTop, scrollDeltaLeft, newRows)
-
-    console.log('TODO: Save customTiles and tilemap')
   }
 
   public onModeChanged(mode: Mode): void {

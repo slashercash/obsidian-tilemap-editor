@@ -22,6 +22,16 @@ ${JSON.stringify(metadata, undefined, 2)}
 </metadata> -->`
     )
   }
+
+  static metaDataToStr(metadata: TilemapMetadata) {
+    return (
+      metadataToStyle(metadata) +
+      `
+<!-- <metadata>
+${JSON.stringify(metadata, undefined, 2)}
+</metadata> -->`
+    )
+  }
 }
 
 function metadataToStyle(metadata: TilemapMetadata): string {

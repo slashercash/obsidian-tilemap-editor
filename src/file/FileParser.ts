@@ -1,6 +1,4 @@
-import { FileCreator } from 'file/FileCreator'
-import { htmlToString } from 'file/htmlToString'
-
+// TODO: Remove this if possible or make private
 export type TilemapMetadata = {
   customTiles: Array<Tile>
 }
@@ -19,7 +17,12 @@ export class FileParser {
     )
     const metadata: TilemapMetadata = JSON.parse(metadataString)
 
-    const htmlDoc: Document = new DOMParser().parseFromString(fileContent, 'text/html')
+    const htmlDoc: Document = new DOMParser().parseFromString(
+      // TODO: This can probably be simplified (also i think it does not work if two elements with space are on same line)
+      fileContent.replace(/^\s+|\s+$/gm, '').replace(/(\r\n|\n|\r)/gm, ''),
+      'text/html'
+    )
+
     const tilemapElement = htmlDoc.getElementsByClassName('tilemap')[0]
 
     if (!tilemapElement) {
@@ -27,10 +30,5 @@ export class FileParser {
     }
 
     return [tilemapElement, metadata.customTiles]
-  }
-
-  static tilemapToString(tilemap: Element, metadata: TilemapMetadata): string {
-    const htmlString = htmlToString(tilemap)
-    return FileCreator.appendMetadata(htmlString, metadata)
   }
 }

@@ -22,18 +22,16 @@ export class TilemapEditorView extends TilemapEditorBaseView {
     let tilemapStr: string | undefined = undefined
     let customTilesStr: string | undefined = undefined
 
-    function onTilemapChanged(tm: Element) {
+    function onTilemapChanged(tm: Element, save: (c: string) => void) {
       tilemapStr = htmlToString(tm)
       const content = tilemapStr + '\n' + customTilesStr
-      // TODO: Save content
-      console.log(content)
+      save(content)
     }
 
-    function onCustomTilesChanged(ct: Array<Tile>) {
+    function onCustomTilesChanged(ct: Array<Tile>, save: (c: string) => void) {
       customTilesStr = FileCreator.metaDataToStr({ customTiles: ct })
       const content = tilemapStr + '\n' + customTilesStr
-      // TODO: Save content
-      console.log(content)
+      save(content)
     }
 
     const [tilemap, customTiles] = FileParser.stringToTilemap(fileContent)
@@ -44,13 +42,18 @@ export class TilemapEditorView extends TilemapEditorBaseView {
     this.tilemapEditor = new TilemapEditor(
       tilemap,
       customTiles,
-      (x) => onTilemapChanged(x),
-      (x) => onCustomTilesChanged(x)
+      (x) => onTilemapChanged(x, (c) => this.save(c)),
+      (x) => onCustomTilesChanged(x, (c) => this.save(c))
     )
     this.rootElement?.appendChild(this.tilemapEditor.root)
   }
 
   public onModeChanged(mode: Mode) {
     this.tilemapEditor?.onModeChanged(mode)
+  }
+
+  private save(content: string) {
+    // TODO: handle this async function
+    this.app.vault.modify(this.file, content)
   }
 }

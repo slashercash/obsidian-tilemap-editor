@@ -123,6 +123,12 @@ export class TilemapEditor {
     this.updateTilemapSize(scrollDeltaTop, scrollDeltaLeft, newRows)
   }
 
+  public centerView(): void {
+    this.updateZoomStyle()
+    this.renderer.scrollLeft = (this.renderer.scrollWidth - this.renderer.clientWidth) / 2
+    this.renderer.scrollTop = (this.renderer.scrollHeight - this.renderer.clientHeight) / 2
+  }
+
   public onModeChanged(mode: Mode): void {
     switch (mode) {
       case 'navigate':

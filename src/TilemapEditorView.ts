@@ -45,7 +45,10 @@ export class TilemapEditorView extends TilemapEditorBaseView {
       (x) => onTilemapChanged(x, (c) => this.save(c)),
       (x) => onCustomTilesChanged(x, (c) => this.save(c))
     )
-    this.rootElement?.appendChild(this.tilemapEditor.root)
+    this.rootElement?.replaceChildren(this.tilemapEditor.root)
+    // Setting zero-timeout before centerView() is necessary to give control to
+    // the browser so it can draw the nodes and knows the dimensions to center
+    setTimeout(() => this.tilemapEditor?.centerView(), 0)
   }
 
   public onModeChanged(mode: Mode) {

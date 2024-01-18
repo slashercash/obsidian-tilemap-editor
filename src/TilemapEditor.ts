@@ -5,7 +5,6 @@ import ClickAction, { trimTilemap } from 'handlers/ClickHandler'
 import DragHandler from 'handlers/DragHandler'
 import ZoomEvents from 'handlers/ZoomHandler'
 import Toolbar from 'components/Toolbar'
-import EditTile from 'components/EditTile'
 import Style from 'Style'
 
 export class TilemapEditor {
@@ -14,50 +13,33 @@ export class TilemapEditor {
   private readonly zoomStyle = createElement('style')
   private readonly tileStyle = createElement('style')
   private readonly toolbar: Toolbar
-  private readonly editTile: EditTile
   private readonly space = createElement('div', { className: 'tilemap-space' })
   private tileSize = 30
   private onClick?: (e: MouseEvent) => void = undefined
-  private toolBarAction?: (e: MouseEvent) => void = undefined
+  // private toolBarAction?: (e: MouseEvent) => void = undefined
 
   constructor(
     private tilemap: Element,
-    private customTiles: Array<Tile>,
+    customTiles: Array<Tile>,
     onTilemapChange: (t: Element) => void,
     onCustomTilesChange: (c: Array<Tile>) => void
   ) {
-    this.toolbar = new Toolbar(customTiles, (tile) => {
-      this.toolBarAction = this.createToolbarAction(tile)
-      this.onClick = this.toolBarAction
-      this.editTile.set(tile)
-    })
-
-    this.editTile = new EditTile(
-      (x) => {
-        this.onEditTile(x)
-        onCustomTilesChange(this.customTiles)
+    this.toolbar = new Toolbar(
+      customTiles,
+      (tile) => {
+        const action = this.createToolbarAction(tile)
+        this.onClick = action
+        return action
       },
-      (x) => {
-        this.onCreateTile(x)
-        onCustomTilesChange(this.customTiles)
-      },
-      (x) => {
-        this.onDeleteTile(x)
-        onTilemapChange(this.tilemap)
-        onCustomTilesChange(this.customTiles)
-      }
+      (x) => onCustomTilesChange(x),
+      () => onTilemapChange(this.tilemap),
+      (x) => this.updateTileStyle(x),
+      (x) => this.trimTm(x)
     )
-    this.editTile.hide()
     this.toolbar.hide()
     this.space.appendChild(tilemap)
     this.renderer.appendChild(this.space)
     this.root.append(this.toolbar.root, this.renderer, this.zoomStyle, this.tileStyle)
-    this.toolbar.appendChild(this.editTile.root)
-
-    if (this.toolbar.initialTile) {
-      this.toolBarAction = this.createToolbarAction(this.toolbar.initialTile)
-      this.editTile.set(this.toolbar.initialTile)
-    }
 
     this.updateTileStyle(customTiles)
 
@@ -86,35 +68,10 @@ export class TilemapEditor {
     new ResizeObserver(() => this.updateZoomStyle()).observe(this.renderer)
   }
 
-  private onEditTile(tile: Tile) {
-    const i = this.customTiles.findIndex((t) => t.id === tile.id)
-    if (i >= 0) {
-      this.customTiles[i] = tile
-      this.updateTileStyle(this.customTiles)
-      this.toolbar.updateTile(tile)
-      this.toolBarAction = this.createToolbarAction(tile)
-      this.onClick = this.toolBarAction
-    }
-  }
-
-  private onCreateTile(tile: Tile) {
-    tile.id = Math.max(...this.customTiles.map((t) => t.id)) + 1
-    this.customTiles.push(tile)
-    this.updateTileStyle(this.customTiles)
-    this.toolbar.addTile(tile)
-    this.toolBarAction = this.createToolbarAction(tile)
-    this.onClick = this.toolBarAction
-  }
-
-  private onDeleteTile(tile: Tile) {
-    this.customTiles = this.customTiles.filter((t) => t.id != tile.id)
-    const selectedTile = this.toolbar.removeTile(tile.id)
-    this.toolBarAction = selectedTile && this.createToolbarAction(selectedTile)
-    this.onClick = this.toolBarAction
-
+  private trimTm(tileId: number) {
     Array.from(this.tilemap.children).forEach((row, rowIndex) => {
       Array.from(row.children).forEach((cell, cellIndex) => {
-        const newElements = Array.from(cell.children).filter((element) => element.className != `custom-tile-${tile.id}`)
+        const newElements = Array.from(cell.children).filter((element) => element.className != `custom-tile-${tileId}`)
         this.tilemap.children[rowIndex]?.children[cellIndex]?.replaceChildren(...newElements)
       })
     })
@@ -132,26 +89,18 @@ export class TilemapEditor {
   public onModeChanged(mode: Mode): void {
     switch (mode) {
       case 'navigate':
-        this.editTile.hide() ///////////// this belongs together \
-        this.toolbar.setHeight('unset') // this belongs together /
         this.toolbar.hide()
         this.onClick = undefined
         break
       case 'addTile':
-        this.editTile.hide()
-        this.toolbar.setHeight('unset')
-        this.toolbar.show()
-        this.onClick = this.toolBarAction
+        this.toolbar.show(false)
+        this.onClick = this.toolbar.toolbarAction
         break
       case 'editTile':
-        this.editTile.show()
-        this.toolbar.setHeight('100%')
-        this.toolbar.show()
+        this.toolbar.show(true)
         this.onClick = undefined
         break
       case 'removeTile':
-        this.editTile.hide()
-        this.toolbar.setHeight('unset')
         this.toolbar.hide()
         this.onClick = (e) => {
           const [rowIndex, cellIndex] = this.tileIndexFromClick(e)

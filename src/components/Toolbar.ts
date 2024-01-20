@@ -17,8 +17,10 @@ export default class Toolbar {
     private updateTileStyle: (t: ReadonlyArray<Tile>) => void,
     private trimTilemap: (tileId: number) => void
   ) {
-    // this.onClick = onClick
-    this.tileButtons = createToolbarButtons(tiles, createToolbarAction)
+    this.tileButtons = createToolbarButtons(tiles, (tile) => {
+      this.toolbarAction = createToolbarAction(tile)
+      this.editTile.set(tile)
+    })
     const initialTile = this.tileButtons[0]?.tile
     this.buttonContainer = createElement(
       'div',
@@ -56,7 +58,7 @@ export default class Toolbar {
     if (i >= 0) {
       this.tiles[i] = tile
       this.updateTileStyle(this.tiles)
-      this.updateTile(tile)
+      // this.updateTile(tile)
       this.toolbarAction = this.createToolbarAction(tile)
     }
   }
@@ -72,22 +74,26 @@ export default class Toolbar {
   private onDeleteTile(tile: Tile) {
     this.tiles = this.tiles.filter((t) => t.id != tile.id)
     const selectedTile = this.removeTile(tile.id)
-    this.toolbarAction = selectedTile && this.createToolbarAction(selectedTile)
+    if (selectedTile) {
+      this.toolbarAction = this.createToolbarAction(selectedTile)
+      this.editTile.set(selectedTile)
+    }
 
     this.trimTilemap(tile.id)
   }
 
-  private updateTile(tileToUpdate: Tile) {
-    this.tileButtons.find(({ tile, button }) => {
-      if (tile.id === tileToUpdate.id) {
-        button.onclick = () => {
-          this.tileButtons.forEach((x) => x.button.removeClass('tilemap-toolbar-button--selected'))
-          button.addClass('tilemap-toolbar-button--selected')
-        }
-        return true
-      }
-    })
-  }
+  // TODO: Is this needed?
+  // private updateTile(tileToUpdate: Tile) {
+  //   this.tileButtons.find(({ tile, button }) => {
+  //     if (tile.id === tileToUpdate.id) {
+  //       button.onclick = () => {
+  //         this.tileButtons.forEach((x) => x.button.removeClass('tilemap-toolbar-button--selected'))
+  //         button.addClass('tilemap-toolbar-button--selected')
+  //       }
+  //       return true
+  //     }
+  //   })
+  // }
 
   private addTile(tile: Tile) {
     this.toolbarAction = this.createToolbarAction(tile)
@@ -110,7 +116,6 @@ export default class Toolbar {
     const tileButton = this.tileButtons[0]
     if (tileButton) {
       tileButton.button.addClass('tilemap-toolbar-button--selected')
-      this.toolbarAction = this.createToolbarAction(tileButton.tile)
       return tileButton.tile
     }
   }

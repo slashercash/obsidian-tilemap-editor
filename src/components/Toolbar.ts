@@ -60,6 +60,7 @@ export default class Toolbar {
       this.updateTileStyle(this.tiles)
       // this.updateTile(tile)
       this.toolbarAction = this.createToolbarAction(tile)
+      this.editTile.set(tile)
     }
   }
 
@@ -69,6 +70,7 @@ export default class Toolbar {
     this.updateTileStyle(this.tiles)
     this.addTile(tile)
     this.toolbarAction = this.createToolbarAction(tile)
+    this.editTile.set(tile)
   }
 
   private onDeleteTile(tile: Tile) {
@@ -96,7 +98,6 @@ export default class Toolbar {
   // }
 
   private addTile(tile: Tile) {
-    this.toolbarAction = this.createToolbarAction(tile)
     this.tileButtons.forEach((x) => x.button.removeClass('tilemap-toolbar-button--selected'))
     const newButton = createElement('button', { className: 'tilemap-toolbar-button tilemap-toolbar-button--selected' })
     newButton.replaceChildren(createElement('div', { className: `custom-tile-${tile.id}` }))

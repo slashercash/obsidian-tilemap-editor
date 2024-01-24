@@ -14,7 +14,7 @@ export default class Toolbar {
     private onTilesChange: (tiles: Array<Tile>) => void,
     private onTileDeleted: (tileId: number) => void
   ) {
-    this.tileButtons = createToolbarButtons(tiles, (tile) => this.setTile(tile))
+    this.tileButtons = createToolbarButtons(tiles, this.onToolBarButtonClick)
     const initialTile = this.tileButtons[0]?.tile
     this.buttonContainer = createElement(
       'div',
@@ -36,7 +36,6 @@ export default class Toolbar {
     const i = this.tiles.findIndex((t) => t.id === tile.id)
     if (i >= 0) {
       this.tiles[i] = tile
-      // this.updateTile(tile)
       this.setTile(tile)
       this.onTilesChange(this.tiles)
     }
@@ -61,28 +60,11 @@ export default class Toolbar {
     this.onTileDeleted(tile.id)
   }
 
-  // TODO: Is this needed?
-  // private updateTile(tileToUpdate: Tile) {
-  //   this.tileButtons.find(({ tile, button }) => {
-  //     if (tile.id === tileToUpdate.id) {
-  //       button.onclick = () => {
-  //         this.tileButtons.forEach((x) => x.button.removeClass('tilemap-toolbar-button--selected'))
-  //         button.addClass('tilemap-toolbar-button--selected')
-  //       }
-  //       return true
-  //     }
-  //   })
-  // }
-
   private addTile(tile: Tile) {
     this.tileButtons.forEach((x) => x.button.removeClass('tilemap-toolbar-button--selected'))
     const newButton = createElement('button', { className: 'tilemap-toolbar-button tilemap-toolbar-button--selected' })
     newButton.replaceChildren(createElement('div', { className: `custom-tile-${tile.id}` }))
-    newButton.onclick = () => {
-      this.tileButtons.forEach((x) => x.button.removeClass('tilemap-toolbar-button--selected'))
-      newButton.addClass('tilemap-toolbar-button--selected')
-      this.setTile(tile)
-    }
+    newButton.onclick = () => this.onToolBarButtonClick(tile, newButton)
     this.tileButtons.push({ tile, button: newButton })
     this.buttonContainer.replaceChildren(...this.tileButtons.map((x) => x.button))
   }
@@ -122,11 +104,18 @@ export default class Toolbar {
     this.selectedTile = tile
     this.editTile.set(tile)
   }
+
+  private onToolBarButtonClick = (tile: Tile, button: HTMLButtonElement) => {
+    this.tileButtons.forEach(({ button }) => button.removeClass('tilemap-toolbar-button--selected'))
+    button.addClass('tilemap-toolbar-button--selected')
+    this.setTile(tile)
+  }
 }
 
-function createToolbarButtons(tiles: ReadonlyArray<Tile>, onClick: (tile: Tile) => void) {
-  let initialTile: Tile | undefined = undefined
-
+function createToolbarButtons(
+  tiles: ReadonlyArray<Tile>,
+  onToolBarButtonClick: (tile: Tile, button: HTMLButtonElement) => void
+) {
   const tileButtons = tiles.map((tile) => ({
     tile,
     button: createElement('button', { className: 'tilemap-toolbar-button' })
@@ -134,15 +123,10 @@ function createToolbarButtons(tiles: ReadonlyArray<Tile>, onClick: (tile: Tile) 
 
   tileButtons.forEach(({ tile, button }, i) => {
     button.appendChild(createElement('div', { className: `custom-tile-${tile.id}` }))
-    button.onclick = () => {
-      tileButtons.forEach(({ button }) => button.removeClass('tilemap-toolbar-button--selected'))
-      button.addClass('tilemap-toolbar-button--selected')
-      onClick(tile)
-    }
+    button.onclick = () => onToolBarButtonClick(tile, button)
 
     if (i === 0) {
       button.addClass('tilemap-toolbar-button--selected')
-      initialTile = tile
     }
 
     return { tile, button }

@@ -16,7 +16,6 @@ export class TilemapEditor {
   private readonly space = createElement('div', { className: 'tilemap-space' })
   private tileSize = 30
   private onClick?: (e: MouseEvent) => void = undefined
-  // private toolBarAction?: (e: MouseEvent) => void = undefined
 
   constructor(
     private tilemap: Element,
@@ -26,11 +25,6 @@ export class TilemapEditor {
   ) {
     this.toolbar = new Toolbar(
       customTiles,
-      (tile) => {
-        const action = this.createToolbarAction(tile)
-        this.onClick = action
-        return action
-      },
       (x) => onCustomTilesChange(x),
       () => onTilemapChange(this.tilemap),
       (x) => this.updateTileStyle(x),
@@ -94,7 +88,7 @@ export class TilemapEditor {
         break
       case 'addTile':
         this.toolbar.show(false)
-        this.onClick = this.toolbar.toolbarAction
+        this.onClick = this.toolbarAction
         break
       case 'editTile':
         this.toolbar.show(true)
@@ -110,10 +104,9 @@ export class TilemapEditor {
     }
   }
 
-  private createToolbarAction(tile: Tile): (e: MouseEvent) => void {
-    const className = `custom-tile-${tile.id}`
-    // TODO: Only create clickAction?
-    return (e: MouseEvent) => {
+  private toolbarAction(e: MouseEvent): void {
+    const className = this.toolbar.selectedTile && `custom-tile-${this.toolbar.selectedTile.id}`
+    if (className) {
       const [rowIndex, cellIndex] = this.tileIndexFromClick(e)
       ClickAction.setElement(this.tilemap, className, rowIndex, cellIndex)
     }

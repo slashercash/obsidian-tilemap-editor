@@ -16,10 +16,7 @@ export default class Toolbar {
     private updateTileStyle: (t: ReadonlyArray<Tile>) => void,
     private trimTilemap: (tileId: number) => void
   ) {
-    this.tileButtons = createToolbarButtons(tiles, (tile) => {
-      this.selectedTile = tile
-      this.editTile.set(tile)
-    })
+    this.tileButtons = createToolbarButtons(tiles, (tile) => this.setTile(tile))
     const initialTile = this.tileButtons[0]?.tile
     this.buttonContainer = createElement(
       'div',
@@ -44,8 +41,7 @@ export default class Toolbar {
     this.editTile.hide()
 
     if (initialTile) {
-      this.selectedTile = initialTile
-      this.editTile.set(initialTile)
+      this.setTile(initialTile)
     }
 
     this.root.appendChild(this.buttonContainer)
@@ -58,8 +54,7 @@ export default class Toolbar {
       this.tiles[i] = tile
       this.updateTileStyle(this.tiles)
       // this.updateTile(tile)
-      this.selectedTile = tile
-      this.editTile.set(tile)
+      this.setTile(tile)
     }
   }
 
@@ -68,8 +63,7 @@ export default class Toolbar {
     this.tiles.push(tile)
     this.updateTileStyle(this.tiles)
     this.addTile(tile)
-    this.selectedTile = tile
-    this.editTile.set(tile)
+    this.setTile(tile)
   }
 
   private onDeleteTile(tile: Tile) {
@@ -103,7 +97,7 @@ export default class Toolbar {
     newButton.onclick = () => {
       this.tileButtons.forEach((x) => x.button.removeClass('tilemap-toolbar-button--selected'))
       newButton.addClass('tilemap-toolbar-button--selected')
-      this.selectedTile = tile
+      this.setTile(tile)
     }
     this.tileButtons.push({ tile, button: newButton })
     this.buttonContainer.replaceChildren(...this.tileButtons.map((x) => x.button))
@@ -138,6 +132,11 @@ export default class Toolbar {
   private hideEditTile() {
     this.root.style.height = 'unset'
     this.editTile.hide()
+  }
+
+  private setTile(tile: Tile) {
+    this.selectedTile = tile
+    this.editTile.set(tile)
   }
 }
 

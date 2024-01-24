@@ -11,9 +11,8 @@ export default class Toolbar {
 
   constructor(
     private tiles: Array<Tile>,
-    onChange: (t: Array<Tile>) => void,
-    onTilemapChange: () => void,
-    private trimTilemap: (tileId: number) => void
+    onTilesChange: (tiles: Array<Tile>) => void,
+    onTileDeleted: (tileId: number) => void
   ) {
     this.tileButtons = createToolbarButtons(tiles, (tile) => this.setTile(tile))
     const initialTile = this.tileButtons[0]?.tile
@@ -25,16 +24,16 @@ export default class Toolbar {
     this.editTile = new EditTile(
       (x) => {
         this.onEditTile(x)
-        onChange(this.tiles)
+        onTilesChange(this.tiles)
       },
       (x) => {
         this.onCreateTile(x)
-        onChange(this.tiles)
+        onTilesChange(this.tiles)
       },
       (x) => {
         this.onDeleteTile(x)
-        onTilemapChange()
-        onChange(this.tiles)
+        onTilesChange(this.tiles)
+        onTileDeleted(x.id)
       }
     )
     this.editTile.hide()
@@ -70,8 +69,6 @@ export default class Toolbar {
       this.selectedTile = selectedTile
       this.editTile.set(selectedTile)
     }
-
-    this.trimTilemap(tile.id)
   }
 
   // TODO: Is this needed?

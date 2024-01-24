@@ -23,16 +23,19 @@ export class TilemapEditor {
     onTilemapChange: (t: Element) => void,
     onCustomTilesChange: (c: Array<Tile>) => void
   ) {
-    const onToolbarChange = (t: Array<Tile>) => {
-      this.updateTileStyle(t)
-      onCustomTilesChange(t)
+    const onToolbarTilesChange = (tiles: Array<Tile>) => {
+      this.updateTileStyle(tiles)
+      onCustomTilesChange(tiles)
     }
-    this.toolbar = new Toolbar(
-      customTiles,
-      onToolbarChange,
-      () => onTilemapChange(this.tilemap),
-      (x) => this.trimTm(x)
-    )
+
+    const onToolbarTileDeleted = (tileId: number) => {
+      this.tilemap = removeTileFromTilemap(tileId, this.tilemap)
+      const [scrollDeltaLeft, scrollDeltaTop, newRows] = trimTilemap(this.tilemap)
+      this.updateTilemapSize(scrollDeltaTop, scrollDeltaLeft, newRows)
+      onTilemapChange(this.tilemap)
+    }
+
+    this.toolbar = new Toolbar(customTiles, onToolbarTilesChange, onToolbarTileDeleted)
     this.toolbar.hide()
     this.space.appendChild(tilemap)
     this.renderer.appendChild(this.space)
@@ -63,18 +66,6 @@ export class TilemapEditor {
     this.renderer.addEventListener('wheel', ZoomEvents.handleWheel(updateTileSize), { passive: true })
 
     new ResizeObserver(() => this.updateZoomStyle()).observe(this.renderer)
-  }
-
-  private trimTm(tileId: number) {
-    Array.from(this.tilemap.children).forEach((row, rowIndex) => {
-      Array.from(row.children).forEach((cell, cellIndex) => {
-        const newElements = Array.from(cell.children).filter((element) => element.className != `custom-tile-${tileId}`)
-        this.tilemap.children[rowIndex]?.children[cellIndex]?.replaceChildren(...newElements)
-      })
-    })
-
-    const [scrollDeltaLeft, scrollDeltaTop, newRows] = trimTilemap(this.tilemap)
-    this.updateTilemapSize(scrollDeltaTop, scrollDeltaLeft, newRows)
   }
 
   public centerView(): void {
@@ -154,4 +145,14 @@ export class TilemapEditor {
   private updateTileStyle(customTiles: ReadonlyArray<Tile>) {
     this.tileStyle.innerText = Style.tileStyle(customTiles)
   }
+}
+
+function removeTileFromTilemap(tileId: number, tilemap: Element): Element {
+  Array.from(tilemap.children).forEach((row, rowIndex) => {
+    Array.from(row.children).forEach((cell, cellIndex) => {
+      const newElements = Array.from(cell.children).filter((element) => element.className != `custom-tile-${tileId}`)
+      tilemap.children[rowIndex]?.children[cellIndex]?.replaceChildren(...newElements)
+    })
+  })
+  return tilemap
 }

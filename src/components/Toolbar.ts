@@ -11,9 +11,8 @@ export default class Toolbar {
 
   constructor(
     private tiles: Array<Tile>,
-    onCustomTilesChange: (c: Array<Tile>) => void,
+    onChange: (t: Array<Tile>) => void,
     onTilemapChange: () => void,
-    private updateTileStyle: (t: ReadonlyArray<Tile>) => void,
     private trimTilemap: (tileId: number) => void
   ) {
     this.tileButtons = createToolbarButtons(tiles, (tile) => this.setTile(tile))
@@ -26,16 +25,16 @@ export default class Toolbar {
     this.editTile = new EditTile(
       (x) => {
         this.onEditTile(x)
-        onCustomTilesChange(this.tiles)
+        onChange(this.tiles)
       },
       (x) => {
         this.onCreateTile(x)
-        onCustomTilesChange(this.tiles)
+        onChange(this.tiles)
       },
       (x) => {
         this.onDeleteTile(x)
         onTilemapChange()
-        onCustomTilesChange(this.tiles)
+        onChange(this.tiles)
       }
     )
     this.editTile.hide()
@@ -52,7 +51,6 @@ export default class Toolbar {
     const i = this.tiles.findIndex((t) => t.id === tile.id)
     if (i >= 0) {
       this.tiles[i] = tile
-      this.updateTileStyle(this.tiles)
       // this.updateTile(tile)
       this.setTile(tile)
     }
@@ -61,7 +59,6 @@ export default class Toolbar {
   private onCreateTile(tile: Tile) {
     tile.id = Math.max(...this.tiles.map((t) => t.id)) + 1
     this.tiles.push(tile)
-    this.updateTileStyle(this.tiles)
     this.addTile(tile)
     this.setTile(tile)
   }

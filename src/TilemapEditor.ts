@@ -23,11 +23,14 @@ export class TilemapEditor {
     onTilemapChange: (t: Element) => void,
     onCustomTilesChange: (c: Array<Tile>) => void
   ) {
+    const onToolbarChange = (t: Array<Tile>) => {
+      this.updateTileStyle(t)
+      onCustomTilesChange(t)
+    }
     this.toolbar = new Toolbar(
       customTiles,
-      (x) => onCustomTilesChange(x),
+      onToolbarChange,
       () => onTilemapChange(this.tilemap),
-      (x) => this.updateTileStyle(x),
       (x) => this.trimTm(x)
     )
     this.toolbar.hide()

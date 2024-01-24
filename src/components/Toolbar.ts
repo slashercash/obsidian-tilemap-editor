@@ -11,8 +11,8 @@ export default class Toolbar {
 
   constructor(
     private tiles: Array<Tile>,
-    onTilesChange: (tiles: Array<Tile>) => void,
-    onTileDeleted: (tileId: number) => void
+    private onTilesChange: (tiles: Array<Tile>) => void,
+    private onTileDeleted: (tileId: number) => void
   ) {
     this.tileButtons = createToolbarButtons(tiles, (tile) => this.setTile(tile))
     const initialTile = this.tileButtons[0]?.tile
@@ -21,21 +21,7 @@ export default class Toolbar {
       { className: 'tilemap-toolbar-button-container' }, // TODO: Is this button-container needed?
       this.tileButtons.map((x) => x.button)
     )
-    this.editTile = new EditTile(
-      (x) => {
-        this.onEditTile(x)
-        onTilesChange(this.tiles)
-      },
-      (x) => {
-        this.onCreateTile(x)
-        onTilesChange(this.tiles)
-      },
-      (x) => {
-        this.onDeleteTile(x)
-        onTilesChange(this.tiles)
-        onTileDeleted(x.id)
-      }
-    )
+    this.editTile = new EditTile(this.onEditTile, this.onCreateTile, this.onDeleteTile)
     this.editTile.hide()
 
     if (initialTile) {
@@ -46,29 +32,33 @@ export default class Toolbar {
     this.root.appendChild(this.editTile.root)
   }
 
-  private onEditTile(tile: Tile) {
+  private onEditTile = (tile: Tile) => {
     const i = this.tiles.findIndex((t) => t.id === tile.id)
     if (i >= 0) {
       this.tiles[i] = tile
       // this.updateTile(tile)
       this.setTile(tile)
+      this.onTilesChange(this.tiles)
     }
   }
 
-  private onCreateTile(tile: Tile) {
+  private onCreateTile = (tile: Tile) => {
     tile.id = Math.max(...this.tiles.map((t) => t.id)) + 1
     this.tiles.push(tile)
     this.addTile(tile)
     this.setTile(tile)
+    this.onTilesChange(this.tiles)
   }
 
-  private onDeleteTile(tile: Tile) {
+  private onDeleteTile = (tile: Tile) => {
     this.tiles = this.tiles.filter((t) => t.id != tile.id)
     const selectedTile = this.removeTile(tile.id)
     if (selectedTile) {
       this.selectedTile = selectedTile
       this.editTile.set(selectedTile)
     }
+    this.onTilesChange(this.tiles)
+    this.onTileDeleted(tile.id)
   }
 
   // TODO: Is this needed?

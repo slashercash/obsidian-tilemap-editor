@@ -6,6 +6,7 @@ import DragHandler from 'handlers/DragHandler'
 import ZoomEvents from 'handlers/ZoomHandler'
 import Toolbar from 'components/Toolbar'
 import Style from 'Style'
+import Grid from 'components/Grid'
 
 export class TilemapEditor {
   public readonly root = createElement('div', { className: 'tilemap-editor' })
@@ -37,6 +38,7 @@ export class TilemapEditor {
 
     this.toolbar = new Toolbar(customTiles, onToolbarTilesChange, onToolbarTileDeleted)
     this.toolbar.hide()
+    this.space.appendChild(new Grid().root)
     this.space.appendChild(tilemap)
     this.renderer.appendChild(this.space)
     this.root.append(this.toolbar.root, this.renderer, this.zoomStyle, this.tileStyle)

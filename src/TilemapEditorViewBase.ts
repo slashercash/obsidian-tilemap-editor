@@ -9,10 +9,10 @@ export abstract class TilemapEditorBaseView extends FileView {
   public allowNoFile = false
 
   // ICONS: https://lucide.dev/icons/
-  private rmvButton = this.addAction('x-square', 'Remove Tiles', () => this.changeMode('removeTile', this.rmvButton))
-  private edtButton = this.addAction('pen-square', 'Edit Tiles', () => this.changeMode('editTile', this.edtButton))
-  private addButton = this.addAction('square', 'Add Tiles', () => this.changeMode('addTile', this.addButton))
-  private navButton = this.addAction('mouse-pointer-2', 'Navigate', () => this.changeMode('navigate', this.navButton))
+  private rmvButton = this.addAction('eraser', 'Remove Tiles', () => this.changeMode('removeTile', this.rmvButton))
+  private edtButton = this.addAction('square', 'Edit Tiles', () => this.changeMode('editTile', this.edtButton))
+  private addButton = this.addAction('pencil', 'Add Tiles', () => this.changeMode('addTile', this.addButton))
+  private navButton = this.addAction('move', 'Navigate', () => this.changeMode('navigate', this.navButton))
 
   constructor(leaf: WorkspaceLeaf) {
     super(leaf)
@@ -33,6 +33,7 @@ export abstract class TilemapEditorBaseView extends FileView {
 
   public async onLoadFile(): Promise<void> {
     const fileContent = await this.app.vault.read(this.file)
+    this.changeMode('navigate', this.navButton)
     this.onFileLoaded(fileContent)
   }
 

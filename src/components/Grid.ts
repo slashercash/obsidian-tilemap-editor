@@ -1,54 +1,62 @@
 export default class Grid {
   public readonly root = document.createElement('div')
 
-  constructor() {
-    // TODO: Remove inline-style here and at every other place
-    this.root.style.height = '100%'
-    this.root.appendChild(grid())
-  }
-}
+  private readonly pattern = createSvgElement('pattern', {
+    id: 'grid',
+    patternUnits: 'userSpaceOnUse'
+  })
 
-function grid(): SVGSVGElement {
-  const tileSize = 30
-
-  const path = createSvgElement('path', {
-    d: `M ${tileSize} 0 L 0 0 0 ${tileSize}`,
+  private readonly path = createSvgElement('path', {
     fill: 'none',
     stroke: 'gray',
     'troke-width': '1'
   })
 
-  var pattern = createSvgElement('pattern', {
-    id: 'grid',
-    width: `${tileSize}`,
-    height: `${tileSize}`,
-    patternUnits: 'userSpaceOnUse'
-  })
+  private readonly g = createSvgElement('g', {})
 
-  var rect = createSvgElement('rect', {
-    width: `${tileSize * 10}`,
-    height: `${tileSize * 10}`,
+  private readonly rect = createSvgElement('rect', {
     fill: 'url(#grid)'
   })
 
-  var g = createSvgElement('g', {
-    transform: `translate(${-tileSize}, ${-tileSize})`
-  })
+  constructor() {
+    // TODO: Remove inline-style here and at every other place
+    this.root.style.height = '100%'
 
-  var defs = createSvgElement('defs')
+    var defs = createSvgElement('defs')
 
-  const svg = createSvgElement('svg', {
-    width: '100%',
-    height: '100%'
-  })
+    const svg = createSvgElement('svg', {
+      width: '100%',
+      height: '100%'
+    })
 
-  g.appendChild(rect)
-  pattern.appendChild(path)
-  defs.appendChild(pattern)
-  svg.appendChild(defs)
-  svg.appendChild(g)
+    this.g.appendChild(this.rect)
+    this.pattern.appendChild(this.path)
+    defs.appendChild(this.pattern)
+    svg.appendChild(defs)
+    svg.appendChild(this.g)
 
-  return svg
+    this.root.appendChild(svg)
+  }
+
+  public update(width: number, height: number, overflowHorizontal: number, overflowVertical: number, tileSize: number) {
+    this.pattern.setAttrs({
+      width: `${tileSize}`,
+      height: `${tileSize}`
+    })
+
+    this.path.setAttrs({
+      d: `M ${tileSize} 0 L 0 0 0 ${tileSize}`
+    })
+
+    this.g.setAttrs({
+      transform: `translate(${overflowHorizontal}, ${overflowVertical})`
+    })
+
+    this.rect.setAttrs({
+      width,
+      height
+    })
+  }
 }
 
 function createSvgElement<K extends keyof SVGElementTagNameMap>(

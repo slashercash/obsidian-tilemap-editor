@@ -15,6 +15,7 @@ export class TilemapEditor {
   private readonly tileStyle = createElement('style')
   private readonly toolbar: Toolbar
   private readonly space = createElement('div', { className: 'tilemap-space' })
+  private readonly grid = new Grid()
   private tileSize = 30
   private onClick?: (e: MouseEvent) => void = undefined
 
@@ -38,7 +39,7 @@ export class TilemapEditor {
 
     this.toolbar = new Toolbar(customTiles, onToolbarTilesChange, onToolbarTileDeleted)
     this.toolbar.hide()
-    this.space.appendChild(new Grid().root)
+    this.space.appendChild(this.grid.root)
     this.space.appendChild(tilemap)
     this.renderer.appendChild(this.space)
     this.root.append(this.toolbar.root, this.renderer, this.zoomStyle, this.tileStyle)
@@ -141,7 +142,21 @@ export class TilemapEditor {
   private updateZoomStyle() {
     const x = this.tilemap.children[0]?.children.length ?? 0
     const y = this.tilemap.children.length
-    this.zoomStyle.innerText = Style.zoomStyle(x, y, this.tileSize, this.renderer.getBoundingClientRect())
+    const rendererRectangle = this.renderer.getBoundingClientRect()
+
+    this.updateGrid(x, y, rendererRectangle)
+    this.zoomStyle.innerText = Style.zoomStyle(x, y, this.tileSize, rendererRectangle)
+  }
+
+  // TODO: try to outsource to style-component (duplicated code)
+  private updateGrid(tilesCountX: number, tilesCountY: number, rendererRectangle: DOMRect) {
+    const spaceTilesCountX = Math.floor(rendererRectangle.width / this.tileSize)
+    const spaceTilesCountY = Math.floor(rendererRectangle.height / this.tileSize)
+    const setbackX = this.tileSize - (rendererRectangle.width % this.tileSize)
+    const setbackY = this.tileSize - (rendererRectangle.height % this.tileSize)
+    const width = (tilesCountX + spaceTilesCountX * 2) * this.tileSize // - 2 * setbackX
+    const height = (tilesCountY + spaceTilesCountY * 2) * this.tileSize // - 2 * setbackY
+    this.grid.update(width, height, -setbackX, -setbackY, this.tileSize)
   }
 
   private updateTileStyle(customTiles: ReadonlyArray<Tile>) {

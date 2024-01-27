@@ -2,7 +2,7 @@ import type { Tile } from 'TilemapEditor/func/parseFileContent'
 import { createElement } from 'TilemapEditor/func/createElement'
 
 export default class EditTile {
-  public readonly root = createElement('div', { className: 'tilemap-toolbar-edit-tile' })
+  public readonly root = createElement('div', { className: 'edit-tile' })
 
   private readonly selectShape: HTMLSelectElement
   private readonly selectColor: HTMLSelectElement

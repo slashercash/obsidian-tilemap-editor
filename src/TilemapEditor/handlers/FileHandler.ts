@@ -30,10 +30,10 @@ export default class FileHandler {
         display: flex;
         justify-content: center;
       }
-      .tilemap-row {
+      .row {
         display: flex;
       }
-      .tilemap-cell {
+      .cell {
         display: grid;
         height: 30px;
         width: 30px;
@@ -85,7 +85,7 @@ function format(node: Element, level: number = 1): Element {
 function toCustomTilesStyle(customTiles: Array<Tile>): string {
   return customTiles
     .map(
-      (tile) => `      .custom-tile-${tile.id} {
+      (tile) => `      .tile-${tile.id} {
         background-color: ${tile.color};
         box-shadow: inset 0 0 0 1px black;${
           tile.shape == 'circle'

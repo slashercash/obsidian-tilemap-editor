@@ -25,7 +25,7 @@ export abstract class TilemapEditorBaseView extends FileView {
 
   public async onload(): Promise<void> {
     const rootElement = this.containerEl.children[1] as HTMLElement
-    rootElement.addClass('view-content-tilemap-editor')
+    rootElement.id = 'tilemap-editor'
 
     this.hideMobileNavBar()
     this.onLoaded(rootElement)

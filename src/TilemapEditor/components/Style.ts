@@ -21,11 +21,11 @@ export default class Style {
   }
 
   public setZoomStyle(width: number, height: number, tileSize: number): void {
-    this.zoomStyle = `.view-content-tilemap-editor .tilemap-cell { 
+    this.zoomStyle = `#tilemap-editor .cell { 
   width:${tileSize}px;
   height:${tileSize}px;
 }
-.view-content-tilemap-editor .tilemap-space { 
+#tilemap-editor .space { 
   width:${width}px;
   height:${height}px;
 }`
@@ -36,7 +36,7 @@ export default class Style {
   public setTileStyle(customTiles: ReadonlyArray<Tile>): void {
     this.tileStyle = customTiles
       .map(
-        (tile) => `.view-content-tilemap-editor .custom-tile-${tile.id} {
+        (tile) => `#tilemap-editor .tile-${tile.id} {
   background-color: ${tile.color};
   box-shadow: inset 0 0 0 1px black;${
     tile.shape == 'circle'

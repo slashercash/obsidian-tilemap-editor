@@ -144,7 +144,7 @@ export function trimTilemap(
 
 function newRow(cellsCount = 0): HTMLDivElement {
   const row = document.createElement('div')
-  row.className = 'tilemap-row'
+  row.className = 'row'
   const newCells = [...Array(Math.abs(cellsCount))].map(newCell)
   row.replaceChildren(...newCells)
   return row
@@ -152,6 +152,6 @@ function newRow(cellsCount = 0): HTMLDivElement {
 
 function newCell(): HTMLDivElement {
   const cell = document.createElement('div')
-  cell.className = 'tilemap-cell'
+  cell.className = 'cell'
   return cell
 }

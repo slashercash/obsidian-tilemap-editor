@@ -4,7 +4,7 @@ import { createElement } from 'TilemapEditor/func/createElement'
 import ClickAction, { trimTilemap } from 'TilemapEditor/handlers/ClickHandler'
 import DragHandler from 'TilemapEditor/handlers/DragHandler'
 import ZoomEvents from 'TilemapEditor/handlers/ZoomHandler'
-import Toolbar from 'TilemapEditor/components/Toolbar'
+import Tools from 'TilemapEditor/components/Tools'
 import Style from 'TilemapEditor/components/Style'
 import Grid from 'TilemapEditor/components/Grid'
 import FileHandler from 'TilemapEditor/handlers/FileHandler'
@@ -12,11 +12,11 @@ import parse from 'TilemapEditor/func/parseFileContent'
 
 export default class TilemapEditor {
   public readonly root = createElement('div', { className: 'tilemap-editor' })
-  private readonly renderer = createElement('div', { className: 'tilemap-renderer' })
+  private readonly renderer = createElement('div', { className: 'renderer' })
   private readonly zoomStyle = createElement('style')
   private readonly tileStyle = createElement('style')
-  private readonly toolbar: Toolbar
-  private readonly space = createElement('div', { className: 'tilemap-space' })
+  private readonly tools: Tools
+  private readonly space = createElement('div', { className: 'space' })
   private readonly grid = new Grid()
   private tileSize = 30
   private onClick?: (e: MouseEvent) => void = undefined
@@ -43,12 +43,12 @@ export default class TilemapEditor {
       onFileContentChange(this.fileHandler.getContent())
     }
 
-    this.toolbar = new Toolbar(customTiles, onToolbarTilesChange, onToolbarTileDeleted)
-    this.toolbar.hide()
+    this.tools = new Tools(customTiles, onToolbarTilesChange, onToolbarTileDeleted)
+    this.tools.hide()
     this.space.appendChild(this.grid.root)
     this.space.appendChild(tilemap)
     this.renderer.appendChild(this.space)
-    this.root.append(this.toolbar.root, this.renderer, this.zoomStyle, this.tileStyle)
+    this.root.append(this.tools.root, this.renderer, this.zoomStyle, this.tileStyle)
 
     this.style.setTileStyle(customTiles)
 
@@ -87,19 +87,19 @@ export default class TilemapEditor {
   public onModeChanged(mode: Mode): void {
     switch (mode) {
       case 'navigate':
-        this.toolbar.hide()
+        this.tools.hide()
         this.onClick = undefined
         break
       case 'addTile':
-        this.toolbar.show(false)
+        this.tools.show(false)
         this.onClick = this.toolbarAction
         break
       case 'editTile':
-        this.toolbar.show(true)
+        this.tools.show(true)
         this.onClick = undefined
         break
       case 'removeTile':
-        this.toolbar.hide()
+        this.tools.hide()
         this.onClick = (e) => {
           const [rowIndex, cellIndex] = this.tileIndexFromClick(e)
           ClickAction.deleteElement(this.tilemap, rowIndex, cellIndex, this.updateTilemapSize)
@@ -109,7 +109,7 @@ export default class TilemapEditor {
   }
 
   private toolbarAction(e: MouseEvent): void {
-    const className = this.toolbar.selectedTile && `custom-tile-${this.toolbar.selectedTile.id}`
+    const className = this.tools.selectedTile && `tile-${this.tools.selectedTile.id}`
     if (className) {
       const [rowIndex, cellIndex] = this.tileIndexFromClick(e)
       ClickAction.setElement(this.tilemap, className, rowIndex, cellIndex)
@@ -165,7 +165,7 @@ export default class TilemapEditor {
 function removeTileFromTilemap(tileId: number, tilemap: Element): Element {
   Array.from(tilemap.children).forEach((row, rowIndex) => {
     Array.from(row.children).forEach((cell, cellIndex) => {
-      const newElements = Array.from(cell.children).filter((element) => element.className != `custom-tile-${tileId}`)
+      const newElements = Array.from(cell.children).filter((element) => element.className != `tile-${tileId}`)
       tilemap.children[rowIndex]?.children[cellIndex]?.replaceChildren(...newElements)
     })
   })

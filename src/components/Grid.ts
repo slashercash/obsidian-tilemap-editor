@@ -12,7 +12,7 @@ export default class Grid {
     'troke-width': '1'
   })
 
-  private readonly g = createSvgElement('g', {})
+  private readonly g = createSvgElement('g')
 
   private readonly rect = createSvgElement('rect', {
     fill: 'url(#grid)'

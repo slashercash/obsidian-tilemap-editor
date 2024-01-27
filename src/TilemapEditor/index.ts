@@ -11,7 +11,7 @@ import FileHandler from 'TilemapEditor/handlers/FileHandler'
 import parse from 'TilemapEditor/func/parseFileContent'
 
 export default class TilemapEditor {
-  public readonly root = createElement('div', { className: 'tilemap-editor' })
+  public readonly root = createElement('div', { id: 'tilemap-editor' })
   private readonly renderer = createElement('div', { className: 'renderer' })
   private readonly zoomStyle = createElement('style')
   private readonly tileStyle = createElement('style')

@@ -1,4 +1,4 @@
-#tilemap-editor {
+.view-content--tilemap-editor {
   padding: 0 !important;
 }
 
@@ -10,7 +10,7 @@
   box-shadow: inset 0 0 0 1px greenyellow; /* only for developing purpose*/
 }
 
-#tilemap-editor .tilemap-editor {
+#tilemap-editor {
   height: 100%;
 
   display: flex; /* 00001: toolbar sticks at bottom */

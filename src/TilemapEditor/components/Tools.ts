@@ -1,3 +1,4 @@
+import type { Mode } from 'TilemapEditor'
 import type { Tile } from 'TilemapEditor/func/parseFileContent'
 import { createElement } from 'TilemapEditor/func/createElement'
 import EditTile from './EditTile'
@@ -14,15 +15,18 @@ export default class Tools {
   constructor(
     private tiles: Array<Tile>,
     private onTilesChange: (tiles: Array<Tile>) => void,
-    private onTileDeleted: (tileId: number) => void
+    private onTileDeleted: (tileId: number) => void,
+    onModeChanged: (mode: Mode) => void
   ) {
     this.editTile = new EditTile(this.onEditTile, this.onCreateTile, this.onDeleteTile)
     this.editTile.hide()
 
-    this.toolbar = new Toolbar(tiles, (t: Tile) => {
+    const onTileClick = (t: Tile) => {
       this.selectedTile = t
       this.editTile.set(t)
-    })
+    }
+
+    this.toolbar = new Toolbar(tiles, onTileClick, onModeChanged)
 
     this.root.appendChild(this.toolbar.root)
     this.root.appendChild(this.editTile.root)
@@ -64,12 +68,12 @@ export default class Tools {
 
   public show = (showEditTile: boolean) => {
     showEditTile ? this.showEditTile() : this.hideEditTile()
-    this.root.show()
+    this.root.addClass('tools--active')
   }
 
   public hide = () => {
     this.hideEditTile()
-    this.root.hide()
+    this.root.removeClass('tools--active')
   }
 
   private showEditTile() {

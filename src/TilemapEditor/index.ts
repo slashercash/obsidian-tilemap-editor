@@ -1,5 +1,4 @@
 import { type Tile } from 'TilemapEditor/func/parseFileContent'
-import type { Mode } from 'TilemapEditorViewBase'
 import { createElement } from 'TilemapEditor/func/createElement'
 import ClickAction, { trimTilemap } from 'TilemapEditor/handlers/ClickHandler'
 import DragHandler from 'TilemapEditor/handlers/DragHandler'
@@ -9,6 +8,8 @@ import Style from 'TilemapEditor/components/Style'
 import Grid from 'TilemapEditor/components/Grid'
 import FileHandler from 'TilemapEditor/handlers/FileHandler'
 import parse from 'TilemapEditor/func/parseFileContent'
+
+export type Mode = 'navigate' | 'addTile' | 'removeTile' | 'editTile'
 
 export default class TilemapEditor {
   public readonly root = createElement('div', { id: 'tilemap-editor' })
@@ -43,7 +44,7 @@ export default class TilemapEditor {
       onFileContentChange(this.fileHandler.getContent())
     }
 
-    this.tools = new Tools(customTiles, onToolbarTilesChange, onToolbarTileDeleted)
+    this.tools = new Tools(customTiles, onToolbarTilesChange, onToolbarTileDeleted, this.onModeChanged)
     this.tools.hide()
     this.space.appendChild(this.grid.root)
     this.space.appendChild(tilemap)
@@ -84,7 +85,7 @@ export default class TilemapEditor {
     this.renderer.scrollTop = (this.renderer.scrollHeight - this.renderer.clientHeight) / 2
   }
 
-  public onModeChanged(mode: Mode): void {
+  private onModeChanged = (mode: Mode): void => {
     switch (mode) {
       case 'navigate':
         this.tools.hide()
@@ -99,7 +100,7 @@ export default class TilemapEditor {
         this.onClick = undefined
         break
       case 'removeTile':
-        this.tools.hide()
+        this.tools.show(false)
         this.onClick = (e) => {
           const [rowIndex, cellIndex] = this.tileIndexFromClick(e)
           ClickAction.deleteElement(this.tilemap, rowIndex, cellIndex, this.updateTilemapSize)

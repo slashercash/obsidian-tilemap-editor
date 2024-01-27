@@ -1,4 +1,4 @@
-import { TilemapEditorBaseView, type Mode } from 'TilemapEditorViewBase'
+import { TilemapEditorBaseView } from 'TilemapEditorViewBase'
 import TilemapEditor from 'TilemapEditor'
 
 export class TilemapEditorView extends TilemapEditorBaseView {
@@ -25,10 +25,6 @@ export class TilemapEditorView extends TilemapEditorBaseView {
       this.tilemapEditor?.root.show()
       this.tilemapEditor?.centerView()
     }, 0)
-  }
-
-  public onModeChanged(mode: Mode) {
-    this.tilemapEditor?.onModeChanged(mode)
   }
 
   private save(content: string) {

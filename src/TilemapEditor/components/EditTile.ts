@@ -9,12 +9,19 @@ export default class EditTile {
 
   private tile?: Tile
 
-  constructor(onEdit: (tile: Tile) => void, onCreate: (tile: Tile) => void, onDelete: (tile: Tile) => void) {
-    this.selectShape = createSelectElement(
-      ['square', 'circle'],
-      (shape) => this.tile && onEdit({ ...this.tile, shape })
-    )
-    this.selectColor = createSelectElement(['red', 'blue'], (color) => this.tile && onEdit({ ...this.tile, color }))
+  constructor(onEdit: (tile: Tile) => void, onCreate: () => void, onDelete: (tile: Tile) => void) {
+    this.selectShape = createSelectElement(['square', 'circle'], (shape) => {
+      if (this.tile) {
+        this.tile.shape = shape
+        onEdit(this.tile)
+      }
+    })
+    this.selectColor = createSelectElement(['red', 'blue'], (color) => {
+      if (this.tile) {
+        this.tile.color = color
+        onEdit(this.tile)
+      }
+    })
 
     this.root.append(
       createElement('label', { innerText: 'Shape:' }),
@@ -23,7 +30,7 @@ export default class EditTile {
       this.selectColor,
       createElement('button', {
         innerText: 'Create Tile',
-        onclick: () => onCreate(this.tile ? { ...this.tile, id: -1 } : { id: -1, shape: 'square', color: 'red' }),
+        onclick: () => onCreate(),
         className: 'green'
       }),
       createElement('button', {

@@ -1,3 +1,5 @@
+/* TODO: cleanup styles */
+
 .view-content--tilemap-editor {
   padding: 0 !important;
 }
@@ -13,7 +15,7 @@
 #tilemap-editor {
   height: 100%;
 
-  display: flex; /* 00001: toolbar sticks at bottom */
+  display: flex; /* 00001: tools sticks at bottom */
   flex-flow: column; /* 00001 */
 }
 
@@ -48,14 +50,14 @@
   grid-column-start: 1;
 } */
 
-#tilemap-editor .toolbar {
+#tilemap-editor .tools {
   background-color: rgba(40, 40, 40, 0.9);
   width: 100%;
   z-index: 10;
   position: absolute;
 }
 
-#tilemap-editor .toolbar-button-container {
+#tilemap-editor .toolbar {
   display: flex;
   justify-content: center;
   padding: 10px;

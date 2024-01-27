@@ -38,17 +38,19 @@ export default class Tools {
 
   private onCreateTile = () => {
     const id = Math.max(...this.tiles.map((t) => t.id)) + 1
-    const newTile = this.selectedTile ? { ...this.selectedTile, id } : { id, shape: 'square', color: 'red' }
-    this.selectedTile = newTile
-    this.tiles.push(newTile)
-    this.editTile.set(newTile)
-    this.toolbar.addTile(newTile)
+    this.selectedTile = this.selectedTile ? { ...this.selectedTile, id } : { id, shape: 'square', color: 'red' }
+    this.tiles.push(this.selectedTile)
+    this.editTile.set(this.selectedTile)
+    this.toolbar.addTile(this.selectedTile)
     this.onTilesChange(this.tiles)
   }
 
   private onDeleteTile = (tile: Tile) => {
     this.tiles = this.tiles.filter((t) => t.id != tile.id)
     this.selectedTile = this.toolbar.removeTile(tile.id)
+    if (this.selectedTile) {
+      this.editTile.set(this.selectedTile)
+    }
     this.onTileDeleted(tile.id)
     this.onTilesChange(this.tiles)
   }

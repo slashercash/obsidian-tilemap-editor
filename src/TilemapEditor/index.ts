@@ -30,7 +30,7 @@ export default class TilemapEditor {
     this.fileHandler = new FileHandler(tilemap, customTiles)
 
     const onToolbarTilesChange = (tiles: Array<Tile>) => {
-      this.style.setTileStyle(customTiles)
+      this.style.setTileStyle(tiles)
       this.fileHandler.setCustomTiles(tiles)
       onFileContentChange(this.fileHandler.getContent())
     }

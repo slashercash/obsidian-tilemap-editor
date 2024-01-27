@@ -57,14 +57,14 @@
   position: absolute;
 }
 
-#tilemap-editor .toolbar {
+#tilemap-editor .tile-button-container {
   display: flex;
   justify-content: center;
   padding: 10px;
   gap: 10px;
 }
 
-#tilemap-editor .toolbar-button {
+#tilemap-editor .tile-button {
   background-color: rgb(171, 113, 113);
   height: 45px;
   width: 45px;
@@ -72,16 +72,16 @@
   box-shadow: unset;
 }
 
-#tilemap-editor .toolbar-button--selected {
+#tilemap-editor .tile-button--selected {
   background-color: rgb(210, 38, 38);
   box-shadow: inset 0 0 0 1px black;
 }
 
-#tilemap-editor .toolbar-button:hover {
+#tilemap-editor .tile-button:hover {
   cursor: pointer;
 }
 
-#tilemap-editor .toolbar-button > div {
+#tilemap-editor .tile-button > div {
   height: 30px;
   width: 30px;
 }

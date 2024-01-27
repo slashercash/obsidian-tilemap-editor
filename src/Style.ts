@@ -1,4 +1,4 @@
-import type { Tile } from 'file/FileParser'
+import type { Tile } from 'func/parseFileContent'
 
 // TODO: Outsource as Component
 export default class Style {

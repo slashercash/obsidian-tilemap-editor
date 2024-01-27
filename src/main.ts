@@ -1,7 +1,6 @@
 import { Menu, MenuItem, Plugin, TAbstractFile, TFile, TFolder } from 'obsidian'
 import { VIEW_TYPE_TILE, TILE_FILE_EXTENSION } from 'TilemapEditorViewBase'
 import { TilemapEditorView } from 'TilemapEditorView'
-import { FileCreator } from 'file/FileCreator'
 
 export default class TilemapEditorPlugin extends Plugin {
   async onload() {
@@ -14,7 +13,7 @@ export default class TilemapEditorPlugin extends Plugin {
             item
               .setTitle('New Tilemap')
               .setIcon('dice')
-              .onClick(() => this.app.vault.create(getPath(folder), FileCreator.newFile()))
+              .onClick(() => this.app.vault.create(getPath(folder), ''))
           })
         }
       })

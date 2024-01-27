@@ -1,6 +1,6 @@
-import { FileParser, type Tile } from 'file/FileParser'
+import { type Tile } from 'func/parseFileContent'
 import type { Mode } from 'TilemapEditorViewBase'
-import { createElement } from 'utils'
+import { createElement } from 'func/createElement'
 import ClickAction, { trimTilemap } from 'handlers/ClickHandler'
 import DragHandler from 'handlers/DragHandler'
 import ZoomEvents from 'handlers/ZoomHandler'
@@ -8,6 +8,7 @@ import Toolbar from 'components/Toolbar'
 import Style from 'Style'
 import Grid from 'components/Grid'
 import FileHandler from 'handlers/FileHandler'
+import parse from 'func/parseFileContent'
 
 export class TilemapEditor {
   public readonly root = createElement('div', { className: 'tilemap-editor' })
@@ -23,7 +24,7 @@ export class TilemapEditor {
   private fileHandler: FileHandler
 
   constructor(fileContent: string, onFileContentChange: (c: string) => void) {
-    const [tilemap, customTiles] = FileParser.stringToTilemap(fileContent)
+    const { tilemap, customTiles } = parse(fileContent)
     this.tilemap = tilemap
     this.fileHandler = new FileHandler(tilemap, customTiles)
 

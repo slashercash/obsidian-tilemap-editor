@@ -1,26 +1,93 @@
-import { FileCreator } from 'file/FileCreator'
-import { FileParser, type Tile } from 'file/FileParser'
-import { htmlToString } from 'file/htmlToString'
+import { type Tile } from 'func/parseFileContent'
 
 // TODO: Is this the right name?
 export default class FileHandler {
-  public tilemapStr: string
-  public customTilesStr: string
+  private tilemapStr: string
+  private styleStr: string
+  private metadataStr: string
 
   constructor(tilemap: Element, customTiles: Array<Tile>) {
-    this.tilemapStr = htmlToString(tilemap)
-    this.customTilesStr = FileCreator.metaDataToStr({ customTiles })
+    this.tilemapStr = toTilemapStr(tilemap)
+    this.styleStr = toCustomTilesStyle2(customTiles)
+    this.metadataStr = this.metadataStr = JSON.stringify({ customTiles }, undefined, 2)
   }
 
   public setTilemap(t: Element): void {
-    this.tilemapStr = htmlToString(t)
+    this.tilemapStr = toTilemapStr(t)
   }
 
-  public setCustomTiles(c: Array<Tile>): void {
-    this.customTilesStr = FileCreator.metaDataToStr({ customTiles: c })
+  public setCustomTiles(customTiles: Array<Tile>): void {
+    this.styleStr = toCustomTilesStyle2(customTiles)
+    this.metadataStr = this.metadataStr = JSON.stringify({ customTiles }, undefined, 2)
   }
 
   public getContent(): string {
-    return this.tilemapStr + '\n' + this.customTilesStr
+    return `<html>
+  <head>
+    <style>
+      main {
+        display: flex;
+        justify-content: center;
+      }
+      .tilemap-row {
+        display: flex;
+      }
+      .tilemap-cell {
+        display: grid;
+        height: 30px;
+        width: 30px;
+      }
+${this.styleStr}
+    </style>
+  </head>
+  <body>
+${this.tilemapStr}
+  </body>
+</html>
+
+<!-- <metadata>
+${this.metadataStr}
+</metadata> -->
+`
   }
+}
+
+function toTilemapStr(html: Element): string {
+  return format(html.cloneNode(true) as Element).outerHTML
+}
+
+// TODO: fix intent
+function format(node: Element, level: number = 1): Element {
+  var indentBefore = new Array(level++ + 1).join('  '),
+    indentAfter = new Array(level - 1).join('  '),
+    textNode
+
+  for (var i = 0; i < node.children.length; i++) {
+    textNode = document.createTextNode('\n' + indentBefore)
+    node.insertBefore(textNode, node.children[i] ?? null)
+
+    const child = node.children[i]
+    if (child !== undefined) {
+      format(child, level)
+    }
+
+    if (node.lastElementChild == node.children[i]) {
+      textNode = document.createTextNode('\n' + indentAfter)
+      node.appendChild(textNode)
+    }
+  }
+
+  return node
+}
+
+// TODO: This may be duplicated code
+function toCustomTilesStyle2(customTiles: Array<Tile>): string {
+  return customTiles
+    .map(
+      (tile) => `      .custom-tile-${tile.id} {
+        background-color: ${tile.color};
+        box-shadow: inset 0 0 0 1px black;${tile.shape == 'circle' ? '\n        border-radius: 50%;' : ''}
+      }`
+    )
+    .join('\n')
 }

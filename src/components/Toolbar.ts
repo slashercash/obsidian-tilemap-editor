@@ -1,5 +1,5 @@
-import type { Tile } from 'file/FileParser'
-import { createElement } from 'utils'
+import type { Tile } from 'func/parseFileContent'
+import { createElement } from 'func/createElement'
 import EditTile from './EditTile'
 
 export default class Toolbar {

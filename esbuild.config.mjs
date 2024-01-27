@@ -5,7 +5,7 @@ const prod = process.argv[2] === 'production'
 
 esbuild
   .build({
-    entryPoints: ['src/main.ts', 'src/styles.css'],
+    entryPoints: ['src/main.ts'],
     outdir: '.',
     bundle: true,
     external: ['obsidian'],

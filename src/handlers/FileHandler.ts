@@ -21,6 +21,7 @@ export default class FileHandler {
     this.metadataStr = this.metadataStr = JSON.stringify({ customTiles }, undefined, 2)
   }
 
+  // TODO: improve style so open as html uses full space
   public getContent(): string {
     return `<html>
   <head>

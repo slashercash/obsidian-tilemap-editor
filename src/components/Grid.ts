@@ -38,6 +38,7 @@ export default class Grid {
     this.root.appendChild(svg)
   }
 
+  // TODO: Use CSS if possible or more generic approach
   public update(width: number, height: number, overflowHorizontal: number, overflowVertical: number, tileSize: number) {
     this.pattern.setAttrs({
       width: `${tileSize}`,

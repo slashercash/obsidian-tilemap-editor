@@ -1,4 +1,4 @@
-import type { Tile } from 'file/FileParser'
+import { FileParser, type Tile } from 'file/FileParser'
 import type { Mode } from 'TilemapEditorViewBase'
 import { createElement } from 'utils'
 import ClickAction, { trimTilemap } from 'handlers/ClickHandler'
@@ -7,6 +7,7 @@ import ZoomEvents from 'handlers/ZoomHandler'
 import Toolbar from 'components/Toolbar'
 import Style from 'Style'
 import Grid from 'components/Grid'
+import FileHandler from 'handlers/FileHandler'
 
 export class TilemapEditor {
   public readonly root = createElement('div', { className: 'tilemap-editor' })
@@ -18,23 +19,26 @@ export class TilemapEditor {
   private readonly grid = new Grid()
   private tileSize = 30
   private onClick?: (e: MouseEvent) => void = undefined
+  private tilemap: Element
+  private fileHandler: FileHandler
 
-  constructor(
-    private tilemap: Element,
-    customTiles: Array<Tile>,
-    onTilemapChange: (t: Element) => void,
-    onCustomTilesChange: (c: Array<Tile>) => void
-  ) {
+  constructor(fileContent: string, onFileContentChange: (c: string) => void) {
+    const [tilemap, customTiles] = FileParser.stringToTilemap(fileContent)
+    this.tilemap = tilemap
+    this.fileHandler = new FileHandler(tilemap, customTiles)
+
     const onToolbarTilesChange = (tiles: Array<Tile>) => {
       this.updateTileStyle(tiles)
-      onCustomTilesChange(tiles)
+      this.fileHandler.setCustomTiles(tiles)
+      onFileContentChange(this.fileHandler.getContent())
     }
 
     const onToolbarTileDeleted = (tileId: number) => {
       this.tilemap = removeTileFromTilemap(tileId, this.tilemap)
       const [scrollDeltaLeft, scrollDeltaTop, newRows] = trimTilemap(this.tilemap)
       this.updateTilemapSize(scrollDeltaTop, scrollDeltaLeft, newRows)
-      onTilemapChange(this.tilemap)
+      this.fileHandler.setTilemap(this.tilemap)
+      onFileContentChange(this.fileHandler.getContent())
     }
 
     this.toolbar = new Toolbar(customTiles, onToolbarTilesChange, onToolbarTileDeleted)
@@ -49,7 +53,8 @@ export class TilemapEditor {
     const onClick = (e: MouseEvent) => {
       if (this.onClick) {
         this.onClick(e)
-        onTilemapChange(this.tilemap)
+        this.fileHandler.setTilemap(this.tilemap)
+        onFileContentChange(this.fileHandler.getContent())
       }
     }
 

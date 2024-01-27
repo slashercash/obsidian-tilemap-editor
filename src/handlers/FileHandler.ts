@@ -8,7 +8,7 @@ export default class FileHandler {
 
   constructor(tilemap: Element, customTiles: Array<Tile>) {
     this.tilemapStr = toTilemapStr(tilemap)
-    this.styleStr = toCustomTilesStyle2(customTiles)
+    this.styleStr = toCustomTilesStyle(customTiles)
     this.metadataStr = this.metadataStr = JSON.stringify({ customTiles }, undefined, 2)
   }
 
@@ -17,7 +17,7 @@ export default class FileHandler {
   }
 
   public setCustomTiles(customTiles: Array<Tile>): void {
-    this.styleStr = toCustomTilesStyle2(customTiles)
+    this.styleStr = toCustomTilesStyle(customTiles)
     this.metadataStr = this.metadataStr = JSON.stringify({ customTiles }, undefined, 2)
   }
 
@@ -82,12 +82,17 @@ function format(node: Element, level: number = 1): Element {
 }
 
 // TODO: This may be duplicated code
-function toCustomTilesStyle2(customTiles: Array<Tile>): string {
+function toCustomTilesStyle(customTiles: Array<Tile>): string {
   return customTiles
     .map(
       (tile) => `      .custom-tile-${tile.id} {
         background-color: ${tile.color};
-        box-shadow: inset 0 0 0 1px black;${tile.shape == 'circle' ? '\n        border-radius: 50%;' : ''}
+        box-shadow: inset 0 0 0 1px black;${
+          tile.shape == 'circle'
+            ? `
+        border-radius: 50%;`
+            : ''
+        }
       }`
     )
     .join('\n')

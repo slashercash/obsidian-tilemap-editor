@@ -5,7 +5,7 @@ import ClickAction, { trimTilemap } from 'handlers/ClickHandler'
 import DragHandler from 'handlers/DragHandler'
 import ZoomEvents from 'handlers/ZoomHandler'
 import Toolbar from 'components/Toolbar'
-import Style from 'Style'
+import Style from 'components/Style'
 import Grid from 'components/Grid'
 import FileHandler from 'handlers/FileHandler'
 import parse from 'func/parseFileContent'
@@ -22,6 +22,7 @@ export class TilemapEditor {
   private onClick?: (e: MouseEvent) => void = undefined
   private tilemap: Element
   private fileHandler: FileHandler
+  private style = new Style()
 
   constructor(fileContent: string, onFileContentChange: (c: string) => void) {
     const { tilemap, customTiles } = parse(fileContent)
@@ -29,7 +30,7 @@ export class TilemapEditor {
     this.fileHandler = new FileHandler(tilemap, customTiles)
 
     const onToolbarTilesChange = (tiles: Array<Tile>) => {
-      this.updateTileStyle(tiles)
+      this.style.setTileStyle(customTiles)
       this.fileHandler.setCustomTiles(tiles)
       onFileContentChange(this.fileHandler.getContent())
     }
@@ -49,7 +50,7 @@ export class TilemapEditor {
     this.renderer.appendChild(this.space)
     this.root.append(this.toolbar.root, this.renderer, this.zoomStyle, this.tileStyle)
 
-    this.updateTileStyle(customTiles)
+    this.style.setTileStyle(customTiles)
 
     const onClick = (e: MouseEvent) => {
       if (this.onClick) {
@@ -146,27 +147,18 @@ export class TilemapEditor {
   }
 
   private updateZoomStyle() {
-    const x = this.tilemap.children[0]?.children.length ?? 0
-    const y = this.tilemap.children.length
     const rendererRectangle = this.renderer.getBoundingClientRect()
-
-    this.updateGrid(x, y, rendererRectangle)
-    this.zoomStyle.innerText = Style.zoomStyle(x, y, this.tileSize, rendererRectangle)
-  }
-
-  // TODO: try to outsource to style-component (duplicated code)
-  private updateGrid(tilesCountX: number, tilesCountY: number, rendererRectangle: DOMRect) {
+    const tilesCountX = this.tilemap.children[0]?.children.length ?? 0
+    const tilesCountY = this.tilemap.children.length
     const spaceTilesCountX = Math.floor(rendererRectangle.width / this.tileSize)
     const spaceTilesCountY = Math.floor(rendererRectangle.height / this.tileSize)
     const setbackX = this.tileSize - (rendererRectangle.width % this.tileSize)
     const setbackY = this.tileSize - (rendererRectangle.height % this.tileSize)
-    const width = (tilesCountX + spaceTilesCountX * 2) * this.tileSize // - 2 * setbackX
-    const height = (tilesCountY + spaceTilesCountY * 2) * this.tileSize // - 2 * setbackY
-    this.grid.update(width, height, -setbackX, -setbackY, this.tileSize)
-  }
+    const width = (tilesCountX + spaceTilesCountX * 2) * this.tileSize
+    const height = (tilesCountY + spaceTilesCountY * 2) * this.tileSize
 
-  private updateTileStyle(customTiles: ReadonlyArray<Tile>) {
-    this.tileStyle.innerText = Style.tileStyle(customTiles)
+    this.grid.update(width, height, -setbackX, -setbackY, this.tileSize)
+    this.style.setZoomStyle(width - 2 * setbackX, height - 2 * setbackY, this.tileSize)
   }
 }
 

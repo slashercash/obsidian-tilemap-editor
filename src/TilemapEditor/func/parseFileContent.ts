@@ -14,7 +14,7 @@ export default function parse(fileContent: string): { tilemap: Element; customTi
   if (fileContent.trim().length === 0) {
     return {
       tilemap: createElement('div', { className: 'tilemap' }),
-      customTiles: baseCustomTiles
+      customTiles: [...baseCustomTiles]
     }
   }
 

@@ -11,8 +11,13 @@ export default class Style {
 
   constructor() {
     // TODO: Remove style tag on unload?
-    this.style = (document.getElementById(STYLE_ID) as HTMLStyleElement) ?? createElement('style', { id: STYLE_ID })
-    document.head.appendChild(this.style)
+    const element = document.getElementById(STYLE_ID)
+    if (element) {
+      this.style = element as HTMLStyleElement
+    } else {
+      this.style = createElement('style', { id: STYLE_ID })
+      document.head.appendChild(this.style)
+    }
   }
 
   public setZoomStyle(width: number, height: number, tileSize: number): void {

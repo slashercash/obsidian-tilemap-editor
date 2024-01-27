@@ -1,4 +1,4 @@
-import { createElement } from 'func/createElement'
+import { createElement } from 'TilemapEditor/func/createElement'
 
 export type Tile = {
   id: number

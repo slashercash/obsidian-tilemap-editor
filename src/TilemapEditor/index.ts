@@ -1,16 +1,16 @@
-import { type Tile } from 'func/parseFileContent'
+import { type Tile } from 'TilemapEditor/func/parseFileContent'
 import type { Mode } from 'TilemapEditorViewBase'
-import { createElement } from 'func/createElement'
-import ClickAction, { trimTilemap } from 'handlers/ClickHandler'
-import DragHandler from 'handlers/DragHandler'
-import ZoomEvents from 'handlers/ZoomHandler'
-import Toolbar from 'components/Toolbar'
-import Style from 'components/Style'
-import Grid from 'components/Grid'
-import FileHandler from 'handlers/FileHandler'
-import parse from 'func/parseFileContent'
+import { createElement } from 'TilemapEditor/func/createElement'
+import ClickAction, { trimTilemap } from 'TilemapEditor/handlers/ClickHandler'
+import DragHandler from 'TilemapEditor/handlers/DragHandler'
+import ZoomEvents from 'TilemapEditor/handlers/ZoomHandler'
+import Toolbar from 'TilemapEditor/components/Toolbar'
+import Style from 'TilemapEditor/components/Style'
+import Grid from 'TilemapEditor/components/Grid'
+import FileHandler from 'TilemapEditor/handlers/FileHandler'
+import parse from 'TilemapEditor/func/parseFileContent'
 
-export class TilemapEditor {
+export default class TilemapEditor {
   public readonly root = createElement('div', { className: 'tilemap-editor' })
   private readonly renderer = createElement('div', { className: 'tilemap-renderer' })
   private readonly zoomStyle = createElement('style')

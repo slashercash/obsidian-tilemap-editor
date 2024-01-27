@@ -1,5 +1,5 @@
-import type { Tile } from 'func/parseFileContent'
-import { createElement } from 'func/createElement'
+import type { Tile } from 'TilemapEditor/func/parseFileContent'
+import { createElement } from 'TilemapEditor/func/createElement'
 
 export default class EditTile {
   public readonly root = createElement('div', { className: 'tilemap-toolbar-edit-tile' })

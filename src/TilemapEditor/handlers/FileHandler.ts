@@ -1,4 +1,4 @@
-import { type Tile } from 'func/parseFileContent'
+import { type Tile } from 'TilemapEditor/func/parseFileContent'
 
 // TODO: Is this the right name?
 export default class FileHandler {

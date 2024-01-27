@@ -1,5 +1,5 @@
-import { createElement } from 'func/createElement'
-import type { Tile } from 'func/parseFileContent'
+import { createElement } from 'TilemapEditor/func/createElement'
+import type { Tile } from 'TilemapEditor/func/parseFileContent'
 
 // TODO: Outsource potential constants
 const STYLE_ID = 'tilemap-editor-dynamic-style'

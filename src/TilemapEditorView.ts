@@ -1,5 +1,5 @@
 import { TilemapEditorBaseView, type Mode } from 'TilemapEditorViewBase'
-import { TilemapEditor } from 'TilemapEditor'
+import TilemapEditor from 'TilemapEditor'
 
 export class TilemapEditorView extends TilemapEditorBaseView {
   private rootElement?: HTMLElement

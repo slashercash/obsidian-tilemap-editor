@@ -5,6 +5,7 @@ import Toolbar from './Toolbar'
 
 export default class Tools {
   public readonly root = createElement('div', { className: 'tools' })
+  // TODO: only save index insetad of whole tile
   public selectedTile?: Tile = undefined
 
   private readonly toolbar: Toolbar
@@ -28,10 +29,13 @@ export default class Tools {
   }
 
   private onEditTile = (tile: Tile) => {
-    this.selectedTile = tile
-    const i = this.tiles.findIndex((t) => t.id === tile.id)
+    if (!this.selectedTile) {
+      return
+    }
+    this.selectedTile = { ...tile, id: this.selectedTile.id }
+    const i = this.tiles.findIndex((t) => t.id === this.selectedTile?.id)
     if (i >= 0) {
-      this.tiles[i] = tile
+      this.tiles[i] = this.selectedTile
       this.onTilesChange(this.tiles)
     }
   }
@@ -40,18 +44,21 @@ export default class Tools {
     const id = Math.max(...this.tiles.map((t) => t.id)) + 1
     this.selectedTile = this.selectedTile ? { ...this.selectedTile, id } : { id, shape: 'square', color: 'red' }
     this.tiles.push(this.selectedTile)
-    this.editTile.set(this.selectedTile)
     this.toolbar.addTile(this.selectedTile)
     this.onTilesChange(this.tiles)
   }
 
-  private onDeleteTile = (tile: Tile) => {
-    this.tiles = this.tiles.filter((t) => t.id != tile.id)
-    this.selectedTile = this.toolbar.removeTile(tile.id)
+  private onDeleteTile = () => {
+    const deleteId = this.selectedTile?.id
+    if (!deleteId) {
+      return
+    }
+    this.tiles = this.tiles.filter((t) => t.id != deleteId)
+    this.selectedTile = this.toolbar.removeTile(deleteId)
     if (this.selectedTile) {
       this.editTile.set(this.selectedTile)
     }
-    this.onTileDeleted(tile.id)
+    this.onTileDeleted(deleteId)
     this.onTilesChange(this.tiles)
   }
 

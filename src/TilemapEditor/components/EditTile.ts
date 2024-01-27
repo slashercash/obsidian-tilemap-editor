@@ -7,20 +7,12 @@ export default class EditTile {
   private readonly selectShape: HTMLSelectElement
   private readonly selectColor: HTMLSelectElement
 
-  private tile?: Tile
-
-  constructor(onEdit: (tile: Tile) => void, onCreate: () => void, onDelete: (tile: Tile) => void) {
-    this.selectShape = createSelectElement(['square', 'circle'], (shape) => {
-      if (this.tile) {
-        this.tile.shape = shape
-        onEdit(this.tile)
-      }
+  constructor(onEdit: (tile: Tile) => void, onCreate: () => void, onDelete: () => void) {
+    this.selectShape = createSelectElement(['square', 'circle'], () => {
+      onEdit({ id: -1, color: this.selectColor.value, shape: this.selectShape.value })
     })
-    this.selectColor = createSelectElement(['red', 'blue'], (color) => {
-      if (this.tile) {
-        this.tile.color = color
-        onEdit(this.tile)
-      }
+    this.selectColor = createSelectElement(['red', 'blue'], () => {
+      onEdit({ id: -1, color: this.selectColor.value, shape: this.selectShape.value })
     })
 
     this.root.append(
@@ -35,7 +27,7 @@ export default class EditTile {
       }),
       createElement('button', {
         innerText: 'Delete Tile',
-        onclick: () => this.tile && onDelete(this.tile),
+        onclick: () => onDelete(),
         className: 'red'
       })
     )
@@ -45,16 +37,13 @@ export default class EditTile {
   public hide = () => this.root.hide()
 
   public set(tile: Tile) {
-    this.tile = tile
     this.selectShape.value = tile.shape
     this.selectColor.value = tile.color
   }
 }
 
-function createSelectElement(options: ReadonlyArray<string>, onSelect: (value: string) => void): HTMLSelectElement {
-  return createElement(
-    'select',
-    { onchange: ({ target }) => target instanceof HTMLSelectElement && onSelect(target.value) },
-    options.map((option) => createElement('option', { innerText: option, value: option }))
-  )
+function createSelectElement(options: ReadonlyArray<string>, onChange: () => void): HTMLSelectElement {
+  const element = createElement('select', { onchange: onChange })
+  element.append(...options.map((option) => createElement('option', { innerText: option, value: option })))
+  return element
 }

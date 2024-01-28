@@ -51,7 +51,6 @@
 } */
 
 #tilemap-editor .tools {
-  right: 0;
   z-index: 10;
   position: absolute;
 }
@@ -83,19 +82,27 @@
   gap: 10px;
 }
 
+#tilemap-editor .toolbar-button {
+  border-radius: 50%;
+  height: 35px;
+  width: 35px;
+  padding: 0;
+}
+
 #tilemap-editor .tile-button {
   background-color: rgb(171, 113, 113);
   height: 45px;
   width: 45px;
   padding: 0;
-  box-shadow: unset;
 }
 
+#tilemap-editor .toolbar-button--selected,
 #tilemap-editor .tile-button--selected {
   background-color: rgb(210, 38, 38);
   box-shadow: inset 0 0 0 1px black;
 }
 
+#tilemap-editor .toolbar-button:hover,
 #tilemap-editor .tile-button:hover {
   cursor: pointer;
 }
@@ -126,8 +133,4 @@
 
 #tilemap-editor .edit-tile button.green:hover {
   background-color: green;
-}
-
-#tilemap-editor button.is-selected {
-  background-color: rgb(210, 38, 38);
 }

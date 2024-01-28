@@ -16,36 +16,47 @@ export default class Toolbar {
   // Add Tiles
   // Close Toolbar
 
-  private rmvButton = createElement('button', { innerText: 'REMOVE' })
-  private edtButton = createElement('button', { innerText: 'EDIT' })
-  private addButton = createElement('button', { innerText: 'ADD' })
-  private tglButton = createElement('button', { innerText: 'ADD' })
+  private tglButton = createElement('button', { className: 'toolbar-button', innerText: '▼' })
+  private edtButton = createElement('button', { className: 'toolbar-button', innerText: '⚙' })
+  private rmvButton = createElement('button', { className: 'toolbar-button', innerText: '➖' })
+  private addButton = createElement('button', { className: 'toolbar-button', innerText: '➕' })
 
   constructor(tiles: Array<Tile>, onTileClick: (t: Tile) => void, private onModeChanged: (mode: Mode) => void) {
     this.tileButtonContainer = new TileButtonContainer(tiles, onTileClick)
 
     this.rmvButton.onclick = () => this.changeMode('removeTile', this.rmvButton)
-    this.edtButton.onclick = () => this.changeMode('editTile', this.edtButton)
+    this.edtButton.onclick = () => {
+      this.edtButton.hide()
+      this.rmvButton.hide()
+      this.addButton.style.visibility = 'hidden'
+      this.mode = 'editTile'
+      this.onModeChanged(this.mode)
+    }
     this.addButton.onclick = () => this.changeMode('addTile', this.addButton)
     this.tglButton.onclick = () => {
       if (this.mode === 'navigate') {
         this.select(this.addButton)
-        this.tglButton.innerText = 'CLOSE'
+        this.tglButton.innerText = '▲'
         this.mode = 'addTile'
         this.bar.show()
+      } else if (this.mode === 'editTile') {
+        this.mode = 'addTile'
+        this.edtButton.show()
+        this.rmvButton.show()
+        this.addButton.style.visibility = 'unset'
       } else {
         this.select(undefined)
-        this.tglButton.innerText = 'ADD'
+        this.tglButton.innerText = '▼'
         this.mode = 'navigate'
         this.bar.hide()
       }
       onModeChanged(this.mode)
     }
 
-    this.bar.append(this.addButton, this.rmvButton, this.tileButtonContainer.root, this.edtButton)
+    this.bar.append(this.edtButton, this.tileButtonContainer.root, this.rmvButton, this.addButton)
     this.bar.hide()
 
-    this.root.append(this.bar, this.tglButton)
+    this.root.append(this.tglButton, this.bar)
   }
 
   public addTile(tile: Tile): void {
@@ -62,10 +73,10 @@ export default class Toolbar {
   }
 
   private select(actionButton?: HTMLElement) {
-    this.rmvButton.removeClass('is-selected')
-    this.edtButton.removeClass('is-selected')
-    this.addButton.removeClass('is-selected')
-    this.tglButton.removeClass('is-selected')
-    actionButton && actionButton.addClass('is-selected')
+    this.rmvButton.removeClass('toolbar-button--selected')
+    this.edtButton.removeClass('toolbar-button--selected')
+    this.addButton.removeClass('toolbar-button--selected')
+    this.tglButton.removeClass('toolbar-button--selected')
+    actionButton && actionButton.addClass('toolbar-button--selected')
   }
 }

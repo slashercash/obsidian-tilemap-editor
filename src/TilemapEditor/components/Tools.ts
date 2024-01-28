@@ -45,7 +45,7 @@ export default class Tools {
   }
 
   private onCreateTile = () => {
-    const id = Math.max(...this.tiles.map((t) => t.id)) + 1
+    const id = Math.max(...this.tiles.map((t) => t.id), -1) + 1
     this.selectedTile = this.selectedTile ? { ...this.selectedTile, id } : { id, shape: 'square', color: 'red' }
     this.tiles.push(this.selectedTile)
     this.toolbar.addTile(this.selectedTile)
@@ -54,7 +54,7 @@ export default class Tools {
 
   private onDeleteTile = () => {
     const deleteId = this.selectedTile?.id
-    if (!deleteId) {
+    if (deleteId === undefined) {
       return
     }
     this.tiles = this.tiles.filter((t) => t.id != deleteId)

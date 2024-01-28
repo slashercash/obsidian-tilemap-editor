@@ -14,8 +14,6 @@ export type Mode = 'navigate' | 'addTile' | 'removeTile' | 'editTile'
 export default class TilemapEditor {
   public readonly root = createElement('div', { id: 'tilemap-editor' })
   private readonly renderer = createElement('div', { className: 'renderer' })
-  private readonly zoomStyle = createElement('style')
-  private readonly tileStyle = createElement('style')
   private readonly tools: Tools
   private readonly space = createElement('div', { className: 'space' })
   private readonly grid = new Grid()
@@ -45,11 +43,13 @@ export default class TilemapEditor {
     }
 
     this.tools = new Tools(customTiles, onToolbarTilesChange, onToolbarTileDeleted, this.onModeChanged)
+    // TODO: dont hide.. replace!
     this.tools.hide()
+    // TODO: create renderer and children via function
     this.space.appendChild(this.grid.root)
     this.space.appendChild(tilemap)
     this.renderer.appendChild(this.space)
-    this.root.append(this.tools.root, this.renderer, this.zoomStyle, this.tileStyle)
+    this.root.append(this.tools.root, this.renderer)
 
     this.style.setTileStyle(customTiles)
 

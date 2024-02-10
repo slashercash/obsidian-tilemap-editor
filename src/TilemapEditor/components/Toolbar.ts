@@ -2,6 +2,7 @@ import type { Mode } from 'TilemapEditor'
 import type { Tile } from 'TilemapEditor/func/parseFileContent'
 import { createElement } from 'TilemapEditor/func/createElement'
 import TileButtonContainer from './TileButtonContainer'
+import { svgAdd, svgErase, svgToggle } from 'TilemapEditor/func/createSvg'
 
 export default class Toolbar {
   public readonly root = createElement('div', { className: 'toolbar-container' })
@@ -23,12 +24,16 @@ export default class Toolbar {
   // Close Toolbar
 
   // private tglButton = createElement('button', { className: 'toolbar-button', innerText: '▼' })
-  private edtButton = createElement('button', { innerText: '⚙' })
-  private rmvButton = createElement('button', { innerText: '➖' })
-  private addButton = createElement('button', { innerText: '➕' })
+  private edtButton = createElement('button')
+  private rmvButton = createElement('button')
+  private addButton = createElement('button')
 
   constructor(tiles: Array<Tile>, onTileClick: (t: Tile) => void, private onModeChanged: (mode: Mode) => void) {
     this.tileButtonContainer = new TileButtonContainer(tiles, onTileClick)
+
+    this.edtButton.append(svgToggle())
+    this.rmvButton.append(svgErase())
+    this.addButton.append(svgAdd())
 
     this.rmvButton.onclick = () => this.changeMode('removeTile', this.rmvButton)
     this.edtButton.onclick = () => {

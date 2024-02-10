@@ -3,6 +3,7 @@ import type { Tile } from 'TilemapEditor/func/parseFileContent'
 import { createElement } from 'TilemapEditor/func/createElement'
 import EditTile from './EditTile'
 import Toolbar from './Toolbar'
+import { svgExpander } from 'TilemapEditor/func/createSvg'
 
 export default class Tools {
   public readonly root = createElement('section', { className: 'tools tools--level-0' })
@@ -46,6 +47,8 @@ export default class Tools {
     }
 
     this.toolbar = new Toolbar(tiles, onTileClick, myOnModeChanged)
+
+    this.btnExpander.append(svgExpander())
 
     this.btnExpander.onclick = () => {
       if (this.root.classList.contains('tools--level-0')) {

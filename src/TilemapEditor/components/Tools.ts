@@ -54,9 +54,11 @@ export default class Tools {
       if (this.root.classList.contains('tools--level-0')) {
         this.root.className = 'tools tools--level-1'
         this.btnExpander.className = 'expander'
+        onModeChanged(this.toolbar.addButton.className === 'selected' ? 'addTile' : 'removeTile')
       } else {
         this.root.className = 'tools tools--level-0'
         this.btnExpander.className = 'expander expander--off'
+        this.toolbar.edtButton.className = ''
         onModeChanged('navigate')
       }
     }

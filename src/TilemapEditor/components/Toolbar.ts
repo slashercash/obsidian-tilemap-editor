@@ -24,9 +24,9 @@ export default class Toolbar {
   // Close Toolbar
 
   // private tglButton = createElement('button', { className: 'toolbar-button', innerText: '▼' })
-  private edtButton = createElement('button')
+  public edtButton = createElement('button')
   private rmvButton = createElement('button')
-  private addButton = createElement('button')
+  public addButton = createElement('button', { className: 'selected' })
 
   constructor(tiles: Array<Tile>, onTileClick: (t: Tile) => void, private onModeChanged: (mode: Mode) => void) {
     this.tileButtonContainer = new TileButtonContainer(tiles, onTileClick)
@@ -38,8 +38,10 @@ export default class Toolbar {
     this.rmvButton.onclick = () => this.changeMode('removeTile', this.rmvButton)
     this.edtButton.onclick = () => {
       if (this.mode === 'editTile') {
-        this.mode = 'addTile'
+        this.edtButton.className = ''
+        this.mode = this.addButton.className === 'selected' ? 'addTile' : 'removeTile'
       } else {
+        this.edtButton.className = 'toggled'
         this.mode = 'editTile'
       }
       this.onModeChanged(this.mode)
@@ -62,6 +64,7 @@ export default class Toolbar {
   }
 
   private changeMode(mode: Mode, actionButton: HTMLElement) {
+    this.edtButton.className = ''
     this.select(actionButton)
     this.onModeChanged(mode)
   }

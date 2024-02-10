@@ -115,7 +115,7 @@
     position: absolute;
     top: 15px;
     left: 15px;
-    z-index: 1;
+    z-index: 3;
     transition: border-radius 0.15s ease-in;
     > svg > path {
       transform-origin: center;
@@ -186,6 +186,7 @@
     width: 100%;
 
     > .toolbar-side {
+      z-index: 2;
       display: flex;
       align-items: center;
       padding: 0 15px;
@@ -234,5 +235,21 @@
 
   &.delete:hover {
     background-color: red;
+  }
+}
+
+@media (max-width: 600px) {
+  #tilemap-editor button {
+    width: 41px;
+    height: 41px;
+
+    &.expander {
+      left: 9px;
+      top: 12px;
+    }
+  }
+
+  #tilemap-editor > .tools > .toolbar-container > .toolbar > .toolbar-side {
+    padding: 0 9px;
   }
 }

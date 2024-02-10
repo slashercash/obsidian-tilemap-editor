@@ -4,11 +4,17 @@ import { createElement } from 'TilemapEditor/func/createElement'
 import TileButtonContainer from './TileButtonContainer'
 
 export default class Toolbar {
-  public readonly root = createElement('div', { className: 'toolbar' })
+  public readonly root = createElement('div', { className: 'toolbar-container' })
+
+  private readonly toolbar = createElement('div', { className: 'toolbar' })
+  private readonly toolbarLeft = createElement('div', { className: 'toolbar-side' })
+  private readonly toolbarRight = createElement('div', { className: 'toolbar-side' })
+  private readonly toolbarCenter = createElement('div', { className: 'toolbar-center' })
+  private readonly btnHidden = createElement('button', { className: 'hidden' })
 
   private tileButtonContainer: TileButtonContainer
   private mode: Mode = 'navigate'
-  private bar = createElement('div', { className: 'toolbar-bar' })
+  // private bar = createElement('div', { className: 'toolbar-bar' })
 
   // TOOLTIPS:
   // Remove Tiles
@@ -16,47 +22,30 @@ export default class Toolbar {
   // Add Tiles
   // Close Toolbar
 
-  private tglButton = createElement('button', { className: 'toolbar-button', innerText: '▼' })
-  private edtButton = createElement('button', { className: 'toolbar-button', innerText: '⚙' })
-  private rmvButton = createElement('button', { className: 'toolbar-button', innerText: '➖' })
-  private addButton = createElement('button', { className: 'toolbar-button', innerText: '➕' })
+  // private tglButton = createElement('button', { className: 'toolbar-button', innerText: '▼' })
+  private edtButton = createElement('button', { innerText: '⚙' })
+  private rmvButton = createElement('button', { innerText: '➖' })
+  private addButton = createElement('button', { innerText: '➕' })
 
   constructor(tiles: Array<Tile>, onTileClick: (t: Tile) => void, private onModeChanged: (mode: Mode) => void) {
     this.tileButtonContainer = new TileButtonContainer(tiles, onTileClick)
 
     this.rmvButton.onclick = () => this.changeMode('removeTile', this.rmvButton)
     this.edtButton.onclick = () => {
-      this.edtButton.hide()
-      this.rmvButton.hide()
-      this.addButton.style.visibility = 'hidden'
-      this.mode = 'editTile'
+      if (this.mode === 'editTile') {
+        this.mode = 'addTile'
+      } else {
+        this.mode = 'editTile'
+      }
       this.onModeChanged(this.mode)
     }
     this.addButton.onclick = () => this.changeMode('addTile', this.addButton)
-    this.tglButton.onclick = () => {
-      if (this.mode === 'navigate') {
-        this.select(this.addButton)
-        this.tglButton.innerText = '▲'
-        this.mode = 'addTile'
-        this.bar.show()
-      } else if (this.mode === 'editTile') {
-        this.mode = 'addTile'
-        this.edtButton.show()
-        this.rmvButton.show()
-        this.addButton.style.visibility = 'unset'
-      } else {
-        this.select(undefined)
-        this.tglButton.innerText = '▼'
-        this.mode = 'navigate'
-        this.bar.hide()
-      }
-      onModeChanged(this.mode)
-    }
 
-    this.bar.append(this.edtButton, this.tileButtonContainer.root, this.rmvButton, this.addButton)
-    this.bar.hide()
-
-    this.root.append(this.tglButton, this.bar)
+    this.toolbarLeft.append(this.btnHidden, this.edtButton)
+    this.toolbarCenter.append(this.tileButtonContainer.root)
+    this.toolbarRight.append(this.rmvButton, this.addButton)
+    this.toolbar.append(this.toolbarLeft, this.toolbarCenter, this.toolbarRight)
+    this.root.append(this.toolbar)
   }
 
   public addTile(tile: Tile): void {
@@ -73,10 +62,10 @@ export default class Toolbar {
   }
 
   private select(actionButton?: HTMLElement) {
-    this.rmvButton.removeClass('toolbar-button--selected')
-    this.edtButton.removeClass('toolbar-button--selected')
-    this.addButton.removeClass('toolbar-button--selected')
-    this.tglButton.removeClass('toolbar-button--selected')
-    actionButton && actionButton.addClass('toolbar-button--selected')
+    this.rmvButton.removeClass('selected')
+    this.edtButton.removeClass('selected')
+    this.addButton.removeClass('selected')
+    // this.tglButton.removeClass('selected')
+    actionButton && actionButton.addClass('selected')
   }
 }

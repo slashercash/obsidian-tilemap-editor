@@ -5,12 +5,13 @@ import EditTile from './EditTile'
 import Toolbar from './Toolbar'
 
 export default class Tools {
-  public readonly root = createElement('div', { className: 'tools' })
+  public readonly root = createElement('section', { className: 'tools tools--level-0' })
   // TODO: only save index insetad of whole tile
   public selectedTile?: Tile = undefined
 
   private readonly toolbar: Toolbar
   private readonly editTile: EditTile
+  private readonly btnExpander = createElement('button', { className: 'expander expander--off' })
 
   constructor(
     private tiles: Array<Tile>,
@@ -26,8 +27,38 @@ export default class Tools {
       this.editTile.set(t)
     }
 
-    this.toolbar = new Toolbar(tiles, onTileClick, onModeChanged)
+    const myOnModeChanged = (mode: Mode): void => {
+      switch (mode) {
+        case 'navigate':
+          this.root.className = 'tools tools--level-0'
+          break
+        case 'addTile':
+          this.root.className = 'tools tools--level-1'
+          break
+        case 'editTile':
+          this.root.className = 'tools tools--level-2'
+          break
+        case 'removeTile':
+          this.root.className = 'tools tools--level-1'
+          break
+      }
+      onModeChanged(mode)
+    }
 
+    this.toolbar = new Toolbar(tiles, onTileClick, myOnModeChanged)
+
+    this.btnExpander.onclick = () => {
+      if (this.root.classList.contains('tools--level-0')) {
+        this.root.className = 'tools tools--level-1'
+        this.btnExpander.className = 'expander'
+      } else {
+        this.root.className = 'tools tools--level-0'
+        this.btnExpander.className = 'expander expander--off'
+        onModeChanged('navigate')
+      }
+    }
+
+    this.root.appendChild(this.btnExpander)
     this.root.appendChild(this.toolbar.root)
     this.root.appendChild(this.editTile.root)
   }
@@ -77,12 +108,12 @@ export default class Tools {
   }
 
   private showEditTile() {
-    this.root.style.height = '100%'
-    this.editTile.show()
+    // this.root.style.height = '100%'
+    // this.editTile.show()
   }
 
   private hideEditTile() {
-    this.root.style.height = 'unset'
-    this.editTile.hide()
+    // this.root.style.height = 'unset'
+    // this.editTile.hide()
   }
 }

@@ -13,7 +13,7 @@ export type Mode = 'navigate' | 'addTile' | 'removeTile' | 'editTile'
 
 export default class TilemapEditor {
   public readonly root = createElement('div', { id: 'tilemap-editor' })
-  private readonly renderer = createElement('div', { className: 'renderer' })
+  private readonly renderer = createElement('section', { className: 'renderer' })
   private readonly tools: Tools
   private readonly space = createElement('div', { className: 'space' })
   private readonly grid = new Grid()
@@ -44,7 +44,7 @@ export default class TilemapEditor {
 
     this.tools = new Tools(customTiles, onToolbarTilesChange, onToolbarTileDeleted, this.onModeChanged)
     // TODO: dont hide.. replace!
-    this.tools.hide()
+    // this.tools.hide()
     // TODO: create renderer and children via function
     this.space.appendChild(this.grid.root)
     this.space.appendChild(tilemap)
@@ -88,19 +88,19 @@ export default class TilemapEditor {
   private onModeChanged = (mode: Mode): void => {
     switch (mode) {
       case 'navigate':
-        this.tools.hide()
+        // this.tools.hide()
         this.onClick = undefined
         break
       case 'addTile':
-        this.tools.show(false)
+        // this.tools.show(false)
         this.onClick = this.toolbarAction
         break
       case 'editTile':
-        this.tools.show(true)
+        // this.tools.show(true)
         this.onClick = undefined
         break
       case 'removeTile':
-        this.tools.show(false)
+        // this.tools.show(false)
         this.onClick = (e) => {
           const [rowIndex, cellIndex] = this.tileIndexFromClick(e)
           ClickAction.deleteElement(this.tilemap, rowIndex, cellIndex, this.updateTilemapSize)

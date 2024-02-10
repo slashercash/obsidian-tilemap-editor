@@ -2,8 +2,9 @@ import type { Tile } from 'TilemapEditor/func/parseFileContent'
 import { createElement } from 'TilemapEditor/func/createElement'
 
 export default class EditTile {
-  public readonly root = createElement('div', { className: 'edit-tile' })
+  public readonly root = createElement('div', { className: 'customizer-container' })
 
+  private readonly customizer = createElement('div', { className: 'customizer' })
   private readonly selectShape: HTMLSelectElement
   private readonly selectColor: HTMLSelectElement
 
@@ -15,7 +16,7 @@ export default class EditTile {
       onEdit({ id: -1, color: this.selectColor.value, shape: this.selectShape.value })
     })
 
-    this.root.append(
+    this.customizer.append(
       createElement('label', { innerText: 'Shape:' }),
       this.selectShape,
       createElement('label', { innerText: 'Color:' }),
@@ -23,18 +24,20 @@ export default class EditTile {
       createElement('button', {
         innerText: 'Create Tile',
         onclick: () => onCreate(),
-        className: 'green'
+        className: 'create'
       }),
       createElement('button', {
         innerText: 'Delete Tile',
         onclick: () => onDelete(),
-        className: 'red'
+        className: 'delete'
       })
     )
+
+    this.root.append(this.customizer)
   }
 
-  public show = () => this.root.show()
-  public hide = () => this.root.hide()
+  public show = () => {} // this.root.show()
+  public hide = () => {} //this.root.hide()
 
   public set(tile: Tile) {
     this.selectShape.value = tile.shape

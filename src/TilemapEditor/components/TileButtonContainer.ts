@@ -2,7 +2,7 @@ import { createElement } from 'TilemapEditor/func/createElement'
 import type { Tile } from 'TilemapEditor/func/parseFileContent'
 
 export default class TileButtonContainer {
-  public readonly root = createElement('div', { className: 'tile-button-container' })
+  public readonly root = createElement('div', { className: 'tiles-container' })
 
   // TODO possible only buttons?
   private tileButtons: Array<{ tile: Tile; button: HTMLButtonElement }>

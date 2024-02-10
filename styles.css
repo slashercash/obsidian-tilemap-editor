@@ -9,7 +9,7 @@
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  box-shadow: inset 0 0 0 1px greenyellow; /* only for developing purpose*/
+  /* box-shadow: inset 0 0 0 1px greenyellow; only for developing purpose */
 }
 
 #tilemap-editor {
@@ -44,93 +44,195 @@
   display: grid;
 }
 
-/* this is only needed for tile-stacking */
-/* #tilemap-editor .cell > div {
-  grid-row-start: 1;
-  grid-column-start: 1;
-} */
-
-#tilemap-editor .tools {
-  z-index: 10;
-  position: absolute;
-}
-
-#tilemap-editor .tools--active {
-  width: 100%;
-  background-color: rgba(40, 40, 40, 0.9);
-}
-
-#tilemap-editor .toolbar {
-  display: flex;
-  align-items: center;
-  height: 65px;
-  padding: 10px;
-  gap: 10px;
-}
-
-#tilemap-editor .toolbar-bar {
-  display: flex;
-  flex: 1;
-  align-items: center;
-  gap: 10px;
-}
-
-#tilemap-editor .tile-button-container {
-  display: flex;
-  flex: 1;
-  justify-content: center;
-  gap: 10px;
-}
-
-#tilemap-editor .toolbar-button {
-  border-radius: 50%;
-  height: 35px;
-  width: 35px;
-  padding: 0;
-}
-
 #tilemap-editor .tile-button {
-  background-color: rgb(171, 113, 113);
-  height: 45px;
-  width: 45px;
+  background-color: unset;
   padding: 0;
+  box-shadow: none;
+  width: 30px;
+  height: 30px;
 }
 
-#tilemap-editor .toolbar-button--selected,
-#tilemap-editor .tile-button--selected {
-  background-color: rgb(210, 38, 38);
-  box-shadow: inset 0 0 0 1px black;
-}
-
-#tilemap-editor .toolbar-button:hover,
 #tilemap-editor .tile-button:hover {
   cursor: pointer;
 }
 
 #tilemap-editor .tile-button > div {
-  height: 30px;
-  width: 30px;
+  height: 100%;
+  width: 100%;
 }
 
-#tilemap-editor .edit-tile {
+#tilemap-editor .tile-button--selected {
+  /* background-color: rgb(210, 38, 38); */
+  box-shadow: inset 0 0 0 1px black;
+  > div {
+    box-shadow: 0 0 0 3px rgb(255, 170, 0);
+  }
+}
+
+#tilemap-editor svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+#tilemap-editor button {
+  padding: 2px;
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+  border: unset;
+  border-radius: 5px;
+  background-color: #363636;
+  box-shadow: 0 0 2px 0 black;
+  z-index: 1;
+  > svg > path {
+    stroke: rgb(255, 170, 0);
+    stroke-width: 2;
+  }
+
+  &.hidden {
+    visibility: hidden;
+  }
+
+  &.selected {
+    background-color: rgb(255, 170, 0);
+    > svg > path {
+      stroke: #363636;
+    }
+  }
+
+  &:disabled {
+    filter: grayscale(1);
+    cursor: unset;
+  }
+
+  &.toggled {
+    background-color: #343434;
+    box-shadow: inset 0 0 4px 0 black;
+  }
+
+  &.expander {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    z-index: 1;
+    transition: border-radius 0.15s ease-in;
+    > svg > path {
+      transform-origin: center;
+      transition: transform 0.15s ease-in;
+    }
+
+    &.expander--off {
+      border-radius: 50%;
+      box-shadow: 0 0 5px 0 black;
+      > svg > path {
+        transform: scaleY(-1) translateY(-1px);
+      }
+    }
+  }
+}
+
+#tilemap-editor {
+  position: relative;
+  height: 100%;
+  background-color: #1e1e1e;
+
+  select {
+    padding: 0 5px;
+    height: 35px;
+    border-radius: 5px;
+    border: 0;
+    background-color: #363636;
+    box-shadow: 0 0 2px 0 black;
+    &:focus {
+      outline: none;
+    }
+  }
+}
+
+#tilemap-editor > .tools {
+  z-index: 1;
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background-color: rgba(40, 40, 40, 0.9);
+  box-shadow: 0 0 5px 0 black;
+  transition: height 0.15s ease;
+}
+
+#tilemap-editor > .tools.tools--level-0 {
+  height: 0;
+}
+
+#tilemap-editor > .tools.tools--level-1 {
+  height: 65px;
+}
+
+#tilemap-editor > .tools.tools--level-2 {
+  height: 100%;
+}
+
+#tilemap-editor > .tools > .toolbar-container {
+  position: relative;
+  height: 100%;
+  max-height: 65px;
+
+  > .toolbar {
+    display: flex;
+    position: absolute;
+    bottom: 0;
+    height: 65px;
+    width: 100%;
+
+    > .toolbar-side {
+      display: flex;
+      align-items: center;
+      padding: 0 15px;
+      gap: 5px;
+      position: relative; /* to show shadow toolbar-center */
+      box-shadow: 8px 0px 8px -8px black, -8px 0px 8px -8px black;
+    }
+
+    > .toolbar-center {
+      flex: 1;
+      display: flex;
+      overflow-x: auto;
+
+      > .tiles-container {
+        margin: auto;
+        padding: 0 10px;
+        display: flex;
+        gap: 10px;
+      }
+    }
+  }
+}
+
+#tilemap-editor > .tools > .customizer-container {
+  overflow: hidden;
+  flex: 1;
+}
+
+#tilemap-editor > .tools > .customizer-container > .customizer {
   display: grid;
   grid-template-columns: min-content min-content;
   justify-content: center;
   align-items: center;
   gap: 10px;
-
-  padding-top: 10px;
+  padding: 10px;
 }
 
-#tilemap-editor .edit-tile button {
+#tilemap-editor > .tools > .customizer-container > .customizer > button {
+  width: 100%;
   grid-column: span 2;
   cursor: pointer;
-}
 
-#tilemap-editor .edit-tile button.red:hover {
-  background-color: red;
-}
+  &.create:hover {
+    background-color: green;
+  }
 
-#tilemap-editor .edit-tile button.green:hover {
-  background-color: green;
+  &.delete:hover {
+    background-color: red;
+  }
 }
